@@ -74,7 +74,7 @@ app.use(
 app.use(express.json());
 
 // Routes
-const authRoutes = require("./routes/authroutes");
+const authRoutes = require("./routes/authRoutes");
 const rideRoutes = require("./routes/rideRoutes");
 const userRoutes = require("./routes/userRoutes");
 
