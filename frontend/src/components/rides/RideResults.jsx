@@ -4,8 +4,10 @@ import { Container, Typography } from "@mui/material";
 import rideService from "../../services/rideService";
 import { toast } from "react-toastify";
 import RideList from "./RideList";
+import { useAuth } from "../../context/AuthContext";
 
 const RideResults = () => {
+   const user = useAuth()
   const location = useLocation();
   const searchParams = location.state || {};
   const [rides, setRides] = useState([]);
@@ -22,15 +24,15 @@ const RideResults = () => {
     };
 
     if (searchParams) fetchRides();
-  }, [searchParams]);
-
+  }, [JSON.stringify(searchParams)]); 
+ 
   return (
     <Container sx={{ mt: 15 }}>
       <Typography variant="h5" gutterBottom>
         Available Rides
       </Typography>
 
-      <RideList searchResults={rides} />
+      <RideList currentUser={user} searchResults={rides} />
     </Container>
   );
 };

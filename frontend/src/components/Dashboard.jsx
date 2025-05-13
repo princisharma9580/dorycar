@@ -34,10 +34,13 @@ import RideChat from "./rides/RideChat";
 import rideService from "../services/rideService";
 
 const Dashboard = ({ currentUser }) => {
+  console.log("current user", currentUser);
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
   const [userRides, setUserRides] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedRideForDetails, setSelectedRideForDetails] = useState(null);
+  const [selectedRideForChat, setSelectedRideForChat] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleBookRide = async (rideId) => {
@@ -69,7 +72,12 @@ const Dashboard = ({ currentUser }) => {
     }
   };
 
-  const handleChatClick = (rideId) => {
+  //   const handleChatClick = (ride) => {
+  //   setSelectedRide(ride);
+  //   setIsChatOpen(true);
+  // };
+  const handleChatClick = (ride) => {
+    setSelectedRideForChat(ride);
     setIsChatOpen(true);
   };
 
@@ -691,7 +699,8 @@ const Dashboard = ({ currentUser }) => {
                   <div className="flex flex-col md:flex-row gap-6">
                     {ride?.status === "pending" && !isCreator ? (
                       <button
-                        onClick={() => setSelectedRide(ride)}
+                        // onClick={() => setSelectedRide(ride)}
+                        onClick={() => setSelectedRideForDetails(ride)}
                         className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 w-[20%] text-white"
                       >
                         View Details
@@ -700,7 +709,8 @@ const Dashboard = ({ currentUser }) => {
                       ride?.status !== "cancelled" &&
                       ride?.status !== "pending" ? (
                       <button
-                        onClick={() => setSelectedRide(ride)}
+                        // onClick={() => setSelectedRide(ride)}
+                        onClick={() => setSelectedRideForDetails(ride)}
                         className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 w-[20%] text-white"
                       >
                         View Details
@@ -884,7 +894,7 @@ const Dashboard = ({ currentUser }) => {
                         </button>
                       )}
                     <button
-                      onClick={() => handleChatClick(ride._id)}
+                      onClick={() => handleChatClick(ride)}
                       className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 w-full mt-2"
                     >
                       <svg
@@ -911,7 +921,7 @@ const Dashboard = ({ currentUser }) => {
           {/* </div> */}
         </CardContent>
         <CardActions>
-          <RideDetailsModal
+          {/* <RideDetailsModal
             selectedRide={selectedRide}
             onClose={() => setSelectedRide(null)}
             onBook={() => {
@@ -925,16 +935,26 @@ const Dashboard = ({ currentUser }) => {
             onShare={() => handleShareRide(selectedRide)}
             closeChat={handleCloseChat}
             currentUser={currentUser}
-          />
+          /> */}
+          
         </CardActions>
-        <Dialog open={isChatOpen}>
+        {/* <Dialog open={isChatOpen}>
           <RideChat
             open={isChatOpen}
             closeChat={handleCloseChat}
             currentUser={currentUser}
             rideId={selectedRide?._id}
           />
-        </Dialog>
+        </Dialog> */}
+        {/* <Dialog open={isChatOpen && !!selectedRide}>
+  <RideChat
+    open={isChatOpen}
+    closeChat={handleCloseChat}
+    currentUser={currentUser}
+    rideId={selectedRide?._id}
+  />
+</Dialog> */}
+        
       </Card>
     );
   };
@@ -1077,6 +1097,37 @@ const Dashboard = ({ currentUser }) => {
           </Button>
         </DialogActions>
       </Dialog>
+      {selectedRideForDetails && (
+            <RideDetailsModal
+              selectedRide={selectedRideForDetails}
+              onClose={() => setSelectedRideForDetails(null)}
+              onBook={() => {
+                handleBookRide(selectedRideForDetails._id);
+                setSelectedRideForDetails(null);
+              }}
+              onChat={() => {
+                handleChatClick(selectedRideForDetails);
+                setSelectedRideForDetails(null);
+              }}
+              onMap={() =>
+                handleViewMap(
+                  selectedRideForDetails.origin,
+                  selectedRideForDetails.destination
+                )
+              }
+              onShare={() => handleShareRide(selectedRideForDetails)}
+              closeChat={handleCloseChat}
+              currentUser={currentUser}
+            />
+          )}
+          <Dialog open={isChatOpen} onClose={handleCloseChat}>
+          <RideChat
+            open={isChatOpen}
+            closeChat={handleCloseChat}
+            currentUser={currentUser}
+            rideId={selectedRideForChat?._id}
+          />
+        </Dialog>
     </Container>
   );
 };

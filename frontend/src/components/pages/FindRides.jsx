@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useEffect, useRef } from "react";
 import Footer from "../Footer";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import RideResults from "../rides/RideResults";
 
 function FindRides() {
   const navigate = useNavigate();
@@ -17,7 +19,36 @@ function FindRides() {
   const [cities, setCities] = useState([]);
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
+  const [departureTime, setDepartureTime] = useState([6, 18]);
+  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [instantBooking, setInstantBooking] = useState(false);
+  const [ladiesOnly, setLadiesOnly] = useState(false);
+  const [petFriendly, setPetFriendly] = useState(false);
+  const [smokingAllowed, setSmokingAllowed] = useState(false);
+  const [acVehicle, setAcVehicle] = useState(false);
+  const [driverRating, setDriverRating] = useState(4);
+  const [searchPerformed, setSearchPerformed] = useState(false);
 
+  const handleDepartureTimeChange = (e) => {
+    const newDepartureTime = e.target.value.split(",");
+    setDepartureTime([
+      parseInt(newDepartureTime[0]),
+      parseInt(newDepartureTime[1]),
+    ]);
+  };
+
+  const handlePriceRangeChange = (e) => {
+    const newPriceRange = e.target.value.split(",");
+    setPriceRange([parseInt(newPriceRange[0]), parseInt(newPriceRange[1])]);
+  };
+
+  const handleToggle = (setter) => {
+    setter((prevState) => !prevState);
+  };
+
+  const handleDriverRatingChange = (rating) => {
+    setDriverRating(rating);
+  };
   useEffect(() => {
     // Fetch all Indian states
     fetch("https://api.countrystatecity.in/v1/countries/IN/states", {
@@ -47,12 +78,6 @@ function FindRides() {
       setCities([]);
     }
   }, [selectedState]);
-
-  const handleStateChange = (e) => {
-    const stateCode = e.target.value;
-    setSelectedState(stateCode);
-    fetchCities(stateCode);
-  };
 
   useEffect(() => {
     if (sliderRef.current) {
@@ -244,6 +269,7 @@ function FindRides() {
 
               {/* Search Button */}
               <button
+                type="submit"
                 className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 h-10 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                 onClick={handleSearch}
               >
@@ -391,9 +417,24 @@ function FindRides() {
                             ></span>
                           </span>
                         </span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="24"
+                          step="1"
+                          value={departureTime[0]}
+                          onChange={(e) => handleDepartureTimeChange(e)}
+                          className="w-full"
+                        />
                         <div className="text-sm text-gray-600">
-                          Between <span className="font-medium">06:00</span> and{" "}
-                          <span className="font-medium">18:00</span>
+                          Between{" "}
+                          <span className="font-medium">
+                            {departureTime[0]}:00
+                          </span>{" "}
+                          and{" "}
+                          <span className="font-medium">
+                            {departureTime[1]}:00
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -405,6 +446,15 @@ function FindRides() {
                           <span>₹1000</span>
                           <span>₹2000</span>
                         </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="2000"
+                          step="100"
+                          value={priceRange[0]}
+                          onChange={(e) => handlePriceRangeChange(e)}
+                          className="w-full"
+                        />
                         <span
                           ref={sliderRef}
                           dir="ltr"
@@ -443,7 +493,8 @@ function FindRides() {
                           ></span>
                         </span>
                         <div className="text-sm text-gray-600">
-                          Up to <span className="font-medium">₹1000</span>
+                          Up to{" "}
+                          <span className="font-medium">₹{priceRange[0]}</span>
                         </div>
                       </div>
                     </div>
@@ -462,15 +513,26 @@ function FindRides() {
                           <button
                             type="button"
                             role="switch"
-                            aria-checked="false"
-                            data-state="unchecked"
+                            aria-checked={instantBooking ? "true" : "false"}
+                            data-state={
+                              instantBooking ? "checked" : "unchecked"
+                            }
                             value="on"
-                            className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
+                            className={`peer inline-flex h-6 w-11 shrink-0 cursor-pointer  items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
+                              instantBooking ? "bg-green-700" : "bg-slate-300"
+                            }`}
                             id="instant-booking"
+                            onClick={() => handleToggle(setInstantBooking)}
                           >
                             <span
-                              data-state="unchecked"
-                              className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+                              data-state={
+                                instantBooking ? "checked" : "unchecked"
+                              }
+                              className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+                                instantBooking
+                                  ? "translate-x-5"
+                                  : "translate-x-0"
+                              }`}
                             ></span>
                           </button>
                         </div>
@@ -487,12 +549,17 @@ function FindRides() {
                             aria-checked="false"
                             data-state="unchecked"
                             value="on"
-                            className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
+                            className={`peer inline-flex h-6 w-11 shrink-0 cursor-pointer  items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
+                              ladiesOnly ? "bg-green-700" : "bg-slate-300"
+                            }`}
+                            onClick={() => handleToggle(setLadiesOnly)}
                             id="ladies-only"
                           >
                             <span
-                              data-state="unchecked"
-                              className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+                              data-state={ladiesOnly ? "checked" : "unchecked"}
+                              className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+                                ladiesOnly ? "translate-x-5" : "translate-x-0"
+                              }`}
                             ></span>
                           </button>
                         </div>
@@ -509,12 +576,17 @@ function FindRides() {
                             aria-checked="false"
                             data-state="unchecked"
                             value="on"
-                            className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
+                            className={`peer inline-flex h-6 w-11 shrink-0 cursor-pointer  items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
+                              petFriendly ? "bg-green-700" : "bg-slate-300"
+                            }`}
+                            onClick={() => handleToggle(setPetFriendly)}
                             id="pet-friendly"
                           >
                             <span
-                              data-state="unchecked"
-                              className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+                              data-state={petFriendly ? "checked" : "unchecked"}
+                              className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+                                petFriendly ? "translate-x-5" : "translate-x-0"
+                              }`}
                             ></span>
                           </button>
                         </div>
@@ -531,12 +603,21 @@ function FindRides() {
                             aria-checked="false"
                             data-state="unchecked"
                             value="on"
-                            className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
+                            className={`peer inline-flex h-6 w-11 shrink-0 cursor-pointer  items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
+                              smokingAllowed ? "bg-green-700" : "bg-slate-300"
+                            }`}
+                            onClick={() => handleToggle(setSmokingAllowed)}
                             id="smoking-allowed"
                           >
                             <span
-                              data-state="unchecked"
-                              className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+                              data-state={
+                                smokingAllowed ? "checked" : "unchecked"
+                              }
+                              className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+                                smokingAllowed
+                                  ? "translate-x-5"
+                                  : "translate-x-0"
+                              }`}
                             ></span>
                           </button>
                         </div>
@@ -553,12 +634,17 @@ function FindRides() {
                             aria-checked="false"
                             data-state="unchecked"
                             value="on"
-                            className="peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
+                            className={`peer inline-flex h-6 w-11 shrink-0 cursor-pointer  items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 ${
+                              acVehicle ? "bg-green-700" : "bg-slate-300"
+                            }`}
+                            onClick={() => handleToggle(setAcVehicle)}
                             id="ac-vehicle"
                           >
                             <span
-                              data-state="unchecked"
-                              className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0"
+                              data-state={acVehicle ? "checked" : "unchecked"}
+                              className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${
+                                acVehicle ? "translate-x-5" : "translate-x-0"
+                              }`}
                             ></span>
                           </button>
                         </div>
@@ -569,79 +655,34 @@ function FindRides() {
                         Minimum Driver Rating
                       </h3>
                       <div className="flex items-center space-x-1">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-star h-5 w-5 text-yellow-500 fill-yellow-500 cursor-pointer"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-star h-5 w-5 text-yellow-500 fill-yellow-500 cursor-pointer"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-star h-5 w-5 text-yellow-500 fill-yellow-500 cursor-pointer"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-star h-5 w-5 text-yellow-500 fill-yellow-500 cursor-pointer"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="lucide lucide-star h-5 w-5 text-gray-300 cursor-pointer"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                          <svg
+                            key={rating}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={`lucide lucide-star h-5 w-5 ${
+                              rating <= driverRating
+                                ? "text-yellow-500"
+                                : "text-gray-300"
+                            } cursor-pointer`}
+                            onClick={() => handleDriverRatingChange(rating)}
+                          >
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                          </svg>
+                        ))}
                       </div>
                     </div>
-                    <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 w-full bg-emerald-600 hover:bg-emerald-700">
+                    <button
+                      type="submit"
+                     onClick={handleSearch}
+                     className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white">
                       Apply Filters
                     </button>
                   </div>
@@ -650,7 +691,7 @@ function FindRides() {
             </div>
             <div className="lg:col-span-3">
               <div dir="ltr" data-orientation="horizontal">
-                <div className="flex justify-between items-center mb-6">
+                {/* <div className="flex justify-between items-center mb-6">
                   <div
                     role="tablist"
                     aria-orientation="horizontal"
@@ -717,7 +758,7 @@ function FindRides() {
                     </button>
                   </div>
                   <p className="text-sm text-gray-600">12 rides found</p>
-                </div>
+                </div> */}
                 <div
                   data-state="active"
                   data-orientation="horizontal"
@@ -728,7 +769,7 @@ function FindRides() {
                   className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 space-y-6"
                   style={{ animationDuration: "0s" }}
                 >
-                  <div
+                  {/* <div
                     className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden hover:shadow-md transition-shadow"
                     data-v0-t="card"
                   >
@@ -1162,7 +1203,8 @@ function FindRides() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
+                  <RideResults />
                 </div>
                 <div
                   data-state="inactive"

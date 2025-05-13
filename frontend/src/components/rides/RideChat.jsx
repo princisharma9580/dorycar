@@ -8,6 +8,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import { format } from "date-fns";
+import { toast } from "react-toastify";
+// import PropTypes from 'prop-types';
 
 const RideChat = ({open, closeChat, currentUser, rideId }) => {
   const [messages, setMessages] = useState([]);
@@ -27,6 +29,13 @@ const RideChat = ({open, closeChat, currentUser, rideId }) => {
   };
 
   useEffect(() => {
+  if (Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+}, []);
+
+
+  useEffect(() => {
     if (!rideId) return;
 
     const fetchMessages = async () => {
@@ -43,6 +52,10 @@ const RideChat = ({open, closeChat, currentUser, rideId }) => {
         setMessages(enriched);
       } catch (error) {
         console.error("Error fetching messages:", error);
+        const message =
+    error?.response?.data?.message || error?.message || "Failed to fetch messages";
+
+  toast.error(message);
       }
     };
 
@@ -59,36 +72,67 @@ const RideChat = ({open, closeChat, currentUser, rideId }) => {
   
     chatSocket.connect(currentUser.token);
     chatSocket.joinRideChat(rideId, currentUser?.user?._id);
-  
-    const handleMessage = (data) => {
-      if (!data || !data.sender || !data.content) {
-        console.log("Invalid message data", data);
-        return;
+       
+const handleMessage = (data) => {
+  if (!data || !data.sender || !data.content) {
+    console.log("Invalid message data", data);
+    return;
+  }
+
+  const senderId = data.sender._id || data.sender;
+  const isCurrentUser = senderId === currentUser?.user?._id;
+
+  const newMessage = {
+    sender: senderId,
+    content: data.content,
+    createdAt: data.createdAt || data.timestamp || new Date().toISOString(),
+    senderName: isCurrentUser
+      ? currentUser?.user?.name
+      : data.sender.name || data.senderName || "User",
+  };
+
+  setMessages((prev) => [...prev, newMessage]);
+
+  const isAtBottom =
+    chatBoxRef.current &&
+    chatBoxRef.current.scrollTop + chatBoxRef.current.clientHeight >=
+      chatBoxRef.current.scrollHeight - 10;
+
+  // Play notification sound
+  if (!isCurrentUser && !isMuted) {
+    notificationSound.play(); // ✅ Play sound when a new message is received
+  }
+
+  // Show toast notification
+  if (!isCurrentUser) {
+    toast.info(`📨 ${newMessage.senderName}: "${newMessage.content}"`);
+  }
+
+  // Browser Notification (show only if the page is not focused)
+  if (!document.hidden) return; // Skip if the page is in focus
+
+  if (Notification.permission === "granted") {
+    new Notification("New Message", {
+      body: `${newMessage.senderName}: "${newMessage.content}"`,
+      icon: "/path/to/icon.png", // Add your app icon here
+    });
+  } else if (Notification.permission !== "denied") {
+    // Request permission if not already denied
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        new Notification("New Message", {
+          body: `${newMessage.senderName}: "${newMessage.content}"`,
+          icon: "/path/to/icon.png",
+        });
       }
-    
-      const newMessage = {
-        sender: data.sender._id || data.sender,
-        content: data.content,
-        createdAt: data.createdAt || data.timestamp || new Date().toISOString(),
-        senderName:
-          (data.sender._id || data.sender) === currentUser?.user?._id
-            ? currentUser?.user?.name
-            : data.sender.name || data.senderName || "User",
-      };
-    
-      setMessages((prev) => [...prev, newMessage]);
-    
-      const isAtBottom =
-        chatBoxRef.current &&
-        chatBoxRef.current.scrollTop + chatBoxRef.current.clientHeight >=
-          chatBoxRef.current.scrollHeight - 10;
-    
-      if (!isMuted) notificationSound.play();
-      if (!isAtBottom) setUnreadCount((prev) => prev + 1);
-    
-      scrollToBottom();
-    };
-    
+    });
+  }
+
+  // Update unread message count
+  if (!isAtBottom) setUnreadCount((prev) => prev + 1);
+
+  scrollToBottom();
+};
     const handleTyping = ({ name }) => {
       if (name !== currentUser?.user?.name) {
         setTypingStatus(`Typing...`);
@@ -112,40 +156,37 @@ const RideChat = ({open, closeChat, currentUser, rideId }) => {
     chatSocket.sendTyping(rideId, currentUser?.user?._id);
   };
 
-  const handleSend = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();  // Safer
-    console.log('Sending Message...');
-    if (!input.trim()) return;
+const handleSend = async (e) => {
+  if (e?.preventDefault) e.preventDefault();
+  if (!input.trim()) return;
 
-    const newMessage = {
-      sender: currentUser?.user?._id,
-      rideId,
-      content: input.trim(),
-    };
+  const newMessage = {
+    sender: currentUser?.user?._id,
+    rideId,
+    content: input.trim(),
+  };
 
-    try {
-      const sent = await rideService.sendMessage(rideId, newMessage);
-      const enrichedSent = {
+  try {
+    const sent = await rideService.sendMessage(rideId, newMessage);
+    if (chatSocket?.sendMessage) {
+      chatSocket.sendMessage(rideId, {
         ...sent,
         senderName: currentUser?.user?.name,
         createdAt: sent.createdAt || new Date().toISOString(),
-      };
-
-      setMessages((prev) => [...prev, enrichedSent]);
-      if (chatSocket?.sendMessage) {
-        chatSocket.sendMessage(rideId, enrichedSent);
-        console.log("Message sent over chatSocket:", enrichedSent);
-      } else {
-        console.warn(
-          "chatSocket is not connected or sendMessage is undefined."
-        );
-      }
-      setInput("");
-      scrollToBottom();
-    } catch (err) {
-      console.error("Error sending message:", err);
+      });
     }
-  };
+
+    setInput("");
+    scrollToBottom();
+  } catch (error) {
+    console.error("Error sending message:", error);
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to send message";
+    toast.error(message);
+  }
+};
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {

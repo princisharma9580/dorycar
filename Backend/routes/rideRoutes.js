@@ -393,6 +393,68 @@ router.put("/:rideId/start", auth, async (req, res) => {
   }
 });
 
+// router.post("/:rideId/chat", auth, async (req, res) => {
+//   try {
+//     const ride = await Ride.findById(req.params.rideId);
+//     if (!ride) return res.status(404).json({ message: "Ride not found" });
+
+//     const isCreator = ride.creator.toString() === req.userId;
+//     const isAcceptor = ride.acceptor?.toString() === req.userId;
+//     const isInterested = ride.interestedUsers.some(
+//       (u) => u.user.toString() === req.userId
+//     );
+
+//     if (!isCreator && !isAcceptor && !isInterested) {
+//       return res.status(403).json({
+//         message:
+//           "Only the ride creator, accepted rider, and interested users can chat",
+//       });
+//     }
+
+//     if (ride.status === "cancelled") {
+//       return res
+//         .status(403)
+//         .json({ message: "Chat is disabled for cancelled rides" });
+//     }
+
+//     const content =
+//       typeof req.body.content === "string" ? req.body.content.trim() : "";
+//     if (!content)
+//       return res.status(400).json({ message: "Message content is required" });
+
+//     const newMessage = {
+//       sender: req.userId,
+//       content,
+//       timestamp: new Date(),
+//       readBy: [{ user: req.userId }],
+//     };
+
+//     ride.messages.push(newMessage);
+//     await ride.save();
+
+//     const populatedRide = await Ride.findById(ride._id)
+//       .populate("messages.sender", "name profileImage")
+//       .populate("messages.readBy.user", "name");
+
+//     const latestMessage =
+//       populatedRide.messages[populatedRide.messages.length - 1];
+//     console.log("emitting events");
+//     req.app.get("io").emit("ride-updated", populatedRide);
+    
+//     req.app.get("io").to(`ride_${ride._id}`).emit("new_message", {
+//       rideId: ride._id,
+//       message: latestMessage,
+//     });
+
+//     res.json(latestMessage);
+//   } catch (error) {
+//     console.error("Error sending message:", error);
+//     res
+//       .status(500)
+//       .json({ message: "Error sending message", error: error.message });
+//   }
+// });
+
 router.post("/:rideId/chat", auth, async (req, res) => {
   try {
     const ride = await Ride.findById(req.params.rideId);
@@ -438,12 +500,30 @@ router.post("/:rideId/chat", auth, async (req, res) => {
 
     const latestMessage =
       populatedRide.messages[populatedRide.messages.length - 1];
-    console.log("emitting events");
-    req.app.get("io").emit("ride-updated", populatedRide);
-    
-    req.app.get("io").to(`ride_${ride._id}`).emit("new_message", {
+
+    const io = req.app.get("io");
+
+    // Emit for ride chatroom
+    io.to(`ride_${ride._id}`).emit("new_message", {
       rideId: ride._id,
       message: latestMessage,
+    });
+
+    // Notify all other participants except sender
+    const allUserIds = new Set([
+      ride.creator.toString(),
+      ride.acceptor?.toString(),
+      ...ride.interestedUsers.map((u) => u.user.toString()),
+    ]);
+    allUserIds.delete(req.userId); // remove sender
+
+    allUserIds.forEach((userId) => {
+      io.to(`user_${userId}`).emit("new-message", {
+        senderId: req.userId,
+        senderName: latestMessage.sender.name || "User",
+        content: content,
+        rideId: ride._id,
+      });
     });
 
     res.json(latestMessage);
