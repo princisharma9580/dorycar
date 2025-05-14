@@ -696,12 +696,12 @@ const Dashboard = ({ currentUser }) => {
                         ))}
                       </Box>
                     )}
-                  <div className="flex flex-col md:flex-row gap-6">
+                  <div className="flex flex-col sm:flex-row md:flex-row gap-6">
                     {ride?.status === "pending" && !isCreator ? (
                       <button
                         // onClick={() => setSelectedRide(ride)}
                         onClick={() => setSelectedRideForDetails(ride)}
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 w-[20%] text-white"
+                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-cyan-600 hover:bg-cyan-700 text-white"
                       >
                         View Details
                       </button>
@@ -711,7 +711,7 @@ const Dashboard = ({ currentUser }) => {
                       <button
                         // onClick={() => setSelectedRide(ride)}
                         onClick={() => setSelectedRideForDetails(ride)}
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-cyan-600 hover:bg-cyan-700 w-[20%] text-white"
+                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-cyan-600 hover:bg-cyan-700  text-white"
                       >
                         View Details
                       </button>
@@ -725,7 +725,7 @@ const Dashboard = ({ currentUser }) => {
                       ride.status !== "cancelled" && (
                         <button
                           onClick={() => handleStatusChange(ride._id, "start")}
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-green-600 hover:bg-green-700 w-[20%] text-white"
+                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-green-600 hover:bg-green-700 text-white"
                         >
                           Start Ride
                         </button>
@@ -734,7 +734,7 @@ const Dashboard = ({ currentUser }) => {
                     {isCreator && ride.status === "started" && (
                       <button
                         onClick={() => handleStatusChange(ride._id, "complete")}
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-teal-500 hover:bg-teal-600 w-[20%] text-white"
+                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-teal-500 hover:bg-teal-600 text-white"
                       >
                         Complete Ride
                       </button>
@@ -748,7 +748,7 @@ const Dashboard = ({ currentUser }) => {
                             "_blank"
                           )
                         }
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 w-[20%] text-white"
+                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-emerald-600 hover:bg-emerald-700 text-white"
                       >
                         View Live Map
                       </button>
@@ -762,7 +762,7 @@ const Dashboard = ({ currentUser }) => {
                           onClick={() =>
                             openCancellationDialog(ride._id, "cancel")
                           }
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-red-600 hover:bg-red-700 w-[20%] text-white"
+                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-red-600 hover:bg-red-700 text-white"
                         >
                           Cancel Ride
                         </button>
@@ -771,7 +771,7 @@ const Dashboard = ({ currentUser }) => {
                     {isEligibleToReview && ride.status === "completed" && (
                       <button
                         onClick={() => openReviewDialog(ride._id)}
-                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 w-[20%] text-white"
+                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-emerald-600 hover:bg-emerald-700 text-white"
                       >
                         {alreadyReviewed ? "Update Review" : "Review"}
                       </button>
@@ -888,7 +888,7 @@ const Dashboard = ({ currentUser }) => {
                       ride?.status !== "pending" && (
                         <button
                           onClick={() => handleBookRide(ride._id)}
-                          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-emerald-600 hover:bg-emerald-700 text-white"
                         >
                           Book
                         </button>

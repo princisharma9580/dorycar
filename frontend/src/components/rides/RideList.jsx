@@ -214,7 +214,7 @@ const handleChatClick = (ride) => {
                               </div>
                               <button
                                 onClick={() => setSelectedRide(ride)}
-                                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 w-[20%] text-white"
+                                className=" items-center rounded-md text-sm font-medium  px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white"
                               >
                                 View Details
                               </button>
@@ -261,7 +261,7 @@ const handleChatClick = (ride) => {
                                 </p>
                                 <button
                                   onClick={() => handleBookRide(ride._id)}
-                                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground h-10 px-4 py-2 w-full bg-emerald-600 hover:bg-emerald-700 text-white"
+                                  className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-emerald-600 hover:bg-emerald-700 text-white"
                                 >
                                   Book
                                 </button>

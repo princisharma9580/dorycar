@@ -4,7 +4,8 @@ const User = require('../models/User');
 
 const socketAuth = async (socket, next) => {
   try {
-    const token = socket.handshake.auth.token;
+    console.log("handshake auth", socket.handshake.auth)
+    const token = socket.handshake.auth?.token;
     console.log("socket handle", token)
     if (!token) return next(new Error('Authentication token missing'));
 

@@ -13,6 +13,7 @@ const app = express();
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
 
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -21,6 +22,16 @@ const io = new Server(server, {
   },
   
 });
+
+// const io = new Server(server, {
+//   cors: {
+//     origin: allowedOrigins,
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//   },
+//   transports: ['websocket', 'polling'], // Ensure polling is enabled
+// });
 
 // Set the socket.io instance in the app for easy access
 app.set("io", io);

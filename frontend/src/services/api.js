@@ -32,13 +32,12 @@ api.interceptors.request.use((config) => {
 //   }
 // );
 // api.js
+
 api.interceptors.response.use(
   (res) => res,
   (err) => {
     const originalRequest = err.config;
     const status = err.response?.status;
-
-    // Only redirect if the request requires auth (e.g., user endpoints, booking)
     const shouldRedirect =
       status === 401 &&
       originalRequest?.url &&
@@ -54,9 +53,9 @@ api.interceptors.response.use(
   }
 );
 
-api.get('/users')
-  .then(data => console.log(data))
-  .catch(err => console.log('Error fetching users:', err));
+// api.get('/users')
+//   .then(data => console.log(data))
+//   .catch(err => console.log('Error fetching users:', err));
 
 // Socket instance
 export const socket = io(import.meta.env.VITE_SOCKET_URL, {

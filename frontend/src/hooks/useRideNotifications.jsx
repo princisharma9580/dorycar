@@ -1,4 +1,4 @@
-// hooks/useRideNotifications.js
+
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';

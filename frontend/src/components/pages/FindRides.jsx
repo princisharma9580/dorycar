@@ -117,7 +117,7 @@ function FindRides() {
   return (
     <>
       <div className="flex-grow mt-16">
-        <div className="container mx-auto px-24 py-8">
+        <div className="container mx-auto px-4 md:px-16 xl:px-24 py-8">
           <div className="bg-white rounded-xl shadow-md p-6 mb-8">
             <p className="text-gray-600 mb-6">
               {" "}
