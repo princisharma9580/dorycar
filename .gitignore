@@ -2,6 +2,7 @@
 .env
 frontend/.env
 Backend/.env
+frontend/dist/
 
 # Ignore dependencies
 frontend/node_modules
