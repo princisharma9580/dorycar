@@ -2,7 +2,8 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-export const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+console.log(import.meta.env.VITE_API_BASE_URL);
 
 // Axios instance
 const api = axios.create({
@@ -53,9 +54,12 @@ api.interceptors.response.use(
   }
 );
 
+api.get('/users')
+  .then(data => console.log(data))
+  .catch(err => console.log('Error fetching users:', err));
 
 // Socket instance
-export const socket = io("http://localhost:5000", {
+export const socket = io(import.meta.env.VITE_SOCKET_URL, {
   path: "/socket.io",
   autoConnect: false,
 });
