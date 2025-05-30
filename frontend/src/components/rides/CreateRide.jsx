@@ -783,6 +783,7 @@ const validateFields = () => {
                             value={formData.price}
                             onChange={handleChange}
                             ref={priceRef}
+                            onWheel={(e) => e.target.blur()}
                           />
                             {fieldErrors.price && (
     <p className="text-red-500 text-sm mt-1">{fieldErrors.price}</p>

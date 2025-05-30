@@ -1696,7 +1696,7 @@ const LandingPage = () => {
       </div>
       {/* how it works */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto md:px-16 xl:px-32">
           <div
             className="text-center mb-16"
             style={{
@@ -2061,7 +2061,7 @@ const LandingPage = () => {
 
       {/* why choose dorycar */}
       <section className="py-20 bg-gradient-to-b from-white to-emerald-50">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-16 xl:px-32">
           <div
             className="text-center mb-16"
             style={{
@@ -2599,7 +2599,7 @@ const LandingPage = () => {
       </section>
       {/* making a difference */}
       <section className="py-20 bg-emerald-900 text-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-16 xl:px-32">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div
               style={{
@@ -2767,7 +2767,7 @@ const LandingPage = () => {
       </section>
       {/* popular routes */}
       <section className="py-20 bg-gradient-to-b from-emerald-50 to-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-16 xl:px-32">
           <div
             className="text-center mb-16"
             style={{
@@ -3153,7 +3153,7 @@ const LandingPage = () => {
       </section>
       {/* what our community says */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 md:px-16 xl:px-32">
           <div
             className="text-center mb-16"
             style={{
@@ -3673,7 +3673,7 @@ const LandingPage = () => {
       </section> */}
       {/* start your journey */}
       <section className="py-20 bg-emerald-900 text-white">
-        <div className="container mx-auto px-4 text-center">
+        <div className="container mx-auto px-4 text-center md:px-16 xl:px-32">
           <div
             style={{
               opacity: 1,

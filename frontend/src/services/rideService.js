@@ -18,6 +18,11 @@ const rideService = {
     return res.data;
   },
 
+  // updateProfile: async (data) => {
+  //   const res = await api.patch('/users/profile', data);
+  //   return res.data;
+  // }
+
   createRide: async (rideData) => {
     const res = await api.post('/rides/create', rideData);
     return res.data;
