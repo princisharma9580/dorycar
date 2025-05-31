@@ -38,6 +38,9 @@ const RideDetailsModal = ({
   console.log("Full Creator Object:", selectedRide.creator);
 
   console.log("Creator Address:", selectedRide.creator?.address);
+  
+          console.log("Id Proof:" , selectedRide.creator?.idProof)
+
 
   const renderCreatorInfo = () => (
     <>
@@ -182,10 +185,10 @@ const RideDetailsModal = ({
         </li>
       </ul>
 
-      <Divider sx={{ my: 2 }} />
+      {/* <Divider sx={{ my: 2 }} /> */}
 
       {/* Verifications */}
-      <Typography variant="subtitle2">Verifications:</Typography>
+      {/* <Typography variant="subtitle2">Verifications:</Typography>
       <ul>
         <li>
           <strong>ID:</strong>{" "}
@@ -205,7 +208,7 @@ const RideDetailsModal = ({
             ? "Available"
             : "Not Provided"}
         </li>
-      </ul>
+      </ul> */}
     </>
   );
 

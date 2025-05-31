@@ -19,6 +19,8 @@ import HowItWorks from "./components/pages/HowItWorks";
 import FindRides from "./components/pages/FindRides";
 import Community from "./components/pages/Community";
 import PopularRoutes from "./components/pages/PopularRoutes";
+import AdminRoutes from "./admin/adminRoutes";
+
 
 function App() {
   useRideNotifications();
@@ -29,8 +31,11 @@ function App() {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <CssBaseline />
           <div className="App">
-            <Navbar />
+            {/* <Navbar /> */}
+             {!window.location.pathname.startsWith("/admin") && <Navbar />}
+             <AdminRoutes /> 
             <Routes>
+            
               <Route index element={<LandingPage />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
