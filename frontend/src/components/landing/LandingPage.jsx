@@ -3152,7 +3152,7 @@ const LandingPage = () => {
         </div>
       </section>
       {/* what our community says */}
-      <section className="py-20 bg-white">
+      {/* <section className="py-20 bg-white">
         <div className="container mx-auto px-4 md:px-16 xl:px-32">
           <div
             className="text-center mb-16"
@@ -3486,7 +3486,7 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
       {/* mobile app
       <section className="py-20 bg-white overflow-hidden">
         <div className="container mx-auto px-4">

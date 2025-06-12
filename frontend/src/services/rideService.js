@@ -1,10 +1,8 @@
-
-import api from './api';
+import api from "./api";
 
 const rideService = {
-
   userProfile: async () => {
-    const res = await api.get('/users/me');
+    const res = await api.get("/users/me");
     return res.data;
   },
 
@@ -24,7 +22,7 @@ const rideService = {
   // }
 
   createRide: async (rideData) => {
-    const res = await api.post('/rides/create', rideData);
+    const res = await api.post("/rides/create", rideData);
     return res.data;
   },
 
@@ -32,17 +30,20 @@ const rideService = {
     const params = new URLSearchParams();
     if (origin) params.append("origin", origin);
     if (destination) params.append("destination", destination);
-    if (date instanceof Date && !isNaN(date)) {
-      params.append("date", date.toISOString());
+    if (date) {
+      const parsedDate = new Date(date);
+      if (!isNaN(parsedDate)) {
+        params.append("date", parsedDate.toISOString());
+      }
     }
     const res = await api.get(`/rides/search?${params.toString()}`);
     return res.data;
   },
 
   getRides: async () => {
-    const res = await api.get('/rides');
+    const res = await api.get("/rides");
     return res.data;
-  }, 
+  },
 
   expressInterest: async (rideId) => {
     const res = await api.post(`/rides/${rideId}/interest`);
@@ -60,7 +61,9 @@ const rideService = {
   },
 
   cancelRide: async (rideId, reason) => {
-    const res = await api.put(`/rides/${rideId}/cancel`, { cancellationReason: reason });
+    const res = await api.put(`/rides/${rideId}/cancel`, {
+      cancellationReason: reason,
+    });
     return res.data;
   },
 
@@ -71,7 +74,9 @@ const rideService = {
 
   submitReview: async ({ rideId, toUserId, rating, comment }) => {
     const res = await api.post(`/rides/${rideId}/review`, {
-      toUserId, rating, comment
+      toUserId,
+      rating,
+      comment,
     });
     return res.data;
   },
@@ -83,10 +88,10 @@ const rideService = {
 
   sendMessage: async (rideId, messageData) => {
     const res = await api.post(`/rides/${rideId}/chat`, {
-      content: messageData.content
+      content: messageData.content,
     });
-    
+
     return res.data;
   },
 };
-export default rideService 
+export default rideService;

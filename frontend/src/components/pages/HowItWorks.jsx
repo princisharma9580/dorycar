@@ -23,7 +23,9 @@ function HowItWorks() {
                     1
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-4">Search or Publish a Ride</h3>
+                <h3 className="text-xl font-bold mb-4">
+                  Search or Publish a Ride
+                </h3>
                 <p className="text-gray-600 mb-6">
                   Looking for a ride? Search available journeys by entering your
                   departure, destination, and travel date. Want to offer a ride?
@@ -94,7 +96,9 @@ function HowItWorks() {
                     2
                   </div>
                 </div>
-                <h3 className="text-xl font-bold mb-4">Connect &amp; Confirm</h3>
+                <h3 className="text-xl font-bold mb-4">
+                  Connect &amp; Confirm
+                </h3>
                 <p className="text-gray-600 mb-6">
                   Found a match? Connect with your travel companion through our
                   secure messaging system. Discuss details, confirm your
@@ -231,7 +235,9 @@ function HowItWorks() {
             </div>
           </div>
           <div className="mb-20">
-            <h2 className="text-3xl font-bold text-center mb-12">Key Features</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">
+              Key Features
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div
                 className="rounded-lg border bg-card text-card-foreground shadow-sm border-gray-100"
@@ -257,7 +263,9 @@ function HowItWorks() {
                       <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Verified Profiles</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Verified Profiles
+                  </h3>
                   <p className="text-gray-600">
                     Travel with confidence knowing all users are verified
                     through phone, email, and ID verification.
@@ -286,7 +294,9 @@ function HowItWorks() {
                       <circle cx="12" cy="10" r="3"></circle>
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Flexible Pickup</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Flexible Pickup
+                  </h3>
                   <p className="text-gray-600">
                     Choose convenient pickup and drop-off points along your
                     route for maximum convenience.
@@ -346,7 +356,9 @@ function HowItWorks() {
                       <line x1="2" x2="22" y1="10" y2="10"></line>
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">Secure Payments</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    Secure Payments
+                  </h3>
                   <p className="text-gray-600">
                     Pay securely through our platform with multiple Indian
                     payment options including UPI.
@@ -467,7 +479,9 @@ function HowItWorks() {
                       </svg>
                     </div>
                     <div>
-                      <h3 className="font-semibold mb-2">Secure Transactions</h3>
+                      <h3 className="font-semibold mb-2">
+                        Secure Transactions
+                      </h3>
                       <p className="text-gray-600">
                         All payments are processed securely through our platform
                         with multiple Indian payment options.

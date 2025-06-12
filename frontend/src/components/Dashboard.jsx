@@ -23,7 +23,11 @@ import {
   Chip,
   Avatar,
   Modal,
+  Fade,
+  Tooltip,
+  Stack,
 } from "@mui/material";
+import { Skeleton, Pagination } from "@mui/material";
 
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
@@ -32,6 +36,7 @@ import socket from "../services/socket";
 import RideDetailsModal from "./rides/RideDetailsModal";
 import RideChat from "./rides/RideChat";
 import rideService from "../services/rideService";
+import StarIcon from "@mui/icons-material/Star";
 
 const Dashboard = ({ currentUser }) => {
   console.log("current user", currentUser);
@@ -42,6 +47,21 @@ const Dashboard = ({ currentUser }) => {
   const [selectedRideForDetails, setSelectedRideForDetails] = useState(null);
   const [selectedRideForChat, setSelectedRideForChat] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [unreadCounts, setUnreadCounts] = useState({});
+
+  const ridesPerPage = 5;
+
+  const paginatedRides = userRides.slice(
+    (page - 1) * ridesPerPage,
+    page * ridesPerPage
+  );
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+    // Optionally scroll to top or ride list
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const handleBookRide = async (rideId) => {
     try {
@@ -65,20 +85,24 @@ const Dashboard = ({ currentUser }) => {
         toast.error(missingFields);
       }
 
-      // Optionally redirect if backend sends a path
       if (redirectPath) {
         setTimeout(() => navigate(redirectPath), 2000);
       }
     }
   };
 
-  //   const handleChatClick = (ride) => {
-  //   setSelectedRide(ride);
+  // const handleChatClick = (ride) => {
+  //   setSelectedRideForChat(ride);
   //   setIsChatOpen(true);
   // };
-  const handleChatClick = (ride) => {
-    setSelectedRideForChat(ride);
+
+  const handleChatClick = (rideId) => {
     setIsChatOpen(true);
+    setSelectedRideForChat(rideId);
+    setUnreadCounts((prev) => ({
+      ...prev,
+      [rideId]: 0,
+    }));
   };
 
   const handleCloseChat = () => {
@@ -135,7 +159,35 @@ const Dashboard = ({ currentUser }) => {
 
   useEffect(() => {
     fetchUserRides();
+    // const handleRideUpdated = (updatedRide) => {
+    //   const isUserInvolved =
+    //     updatedRide.creator?._id === user._id ||
+    //     updatedRide.creator === user._id ||
+    //     updatedRide.acceptor?._id === user._id ||
+    //     updatedRide.acceptor === user._id ||
+    //     updatedRide.interestedUsers.some(
+    //       (i) => i.user?._id === user._id || i.user === user._id
+    //     );
+
+    //   if (!isUserInvolved) return;
+
+    //   setUserRides((prevRides) => {
+    //     const idx = prevRides.findIndex((r) => r._id === updatedRide._id);
+    //     if (idx !== -1) {
+    //       const updated = [...prevRides];
+    //       updated[idx] = updatedRide;
+    //       return updated;
+    //     } else {
+    //       return [updatedRide, ...prevRides];
+    //     }
+    //   });
+    //   setHighlightedRideId(updatedRide._id);
+    //   setTimeout(() => setHighlightedRideId(null), 3000);
+    // };
+
     const handleRideUpdated = (updatedRide) => {
+      console.log("Socket ride-updated event:", updatedRide);
+
       const isUserInvolved =
         updatedRide.creator?._id === user._id ||
         updatedRide.creator === user._id ||
@@ -157,6 +209,7 @@ const Dashboard = ({ currentUser }) => {
           return [updatedRide, ...prevRides];
         }
       });
+
       setHighlightedRideId(updatedRide._id);
       setTimeout(() => setHighlightedRideId(null), 3000);
     };
@@ -165,6 +218,22 @@ const Dashboard = ({ currentUser }) => {
 
     return () => socket.off("ride-updated", handleRideUpdated);
   }, [user]);
+
+  useEffect(() => {
+    const handleNewMessage = ({ rideId: msgRideId }) => {
+      if (!isChatOpen || selectedRideForChat !== msgRideId) {
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [msgRideId]: (prev[msgRideId] || 0) + 1,
+        }));
+      }
+    };
+
+    socket.on("new-message", handleNewMessage);
+    return () => {
+      socket.off("new-message", handleNewMessage);
+    };
+  }, [isChatOpen, selectedRideForChat]);
 
   const fetchUserRides = async () => {
     try {
@@ -242,21 +311,68 @@ const Dashboard = ({ currentUser }) => {
   const handleStatusChange = async (rideId, action, userId) => {
     try {
       switch (action) {
-        case "accept":
-          try {
-            await rideService.acceptInterest(rideId, userId);
-            toast.success("Ride accepted successfully");
-          } catch (error) {
-            console.error("Accept ride failed:", error);
-            toast.error("Failed to accept user");
-          }
-          break;
+        // case "accept":
+        //   try {
+        //     await rideService.acceptInterest(rideId, userId);
+        //     toast.success("Ride accepted successfully");
+        //   } catch (error) {
+        //     console.error("Accept ride failed:", error);
+        //     toast.error("Failed to accept user");
+        //   }
+        //   break;
+         case "accept":
+        try {
+          const updatedRide = await rideService.acceptInterest(rideId, userId);
+          toast.success("Ride accepted successfully");
 
+          // Update userRides with the updated ride from backend
+          setUserRides((prevRides) =>
+            prevRides.map((ride) =>
+              ride._id === rideId ? updatedRide : ride
+            )
+          );
+        } catch (error) {
+          console.error("Accept ride failed:", error);
+          toast.error("Failed to accept user");
+        }
+        break;
+        // case "cancel":
+        //   const reason = prompt("Please provide a reason for cancellation:");
+        //   await rideService.cancelRide(rideId, reason);
+
+        //   break;
         case "cancel":
-          const reason = prompt("Please provide a reason for cancellation:");
-          await rideService.cancelRide(rideId, reason);
+  try {
+    const reason = prompt("Please provide a reason for cancellation:");
+    const updatedRide = await rideService.cancelRide(rideId, reason);
 
-          break;
+    toast.success("Ride cancelled successfully");
+
+    // Update seats count locally if the current user was accepted before cancellation
+    setUserRides((prevRides) =>
+      prevRides.map((ride) => {
+        if (ride._id === rideId) {
+          // Find current user status before cancellation
+          const userInterest = ride.interestedUsers.find(
+            (i) =>
+              i.user?._id === user._id || i.user === user._id
+          );
+          const wasAccepted = userInterest?.status === "accepted" || userInterest?.status === "started";
+
+          return {
+            ...updatedRide,
+            seats: wasAccepted ? ride.seats + 1 : ride.seats,
+          };
+        }
+        return ride;
+      })
+    );
+  } catch (error) {
+    console.error("Cancel ride failed:", error);
+    toast.error("Failed to cancel ride");
+  }
+  break;
+
 
         case "complete":
           try {
@@ -362,36 +478,91 @@ const Dashboard = ({ currentUser }) => {
       return () => clearInterval(timerRef.current);
     }, [ride.status, ride.startedAt]);
 
+    // Inside your RideCard component (somewhere before return):
+
+// Helper function to get progress bar class per user status
+
+const getProgressBarClass = (interestStatus, rideStatus) => {
+  if (interestStatus === "rejected") return "w-[25%] bg-red-400";
+  if (interestStatus === "interested" || interestStatus === "pending") return "w-1/4 bg-yellow-400";
+  if (interestStatus === "accepted") {
+    if (rideStatus === "pending") return "w-1/2 bg-green-400";
+    if (rideStatus === "started") return "w-3/4 bg-green-600";
+    if (rideStatus === "completed") return "w-full bg-green-700";
+    return "w-1/2 bg-green-400"; // fallback
+  }
+  return "w-0"; // default no progress
+};
+
+const progressBarClass = isCreator
+  ? (() => {
+      // For creator, use ride status only
+      switch (rideStatus) {
+        case "pending":
+          return "w-1/4 bg-green-500";
+        case "accepted":
+          return "w-1/2 bg-green-500";
+        case "started":
+          return "w-3/4 bg-green-500";
+        case "completed":
+          return "w-full bg-green-500";
+        case "cancelled":
+          return "w-[50%] bg-red-400";
+        default:
+          return "w-0";
+      }
+    })()
+  : getProgressBarClass(userInterest?.status, rideStatus);
+
+
+
+const getUserDisplayStatus = (interestStatus, rideStatus) => {
+  if (interestStatus === "rejected") return "Rejected";
+  if (interestStatus === "interested" || interestStatus === "pending") return "Pending";
+  if (interestStatus === "accepted") return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
+  if (interestStatus === "cancelled") return "Cancelled";
+  return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
+};
+ 
+
+
     return (
       <Card
         sx={{
-          mb: 2,
-          marginTop: 15,
+          mb: { xs: 2, md: 4 }, // smaller margin bottom on mobile
+          mt: { xs: 2, md: 10 }, // smaller margin top on mobile
+          borderRadius: 3,
           border:
             ride._id === highlightedRideId
               ? "2px solid #00e676"
-              : "1px solid #ccc",
+              : "1px solid #e5e7eb",
           transition: "all 0.3s ease-in-out",
           boxShadow:
-            ride._id === highlightedRideId ? "0 0 10px #00e676" : undefined,
+            ride._id === highlightedRideId
+              ? "0 0 16px rgba(0,230,118,0.5)"
+              : "0 1px 6px rgba(0,0,0,0.1)",
           pointerEvents:
             ride.status === "cancelled" || isRejected ? "none" : "auto",
+          "&:hover": {
+            transform: "scale(1.01)",
+            boxShadow: "0 6px 24px rgba(0,230,118,0.5)",
+          },
         }}
       >
         <CardContent>
           <div className="p-0">
             <div className="p-6">
-              <div className="flex flex-col md:flex-row gap-6">
+              <div className="flex  flex-col md:flex-row gap-6">
                 <div className="flex-1">
                   <div className="flex justify-between mb-4">
                     <div>
-                      <p className="text-lg font-bold">
+                      <p className="md:text-lg text-md font-bold">
                         {new Date(ride.departureTime).toLocaleTimeString()}
                       </p>
                       <p className="text-sm text-gray-500">{ride.origin}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold">
+                      <p className="md:text-lg text-sm font-bold">
                         {new Date(ride.arrivalTime).toLocaleTimeString()}
                       </p>
                       <p className="text-sm text-gray-500">
@@ -422,7 +593,10 @@ const Dashboard = ({ currentUser }) => {
                     </svg>
 
                     <span>{durationText} •</span>
-                    <svg
+                    
+{ride.status !== "started" && (
+  <>
+  <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
                       height="24"
@@ -439,54 +613,126 @@ const Dashboard = ({ currentUser }) => {
                       <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
                       <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
                     </svg>
-                    <span>{ride.seats} seats available • </span>
+  <span>
+    {ride.seats === 0 ? "Full" : `${ride.seats} seats available`} •
+  </span>
+  </>
+
+)}
+
+
                     <span>{new Date(ride.date).toLocaleDateString()}</span>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {[
-                      { key: "ac", label: "AC" },
-                      { key: "pet", label: "Pet friendly" },
-                      { key: "bagMax", label: "2 bags max" },
-                      { key: "smoking", label: "Smoking" },
-                      { key: "music", label: "Music" },
-                      { key: "luggage", label: "Luggage space" },
+                      { key: "ac", label: "AC", icon: "❄️" },
+                      { key: "pet", label: "Pet friendly", icon: "🐶" },
+                      { key: "bagMax", label: "2 bags max", icon: "🧳" },
+                      { key: "smoking", label: "Smoking", icon: "🚬" },
+                      { key: "music", label: "Music", icon: "🎵" },
+                      { key: "luggage", label: "Luggage space", icon: "📦" },
                     ]
                       .filter((pref) => ride.ridePreference?.[pref.key])
                       .map((pref) => (
-                        <div
+                        <span
                           key={pref.key}
-                          className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                          data-v0-t="badge"
+                          className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 text-xs px-3 py-1 font-medium shadow-sm"
                         >
-                          {pref.label}
-                        </div>
+                          <span>{pref.icon}</span>
+                          <span>{pref.label}</span>
+                        </span>
                       ))}
                   </div>
+                  <div className="my-4">
+                    <div className="flex items-center justify-between text-xs font-medium text-gray-700">
+                      <span
+                        className={`${
+                          [
+                            "pending",
+                            "accepted",
+                            "started",
+                            "completed",
+                          ].includes(ride.status) || ride.status === "cancelled"
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        Requested
+                      </span>
+                      <span
+                        className={`${
+                          ["accepted", "started", "completed"].includes(
+                            ride.status
+                          ) || ride.status === "cancelled"
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        Accepted
+                      </span>
+                      <span
+                        className={`${
+                          ["started", "completed"].includes(ride.status) ||
+                          ride.status === "cancelled"
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        Started
+                      </span>
+                      <span
+                        className={`${
+                          ride.status === "completed"
+                            ? "text-green-600"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        Completed
+                      </span>
+                    </div>
+                    {/* <div className="w-full h-2 mt-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+  className={`h-full transition-all duration-500 ${
+    isRejected
+      ? "w-[25%] bg-red-400"
+      : ride.status === "pending"
+      ? "w-1/4 bg-green-500"
+      : ride.status === "accepted"
+      ? "w-1/2 bg-green-500"
+      : ride.status === "started"
+      ? "w-3/4 bg-green-500"
+      : ride.status === "completed"
+      ? "w-full bg-green-500"
+      : ride.status === "cancelled"
+      ? "w-[50%] bg-red-400"
+      : "w-0"
+  }`}
+/>
+</div>
+                    
+                  </div> */}
+                  {/* Progress bar for current logged-in user's status */}
+<div className="w-full h-2 mt-2 bg-gray-200 rounded-full overflow-hidden">
+  <div className={`h-full transition-all duration-500 ${progressBarClass}`} />
+</div>
 
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    component="div"
-                  >
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      fontWeight="bold"
-                      marginBottom="8px"
-                      component="span"
-                    >
-                      <span style={{ fontWeight: "bold" }}>Status:</span>{" "}
-                      {isCreator
-                        ? ride.status
-                        : isRejected
-                        ? "Rejected"
-                        : isAccepted
-                        ? "Accepted"
-                        : isInterested
-                        ? "Waiting"
-                        : ride.status}
-                    </Typography>
-                  </Typography>
+</div>
+
+
+                                   {/* <p className="text-sm font-semibold text-gray-700 mb-3">
+  Status:{" "}
+  <span className="capitalize">
+    {isRejected ? "Rejected" : ride.status}
+  </span>
+</p> */}
+
+{/* Status text based on user's interest status */}
+<p className="text-sm font-semibold text-gray-700 mb-3">
+  Status:{" "}
+  <span className="capitalize">
+    {getUserDisplayStatus(userInterest?.status, ride.status)}
+  </span>
+</p>
 
                   {!isCreator &&
                     ride.interestedUsers?.some(
@@ -529,12 +775,15 @@ const Dashboard = ({ currentUser }) => {
                     />
                   )}
                   {/* Show Interested Users for Creator */}
-                  {isCreator &&
+                  {/* {isCreator &&
                     ride.interestedUsers?.length > 0 &&
                     ride.status !== "accepted" &&
                     ride.status !== "started" &&
                     ride.status !== "completed" &&
-                    ride.status !== "cancelled" && (
+                    ride.status !== "cancelled" && ( */}
+                    {isCreator &&
+   ride.interestedUsers?.length > 0 &&
+   !["started", "completed", "cancelled"].includes(ride.status) && (
                       <Box mt={1} ml={2}>
                         <Typography variant="subtitle2" gutterBottom>
                           Interested Users:
@@ -551,135 +800,224 @@ const Dashboard = ({ currentUser }) => {
                               {interest.user?.name || "Unnamed User"} – Status:{" "}
                               {interest.status}
                             </Typography>
+                            
                             {isCreator &&
-                              !isRejected &&
-                              interest.status === "interested" && (
-                                <Box>
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
-                                    color="primary"
-                                    sx={{ mt: 0.5, mr: 1 }}
-                                    onClick={() =>
-                                      handleDetailsOpen(interest.user._id)
-                                    }
+                            !isRejected &&
+                            interest.status === "interested" && (
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  flexDirection: { xs: "column", sm: "row" },
+                                  alignItems: "center",
+                                  gap: 2,
+                                  mt: 1.5,
+                                  flexWrap: "wrap",
+                                }}
+                              >
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  color="success"
+                                  sx={{
+                                    textTransform: "none",
+                                    fontWeight: 700,
+                                    borderWidth: 2,
+                                    px: 4,
+                                    py: 1.25,
+                                    borderRadius: "9999px", // pill shape
+                                    transition: "all 0.3s ease",
+                                    background:
+                                      "linear-gradient(90deg, #e6f4ea, #d0f0db)",
+                                    color: "success.dark",
+                                    boxShadow:
+                                      "0 2px 8px rgba(44,169,133,0.3)",
+                                    "&:hover": {
+                                      background:
+                                        "linear-gradient(90deg, #1f9d55, #2ca985)",
+                                      color: "#fff",
+                                      borderColor: "success.dark",
+                                      boxShadow:
+                                        "0 6px 20px rgba(31,157,85,0.6)",
+                                      transform: "scale(1.05)",
+                                    },
+                                  }}
+                                  onClick={() =>
+                                    handleDetailsOpen(interest.user._id)
+                                  }
+                                  startIcon={
+                                    <StarIcon sx={{ color: "success.main" }} />
+                                  }
+                                >
+                                  Show Profile
+                                </Button>
+
+                                <Modal
+                                  open={openDetails === interest.user._id}
+                                  onClose={handleDetailsClose}
+                                  aria-labelledby="user-details-modal"
+                                  aria-describedby="user-details-description"
+                                >
+                                  <Box
+                                    sx={{
+                                      position: "absolute",
+                                      top: "50%",
+                                      left: "50%",
+                                      transform: "translate(-50%, -50%)",
+                                      width: { xs: 320, sm: 380 },
+                                      bgcolor: "background.paper",
+                                      borderRadius: 3,
+                                      boxShadow: 28,
+                                      p: 5,
+                                      outline: "none",
+                                      maxHeight: "90vh",
+                                      overflowY: "auto",
+                                    }}
                                   >
-                                    Show profile
-                                  </Button>
-                                  <Modal
-                                    open={openDetails === interest.user._id}
-                                    onClose={handleDetailsClose}
-                                    aria-labelledby="user-details-modal"
-                                    aria-describedby="user-details-description"
-                                  >
-                                    <Box
+                                    <Avatar
+                                      src={interest?.user?.profileImage}
+                                      alt={interest?.user?.name}
                                       sx={{
-                                        position: "absolute",
-                                        top: "50%",
-                                        left: "50%",
-                                        transform: "translate(-50%, -50%)",
-                                        width: 350,
-                                        bgcolor: "background.paper",
-                                        borderRadius: 2,
-                                        boxShadow: 24,
-                                        p: 4,
+                                        width: 100,
+                                        height: 100,
+                                        mb: 3,
+                                        mx: "auto",
+                                        border: "3px solid",
+                                        borderColor: "success.main",
+                                        boxShadow:
+                                          "0 0 20px rgba(44, 169, 133, 0.7)",
+                                      }}
+                                    />
+                                    <Typography
+                                      variant="h5"
+                                      align="center"
+                                      gutterBottom
+                                      sx={{
+                                        fontWeight: "bold",
+                                        textTransform: "capitalize",
+                                        color: "success.dark",
+                                        mb: 3,
+                                        letterSpacing: 1,
+                                        textShadow:
+                                          "0 1px 3px rgba(44,169,133,0.5)",
                                       }}
                                     >
-                                      <Avatar
-                                        src={interest?.user?.profileImage}
-                                        alt={interest?.user?.name}
-                                        sx={{
-                                          width: 80,
-                                          height: 80,
-                                          mb: 2,
-                                          mx: "auto",
-                                        }}
-                                      />
-                                      <Typography
-                                        variant="body2"
-                                        align="center"
-                                        gutterBottom
-                                        sx={{
-                                          fontSize: "1.2rem",
-                                          fontWeight: "bold",
-                                          textTransform: "capitalize",
-                                        }}
-                                      >
-                                        {interest.user?.name || "Unnamed User"}
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        align="center"
-                                        gutterBottom
-                                      >
-                                        <Box
-                                          component="span"
-                                          fontWeight="bold"
-                                          fontSize=".9rem"
-                                        >
-                                          Phone:
-                                        </Box>{" "}
-                                        {interest.user?.phone}
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        align="center"
-                                        gutterBottom
-                                      >
-                                        <Box
-                                          component="span"
-                                          fontWeight="bold"
-                                          fontSize=".9rem"
-                                        >
-                                          Emergency Contact:
-                                        </Box>{" "}
-                                        {interest.user?.emergencyContact}
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        align="center"
-                                        gutterBottom
-                                      >
-                                        <Box
-                                          component="span"
-                                          fontWeight="bold"
-                                          fontSize=".9rem"
-                                        >
-                                          Gender:
-                                        </Box>{" "}
-                                        {interest.user?.gender}
-                                      </Typography>
-                                      <Typography
-                                        variant="body2"
-                                        align="center"
-                                        gutterBottom
-                                      >
-                                        <Box
-                                          component="span"
-                                          fontWeight="bold"
-                                          fontSize=".9rem"
-                                        >
-                                          Address:
-                                        </Box>{" "}
-                                        {interest.user?.address}
-                                      </Typography>
-                                      <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={handleDetailsClose}
-                                        fullWidth
-                                        sx={{ mt: 2 }}
-                                      >
-                                        Close
-                                      </Button>
-                                    </Box>
-                                  </Modal>
+                                      {interest.user?.name || "Unnamed User"}
+                                    </Typography>
 
+                                    {[
+                                      {
+                                        label: "Phone",
+                                        value: interest.user?.phone,
+                                        icon: "📞",
+                                      },
+                                      {
+                                        label: "Emergency Contact",
+                                        value:
+                                          interest.user?.emergencyContact,
+                                        icon: "🚨",
+                                      },
+                                      {
+                                        label: "Gender",
+                                        value: interest.user?.gender,
+                                        icon: "⚧",
+                                      },
+                                      {
+                                        label: "Address",
+                                        value: interest.user?.address,
+                                        icon: "🏠",
+                                      },
+                                    ].map(({ label, value, icon }) => (
+                                      <Box
+                                        key={label}
+                                        sx={{
+                                          display: "flex",
+                                          alignItems: "center",
+                                          mb: 1.8,
+                                          px: 2,
+                                          borderRadius: 2,
+                                          bgcolor: "#e6f4ea",
+                                          boxShadow:
+                                            "inset 0 0 4px rgba(44,169,133,0.15)",
+                                        }}
+                                      >
+                                        <Typography
+                                          sx={{
+                                            fontWeight: 700,
+                                            color: "success.main",
+                                            mr: 2,
+                                            fontSize: "1.2rem",
+                                          }}
+                                        >
+                                          {icon}
+                                        </Typography>
+                                        <Typography
+                                          variant="body1"
+                                          sx={{
+                                            fontWeight: 600,
+                                            color: "success.dark",
+                                            textTransform: "capitalize",
+                                          }}
+                                        >
+                                          {label}:
+                                        </Typography>
+                                        <Typography
+                                          variant="body2"
+                                          sx={{
+                                            ml: 1,
+                                            fontWeight: 500,
+                                            color: "text.primary",
+                                          }}
+                                        >
+                                          {value || "N/A"}
+                                        </Typography>
+                                      </Box>
+                                    ))}
+
+                                    <Button
+                                      variant="contained"
+                                      color="success"
+                                      onClick={handleDetailsClose}
+                                      fullWidth
+                                      sx={{
+                                        mt: 4,
+                                        fontWeight: 700,
+                                        textTransform: "none",
+                                        py: 1.5,
+                                        borderRadius: "9999px",
+                                        boxShadow:
+                                          "0 6px 18px rgba(44, 169, 133, 0.6)",
+                                        "&:hover": {
+                                          backgroundColor: "success.dark",
+                                          boxShadow:
+                                            "0 8px 25px rgba(31, 157, 85, 0.8)",
+                                          transform: "scale(1.05)",
+                                        },
+                                      }}
+                                    >
+                                      Close
+                                    </Button>
+                                  </Box>
+                                </Modal>
                                   <Button
                                     size="small"
                                     variant="contained"
-                                    color="primary"
-                                    sx={{ mt: 0.5 }}
+                                    color="success"
+                                    sx={{
+                                      fontWeight: 700,
+                                      textTransform: "none",
+                                      px: 4,
+                                      py: 1.25,
+                                      borderRadius: "9999px",
+                                      boxShadow:
+                                        "0 6px 18px rgba(44, 169, 133, 0.6)",
+                                      transition: "all 0.3s ease",
+                                      "&:hover": {
+                                        backgroundColor: "success.dark",
+                                        boxShadow:
+                                          "0 8px 25px rgba(31, 157, 85, 0.8)",
+                                        transform: "scale(1.05)",
+                                      },
+                                    }}
                                     onClick={() =>
                                       handleStatusChange(
                                         ride._id,
@@ -687,6 +1025,7 @@ const Dashboard = ({ currentUser }) => {
                                         interest.user._id
                                       )
                                     }
+                                    startIcon={<StarIcon />}
                                   >
                                     Accept This User
                                   </Button>
@@ -699,7 +1038,6 @@ const Dashboard = ({ currentUser }) => {
                   <div className="flex flex-col sm:flex-row md:flex-row gap-6">
                     {ride?.status === "pending" && !isCreator ? (
                       <button
-                        // onClick={() => setSelectedRide(ride)}
                         onClick={() => setSelectedRideForDetails(ride)}
                         className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-cyan-600 hover:bg-cyan-700 text-white"
                       >
@@ -708,13 +1046,14 @@ const Dashboard = ({ currentUser }) => {
                     ) : ride?.status !== "completed" &&
                       ride?.status !== "cancelled" &&
                       ride?.status !== "pending" ? (
-                      <button
-                        // onClick={() => setSelectedRide(ride)}
-                        onClick={() => setSelectedRideForDetails(ride)}
-                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-cyan-600 hover:bg-cyan-700  text-white"
-                      >
-                        View Details
-                      </button>
+                      <Tooltip title="View ride details">
+                        <button
+                          onClick={() => setSelectedRideForDetails(ride)}
+                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-cyan-600 hover:bg-cyan-700  text-white"
+                        >
+                          View Details
+                        </button>
+                      </Tooltip>
                     ) : null}
 
                     {!isRejected &&
@@ -723,49 +1062,61 @@ const Dashboard = ({ currentUser }) => {
                       ride.status !== "started" &&
                       ride.status !== "completed" &&
                       ride.status !== "cancelled" && (
-                        <button
-                          onClick={() => handleStatusChange(ride._id, "start")}
-                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          Start Ride
-                        </button>
+                        <Tooltip title="start this ride">
+                          <button
+                            onClick={() =>
+                              handleStatusChange(ride._id, "start")
+                            }
+                            className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            Start Ride
+                          </button>
+                        </Tooltip>
                       )}
 
                     {isCreator && ride.status === "started" && (
-                      <button
-                        onClick={() => handleStatusChange(ride._id, "complete")}
-                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-teal-500 hover:bg-teal-600 text-white"
-                      >
-                        Complete Ride
-                      </button>
+                      <Tooltip title="complete this ride">
+                        <button
+                          onClick={() =>
+                            handleStatusChange(ride._id, "complete")
+                          }
+                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-teal-500 hover:bg-teal-600 text-white"
+                        >
+                          Complete Ride
+                        </button>
+                      </Tooltip>
                     )}
 
                     {!isRejected && ride.status === "started" && (
-                      <button
-                        onClick={() =>
-                          window.open(
-                            `https://www.google.com/maps/dir/?api=1&origin=${ride.origin}&destination=${ride.destination}`,
-                            "_blank"
-                          )
-                        }
-                        className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-emerald-600 hover:bg-emerald-700 text-white"
-                      >
-                        View Live Map
-                      </button>
+                      <Tooltip title="Navigate using Google Maps">
+                        <button
+                          onClick={() =>
+                            window.open(
+                              `https://www.google.com/maps/dir/?api=1&origin=${ride.origin}&destination=${ride.destination}`,
+                              "_blank"
+                            )
+                          }
+                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-emerald-600 hover:bg-emerald-700 text-white"
+                        >
+                          View Live Map
+                        </button>
+                      </Tooltip>
                     )}
 
                     {!isRejected &&
                       ride.status !== "completed" &&
                       ride.status !== "cancelled" &&
                       ride.status !== "started" && (
-                        <button
-                          onClick={() =>
-                            openCancellationDialog(ride._id, "cancel")
-                          }
-                          className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-red-600 hover:bg-red-700 text-white"
-                        >
-                          Cancel Ride
-                        </button>
+                        <Tooltip title="cancel this ride">
+                          <button
+                            onClick={() =>
+                              openCancellationDialog(ride._id, "cancel")
+                            }
+                            className="items-center rounded-md text-sm font-medium  px-4 py-2  bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            Cancel Ride
+                          </button>
+                        </Tooltip>
                       )}
 
                     {isEligibleToReview && ride.status === "completed" && (
@@ -841,41 +1192,61 @@ const Dashboard = ({ currentUser }) => {
                     </Typography>
                   )}
                 </div>
-                <div className="flex flex-row md:flex-col justify-between items-center md:items-end gap-4 md:min-w-[150px]">
-                  <div className="flex flex-col items-center">
-                    <span className="relative flex shrink-0 overflow-hidden rounded-full h-12 w-12 mb-2">
-                      <img
-                        className="aspect-square h-full w-full"
-                        alt={ride.creator?.name}
-                        src={ride.creator?.profileImage}
-                      />
-                    </span>
-                    <div className="text-center">
-                      <p className="font-medium text-sm">
-                        {ride.creator?.name}
-                      </p>
-                      <div className="flex items-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
+                <div className="flex flex-col items-center text-center gap-4 md:min-w-[150px]">
+                  <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-emerald-500">
+                    <img
+                      src={ride.creator?.profileImage}
+                      alt={ride.creator?.name}
+                      className="object-cover w-full h-full"
+                    />
+                    {(ride.creator?.isVerified || ride.creator?.isPremium) && (
+                      <Tooltip
+                        title={
+                          ride.creator.isVerified
+                            ? "Verified user"
+                            : "Premium member"
+                        }
+                      >
+                        <span className="absolute bottom-0 right-0 bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded-full shadow">
+                          {ride.creator.isVerified ? "✔ Verified" : "★ Premium"}
+                        </span>
+                      </Tooltip>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-gray-800">
+                    {ride.creator?.name}
+                  </p>
+                  <div className="flex items-center justify-center">
+                    {[...Array(5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill={
+                          i < Math.round(ride.creator?.averageRating || 0)
+                            ? "currentColor"
+                            : "none"
+                        }
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        className={`w-4 h-4 transition-transform duration-300 ${
+                          i < Math.round(ride.creator?.averageRating || 0)
+                            ? "text-yellow-500 scale-110"
+                            : "text-gray-300"
+                        }`}
+                      >
+                        <path
                           strokeLinecap="round"
                           strokeLinejoin="round"
-                          className="lucide lucide-star h-3 w-3 text-yellow-500 fill-yellow-500 mr-1"
-                        >
-                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                        </svg>
-                        <span className="text-xs">
-                          {ride.creator?.averageRating?.toFixed(1) || "N/A"}
-                        </span>
-                      </div>
-                    </div>
+                          strokeWidth="2"
+                          d="M12 17.27L18.18 21 16.54 13.97 22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                        />
+                      </svg>
+                    ))}
                   </div>
-                  <div className="text-center">
+                  <span className="text-md text-gray-600 ml-1">
+                    {ride.creator?.averageRating?.toFixed(1) || "N/A"}
+                  </span>
+                  <div className="text-center mt-2">
                     <p className="text-2xl font-bold text-emerald-600">
                       ₹{ride.price}
                     </p>
@@ -893,102 +1264,171 @@ const Dashboard = ({ currentUser }) => {
                           Book
                         </button>
                       )}
-                    <button
-                      onClick={() => handleChatClick(ride)}
-                      className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 w-full mt-2"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="lucide lucide-message-square h-4 w-4 mr-1"
+                    
+                    <Tooltip title="Message the ride owner">
+                      <button
+                        onClick={() => handleChatClick(ride)}
+                        className="relative flex items-center w-full rounded-md text-sm font-medium gap-2 h-9 px-4 py-2 mt-2 bg-emerald-600 hover:bg-green-700 text-white"
                       >
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                      </svg>
-                      Contact
-                    </button>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-message-square h-4 w-4 mr-1"
+                        >
+                          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        {/* Badge for unread count */}
+                        {ride.unreadCount > 0 && (
+                          <span className="absolute top-0 left-4 -mt-1 -ml-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                            {ride.unreadCount}
+                          </span>
+                        )}
+                        Contact
+                      </button>
+                    </Tooltip>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          {/* </div> */}
         </CardContent>
-        <CardActions>
-          {/* <RideDetailsModal
-            selectedRide={selectedRide}
-            onClose={() => setSelectedRide(null)}
-            onBook={() => {
-              handleBookRide(selectedRide._id);
-              setSelectedRide(null);
-            }}
-            onChat={() => handleChatClick(selectedRide)}
-            onMap={() =>
-              handleViewMap(selectedRide.origin, selectedRide.destination)
-            }
-            onShare={() => handleShareRide(selectedRide)}
-            closeChat={handleCloseChat}
-            currentUser={currentUser}
-          /> */}
-          
-        </CardActions>
-        {/* <Dialog open={isChatOpen}>
-          <RideChat
-            open={isChatOpen}
-            closeChat={handleCloseChat}
-            currentUser={currentUser}
-            rideId={selectedRide?._id}
-          />
-        </Dialog> */}
-        {/* <Dialog open={isChatOpen && !!selectedRide}>
-  <RideChat
-    open={isChatOpen}
-    closeChat={handleCloseChat}
-    currentUser={currentUser}
-    rideId={selectedRide?._id}
-  />
-</Dialog> */}
-        
       </Card>
     );
   };
 
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 14, mb: 4 }}>
+    <Container
+      maxWidth="lg"
+      sx={{
+        mt: { xs: 12, md: 14 },
+        mb: { xs: 3, md: 4 },
+        borderRadius: 5,
+        px: { xs: 2, md: 2 }, // padding on small screens
+      }}
+    >
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Paper sx={{ p: 3 }}>
+          <Paper
+            sx={{
+              py: { xs: 3, md: 5 },
+              px: { xs: 2, md: 10 },
+              borderRadius: 5,
+              boxShadow: "0 0 16px rgba(0,230,118,0.5)",
+              overflowX: "auto", // allow horizontal scroll if needed on small devices
+            }}
+          >
             <Box
               display="flex"
+              flexDirection={{ xs: "column", sm: "row" }}
               justifyContent="space-between"
-              alignItems="center"
+              alignItems={{ xs: "flex-start", sm: "center" }}
               mb={3}
+              gap={{ xs: 2, sm: 0 }}
             >
               <Typography
                 variant="h4"
                 component="h1"
                 textTransform="capitalize"
+                color="green"
+                sx={{
+                  fontSize: { xs: "1.5rem", sm: "2rem", md: "3rem" },
+                  wordBreak: "break-word",
+                }}
               >
                 Welcome, {user?.name}!
               </Typography>
+              <Button
+                variant="contained"
+                sx={{
+                  boxShadow: "0 6px 15px seagreen",
+                  textTransform: "none",
+                  fontWeight: 600,
+                  backgroundColor: "seagreen",
+                  whiteSpace: "nowrap",
+                  "&:hover": {
+                    backgroundColor: "seagreen",
+                    boxShadow: "0 8px 30px seagreen",
+                  },
+                  alignSelf: { xs: "auto", sm: "auto" },
+                  width: { xs: "full", sm: "auto" },
+                }}
+                onClick={() => navigate("/offer-ride")}
+                fullWidth={{ xs: true, sm: false }}
+              >
+                Offer a Ride
+              </Button>
             </Box>
 
-            <Typography variant="h5" gutterBottom>
+            <Typography
+              variant="h5"
+              color="gray"
+              sx={{ fontSize: { xs: "1.25rem", md: "1.5rem" }, mb: 2 }}
+            >
               Your Rides
             </Typography>
 
             {loading ? (
-              <Typography>Loading rides...</Typography>
+              <Stack spacing={3}>
+                {[...Array(ridesPerPage)].map((_, i) => (
+                  <Skeleton
+                    key={i}
+                    variant="rectangular"
+                    height={120}
+                    animation="wave"
+                    sx={{ borderRadius: 3 }}
+                  />
+                ))}
+              </Stack>
             ) : userRides.length > 0 ? (
-              userRides.map((ride) => <RideCard key={ride._id} ride={ride} />)
+              <>
+                {/* Rides grid */}
+                <Grid container spacing={4}>
+                  {paginatedRides.map((ride) => (
+                    <Grid item xs={12} key={ride._id}>
+                      <RideCard
+                        key={ride._id}
+                        ride={ride}
+                        unreadCount={unreadCounts[ride._id] || 0}
+                        onChatClick={() => handleChatClick(ride._id)}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+
+                {/* Pagination */}
+                {userRides.length > ridesPerPage && (
+                  <Stack alignItems="center" mt={5}>
+                    <Pagination
+                      count={Math.ceil(userRides.length / ridesPerPage)}
+                      page={page}
+                      onChange={handlePageChange}
+                      color="success"
+                      shape="rounded"
+                      showFirstButton
+                      showLastButton
+                      siblingCount={1}
+                      boundaryCount={1}
+                      size={window.innerWidth < 600 ? "small" : "medium"}
+                    />
+                  </Stack>
+                )}
+              </>
             ) : (
-              <Typography color="text.secondary">
+              <Typography
+                color="text.secondary"
+                textAlign="center"
+                mt={8}
+                fontStyle="italic"
+                variant="body1"
+              >
                 No rides found. Create a new ride or accept an available one!
               </Typography>
             )}
@@ -1098,36 +1538,43 @@ const Dashboard = ({ currentUser }) => {
         </DialogActions>
       </Dialog>
       {selectedRideForDetails && (
-            <RideDetailsModal
-              selectedRide={selectedRideForDetails}
-              onClose={() => setSelectedRideForDetails(null)}
-              onBook={() => {
-                handleBookRide(selectedRideForDetails._id);
-                setSelectedRideForDetails(null);
-              }}
-              onChat={() => {
-                handleChatClick(selectedRideForDetails);
-                setSelectedRideForDetails(null);
-              }}
-              onMap={() =>
-                handleViewMap(
-                  selectedRideForDetails.origin,
-                  selectedRideForDetails.destination
-                )
-              }
-              onShare={() => handleShareRide(selectedRideForDetails)}
-              closeChat={handleCloseChat}
-              currentUser={currentUser}
-            />
-          )}
-          <Dialog open={isChatOpen} onClose={handleCloseChat}>
-          <RideChat
-            open={isChatOpen}
-            closeChat={handleCloseChat}
-            currentUser={currentUser}
-            rideId={selectedRideForChat?._id}
-          />
-        </Dialog>
+        <RideDetailsModal
+          selectedRide={selectedRideForDetails}
+          onClose={() => setSelectedRideForDetails(null)}
+          onBook={() => {
+            handleBookRide(selectedRideForDetails._id);
+            setSelectedRideForDetails(null);
+          }}
+          onChat={() => {
+            handleChatClick(selectedRideForDetails);
+            setSelectedRideForDetails(null);
+          }}
+          onMap={() =>
+            handleViewMap(
+              selectedRideForDetails.origin,
+              selectedRideForDetails.destination
+            )
+          }
+          onShare={() => handleShareRide(selectedRideForDetails)}
+          closeChat={handleCloseChat}
+          currentUser={currentUser}
+        />
+      )}
+      {/* <Dialog open={isChatOpen} onClose={handleCloseChat}>
+        <RideChat
+          open={isChatOpen}
+          closeChat={handleCloseChat}
+          currentUser={currentUser}
+          rideId={selectedRideForChat?._id}
+        />
+      </Dialog> */}
+      <RideChat
+        open={isChatOpen}
+        closeChat={handleCloseChat}
+        currentUser={currentUser}
+        rideId={selectedRideForChat?._id}
+        onOpenChat={() => setIsChatOpen(true)}
+      />
     </Container>
   );
 };

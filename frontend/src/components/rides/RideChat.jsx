@@ -1,22 +1,27 @@
-
 import React, { useEffect, useState, useRef } from "react";
 import chatSocket from "../../services/chatSocket";
 import { IoSend } from "react-icons/io5";
 import rideService from "../../services/rideService";
-import { Dialog, DialogTitle, DialogContent, IconButton } from "@mui/material";
+import {
+  Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 import { format } from "date-fns";
 import { toast } from "react-toastify";
-// import PropTypes from 'prop-types';
 
-const RideChat = ({open, closeChat, currentUser, rideId }) => {
+const RideChat = ({ open, closeChat, onOpenChat, currentUser, rideId }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [typingStatus, setTypingStatus] = useState("");
   const [isMuted, setIsMuted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [inAppNotification, setInAppNotification] = useState(null);
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const chatBoxRef = useRef(null);
@@ -29,11 +34,10 @@ const RideChat = ({open, closeChat, currentUser, rideId }) => {
   };
 
   useEffect(() => {
-  if (Notification.permission === "default") {
-    Notification.requestPermission();
-  }
-}, []);
-
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   useEffect(() => {
     if (!rideId) return;
@@ -42,7 +46,7 @@ const RideChat = ({open, closeChat, currentUser, rideId }) => {
       try {
         const res = await rideService.getMessages(rideId);
         const enriched = res.map((msg) => ({
-          ...msg, 
+          ...msg,
           senderName:
             msg.sender === currentUser?.user?._id
               ? currentUser.user?.name
@@ -53,86 +57,73 @@ const RideChat = ({open, closeChat, currentUser, rideId }) => {
       } catch (error) {
         console.error("Error fetching messages:", error);
         const message =
-    error?.response?.data?.message || error?.message || "Failed to fetch messages";
-
-  toast.error(message);
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to fetch messages";
+        toast.error(message);
       }
     };
 
     fetchMessages();
   }, [rideId, currentUser]);
 
+  // SOCKET CONNECTION & LISTENERS: always active, no conditional render around
   useEffect(() => {
     if (!rideId || !currentUser) return;
-  
-    if (!chatSocket) {
-      console.error("chatSocket is not initialized");
-      return;
-    }
-  
+    if (!chatSocket) return;
+
     chatSocket.connect(currentUser.token);
     chatSocket.joinRideChat(rideId, currentUser?.user?._id);
-       
-const handleMessage = (data) => {
-  if (!data || !data.sender || !data.content) {
-    console.log("Invalid message data", data);
-    return;
-  }
+    const handleMessage = (data) => {
+      if (!data || !data.sender || !data.content) return;
 
-  const senderId = data.sender._id || data.sender;
-  const isCurrentUser = senderId === currentUser?.user?._id;
+      const senderId = data.sender._id || data.sender;
+      const isCurrentUser = senderId === currentUser?.user?._id;
 
-  const newMessage = {
-    sender: senderId,
-    content: data.content,
-    createdAt: data.createdAt || data.timestamp || new Date().toISOString(),
-    senderName: isCurrentUser
-      ? currentUser?.user?.name
-      : data.sender.name || data.senderName || "User",
-  };
+      const newMessage = {
+        sender: senderId,
+        content: data.content,
+        createdAt: data.createdAt || data.timestamp || new Date().toISOString(),
+        senderName: isCurrentUser
+          ? currentUser?.user?.name
+          : data.sender.name || data.senderName || "User",
+      };
 
-  setMessages((prev) => [...prev, newMessage]);
+      setMessages((prev) => [...prev, newMessage]);
 
-  const isAtBottom =
-    chatBoxRef.current &&
-    chatBoxRef.current.scrollTop + chatBoxRef.current.clientHeight >=
-      chatBoxRef.current.scrollHeight - 10;
+      if (!isCurrentUser && !isMuted) {
+        notificationSound.play();
+      }
 
-  // Play notification sound
-  if (!isCurrentUser && !isMuted) {
-    notificationSound.play(); // ✅ Play sound when a new message is received
-  }
+      if (!isCurrentUser) {
+        // Show in-app notification instead of toast
+        setInAppNotification(
+          `📨 ${newMessage.senderName}: "${newMessage.content}"`
+        );
 
-  // Show toast notification
-  if (!isCurrentUser) {
-    toast.info(`📨 ${newMessage.senderName}: "${newMessage.content}"`);
-  }
+        // Hide after 4 seconds
+        setTimeout(() => setInAppNotification(null), 4000);
+      }
 
-  // Browser Notification (show only if the page is not focused)
-  if (!document.hidden) return; // Skip if the page is in focus
-
-  if (Notification.permission === "granted") {
-    new Notification("New Message", {
-      body: `${newMessage.senderName}: "${newMessage.content}"`,
-      icon: "/path/to/icon.png", // Add your app icon here
-    });
-  } else if (Notification.permission !== "denied") {
-    // Request permission if not already denied
-    Notification.requestPermission().then((permission) => {
-      if (permission === "granted") {
+      if (document.hidden && Notification.permission === "granted") {
         new Notification("New Message", {
           body: `${newMessage.senderName}: "${newMessage.content}"`,
           icon: "/path/to/icon.png",
         });
       }
-    });
-  }
 
-  // Update unread message count
-  if (!isAtBottom) setUnreadCount((prev) => prev + 1);
+      const isAtBottom =
+        chatBoxRef.current &&
+        chatBoxRef.current.scrollTop + chatBoxRef.current.clientHeight >=
+          chatBoxRef.current.scrollHeight - 10;
 
-  scrollToBottom();
-};
+      // If chat closed OR not scrolled to bottom, increase unread count
+      if (!open || !isAtBottom) setUnreadCount((prev) => prev + 1);
+
+      // Only scroll to bottom if chat open and user is at bottom
+      if (open && isAtBottom) scrollToBottom();
+    };
+
     const handleTyping = ({ name }) => {
       if (name !== currentUser?.user?.name) {
         setTypingStatus(`Typing...`);
@@ -140,57 +131,65 @@ const handleMessage = (data) => {
         typingTimeoutRef.current = setTimeout(() => setTypingStatus(""), 2000);
       }
     };
-    
+
     chatSocket.setupListeners(handleMessage, handleTyping);
-  
+
     return () => {
       chatSocket.leaveRideChat(rideId);
     };
-  }, [rideId, currentUser, chatSocket]);
-  
+  }, [rideId, currentUser, chatSocket, isMuted, open]);
 
-  useEffect(scrollToBottom, [messages]);
+  // Scroll to bottom when chat opens or messages update
+  useEffect(() => {
+    if (open) {
+      // Use setTimeout 0 to wait for rendering, optional but can help
+      setTimeout(() => {
+        scrollToBottom();
+        setUnreadCount(0);
+      }, 0);
+    }
+  }, [open, messages]);
 
   const handleTyping = (e) => {
-    if (e) e.preventDefault(); // prevent any unexpected behavior
+    if (e) e.preventDefault();
     chatSocket.sendTyping(rideId, currentUser?.user?._id);
   };
 
-const handleSend = async (e) => {
-  if (e?.preventDefault) e.preventDefault();
-  if (!input.trim()) return;
+  const handleSend = async (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    if (!input.trim()) return;
 
-  const newMessage = {
-    sender: currentUser?.user?._id,
-    rideId,
-    content: input.trim(),
-  };
+    const newMessage = {
+      sender: currentUser?.user?._id,
+      rideId,
+      content: input.trim(),
+    };
 
-  try {
-    const sent = await rideService.sendMessage(rideId, newMessage);
-    if (chatSocket?.sendMessage) {
-      chatSocket.sendMessage(rideId, {
-        ...sent,
-        senderName: currentUser?.user?.name,
-        createdAt: sent.createdAt || new Date().toISOString(),
-      });
+    try {
+      const sent = await rideService.sendMessage(rideId, newMessage);
+      if (chatSocket?.sendMessage) {
+        chatSocket.sendMessage(rideId, {
+          ...sent,
+          senderName: currentUser?.user?.name,
+          createdAt: sent.createdAt || new Date().toISOString(),
+        });
+      }
+
+      setInput("");
+      scrollToBottom();
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const message =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to send message";
+      toast.error(message);
     }
-
-    setInput("");
-    scrollToBottom();
-  } catch (error) {
-    console.error("Error sending message:", error);
-    const message =
-      error?.response?.data?.message ||
-      error?.message ||
-      "Failed to send message";
-    toast.error(message);
-  }
-};
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
-      e.preventDefault(); // Prevent form submission or page reload
+      e.preventDefault();
       handleSend();
     }
   };
@@ -208,58 +207,111 @@ const handleSend = async (e) => {
   };
 
   return (
-    <Dialog
-      open={Boolean(rideId)}
-      onClose={closeChat}
-      PaperProps={{
-        sx: {
-          position: "fixed",
-          bottom: 20,
-          right: 20,
-          m: 0,
-          width: 300,
-          height: 400,
-          borderRadius: 2,
-          zIndex: 9999,
-        },
-      }}
-      hideBackdrop
-    >
-      <DialogTitle
-        sx={{
-          m: 0,
-          p: 2,
-          background:
-            "linear-gradient(to right, #f3bedc, #e9bde3, #dcbee8, #cebeed, #bebfef, #b2c4f3, #a6c9f4, #9ccdf4, #98d6f4, #9adff2, #a1e6ee, #adede9)",
-        }}
-        className="flex justify-between items-center"
-      >
-        <span className="capitalize">
-          {currentUser?.user?.name || "Carpool Chat"}
-        </span>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsMuted(!isMuted)}
-            className="text-xs px-2 py-1 rounded "
-          >
-            {isMuted ? (
-              <NotificationsOffIcon sx={{ color: "#ecdd13" }} />
-            ) : (
-              <NotificationsIcon sx={{ color: "#ecdd13" }} />
-            )}
-          </button>
-          <IconButton onClick={closeChat} sx={{ color: "gray" }}>
-            <CloseIcon />
-          </IconButton>
+    <>
+      {/* In-app notification fixed at top */}
+      {inAppNotification && (
+        <div
+          className="fixed top-5 left-1/2 transform -translate-x-1/2 max-w-xs bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg animate-slideIn z-[99999] cursor-pointer select-none"
+          role="alert"
+          aria-live="assertive"
+          onClick={() => {
+            onOpenChat?.();
+            setInAppNotification(null);
+            setUnreadCount(0);
+          }}
+          title="Click to open chat"
+          style={{ pointerEvents: "auto" }}
+        >
+          {inAppNotification}
         </div>
-      </DialogTitle>
+      )}
 
-      <DialogContent sx={{ padding: 0 }}>
-        <div className="w-full h-full bg-white border rounded-xl shadow-xl flex flex-col">
+      <Dialog
+        open={open}
+        onClose={closeChat}
+        PaperProps={{
+          sx: {
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+            m: 0,
+            width: 300,
+            height: 400,
+            borderRadius: 3,
+            zIndex: 9999,
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+            bgcolor: "#fff",
+            boxShadow: "0 8px 24px rgba(0, 128, 96, 0.25)", 
+            boxShadow: "0 8px 30px seagreen",
+          },
+        }}
+        hideBackdrop
+      >
+        <DialogTitle
+          sx={{
+            m: 0,
+            p: 2,
+            background:
+              "linear-gradient(to right, #1f9d55, #2ca985, #32bb93, #3cc79f, #46d1a7, #54dbae, #62e1b6, #6be6bc, #7ae9c3, #88ebca, #97edcf, #a1eece)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontWeight: 700,
+            fontSize: "1.15rem",
+            color: "#fff",
+            userSelect: "none",
+          }}
+        >
+          <span className="capitalize">
+            {currentUser?.user?.name || "Carpool Chat"}
+          </span>
+          <div className="flex items-center gap-1">
+            <IconButton
+              onClick={() => setIsMuted(!isMuted)}
+              sx={{
+                color: "#fff",
+                transition: "color 0.3s",
+                "&:hover": { color: "#d4e9e2" },
+              }}
+              size="small"
+              aria-label={
+                isMuted ? "Unmute notifications" : "Mute notifications"
+              }
+              title={isMuted ? "Notifications muted" : "Notifications active"}
+            >
+              {isMuted ? <NotificationsOffIcon /> : <NotificationsIcon />}
+            </IconButton>
+            <IconButton
+              onClick={closeChat}
+              sx={{ color: "#d4e9e2", ml: 0.5, "&:hover": { color: "#fff" } }}
+              size="small"
+              aria-label="Close chat"
+              title="Close chat"
+            >
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </DialogTitle>
+
+        <DialogContent
+          sx={{
+            flex: 1,
+            p: 0,
+            backgroundColor: "#f9fdfb",
+            display: "flex",
+            flexDirection: "column",
+            borderTop: "1px solid #d2e7db",
+            borderBottom: "1px solid #d2e7db",
+            overflow: "hidden",
+          }}
+        >
           <div
             ref={chatBoxRef}
             onScroll={() => setUnreadCount(0)}
-            className="flex-1 overflow-y-auto p-3 space-y-2"
+            className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-thin scrollbar-thumb-green-400 scrollbar-track-green-100"
+            style={{ flexGrow: 1, minHeight: 0, paddingBottom: 40 }}
           >
             {messages.map((msg, idx) => {
               const isMyMessage =
@@ -268,64 +320,132 @@ const handleSend = async (e) => {
               return (
                 <div
                   key={idx}
-                  className={`max-w-[80%] px-4 py-2 rounded-lg text-sm ${
+                  className={`max-w-[75%] px-5 py-3 rounded-2xl text-sm shadow-md break-words cursor-default select-text animate-fadeInUp ${
                     isMyMessage
-                      ? "bg-blue-500 text-white self-end ml-auto"
-                      : "bg-gray-200 text-black self-start"
+                      ? "bg-green-600 text-white self-end ml-auto rounded-br-sm"
+                      : "bg-white text-gray-900 self-start rounded-bl-sm border border-green-200"
                   }`}
+                  style={{
+                    wordBreak: "break-word",
+                    animationFillMode: "both",
+                    animationDuration: "0.35s",
+                    animationTimingFunction: "ease-out",
+                    animationDelay: `${idx * 0.05}s`,
+                  }}
+                  aria-live="polite"
                 >
-                  <div className="text-xs font-medium mb-1 capitalize flex justify-between">
+                  <div className="text-xs font-semibold mb-1 flex justify-between items-center">
                     <span>
                       {isMyMessage
                         ? "Me"
                         : msg.sender?.name || msg.senderName || "User"}
                     </span>
-                    <span className="text-[10px] ml-2 text-gray-700">
+                    <span className="text-[10px] text-gray-600 ml-2 select-none">
                       {formatTime(msg.createdAt)}
                     </span>
                   </div>
-                  <div>{msg.content || "No content"}</div>
+                  <div>{msg.content || <em>No content</em>}</div>
                 </div>
               );
             })}
 
             {typingStatus && (
-              <div className="text-sm italic text-gray-500">{typingStatus}</div>
+              <div
+                key={typingStatus}
+                className="typing-indicator flex items-center space-x-1 px-4 italic text-green-700 select-none"
+                aria-live="polite"
+                style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}
+              >
+                <span className="whitespace-nowrap">{typingStatus}</span>
+                {[0, 200, 400].map((delay, i) => (
+                  <span
+                    key={i}
+                    style={{
+                      display: "inline-block",
+                      width: 6,
+                      height: 6,
+                      backgroundColor: "#16a34a",
+                      borderRadius: "50%",
+                      animation: "blink 1.4s infinite ease-in-out",
+                      animationDelay: `${delay}ms`,
+                    }}
+                  />
+                ))}
+              </div>
             )}
+
             <div ref={messagesEndRef} />
           </div>
 
-          {unreadCount > 0 && (
-            <div className="text-xs text-center text-white bg-red-500 py-1">
+          {unreadCount > 0 && !open && (
+            <div
+              className="fixed bottom-8 right-8 bg-green-600 text-white rounded-full px-4 py-2 cursor-pointer shadow-lg select-none z-50"
+              onClick={() => {
+                onOpenChat?.();
+                scrollToBottom();
+                setUnreadCount(0);
+              }}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => e.key === "Enter" && setUnreadCount(0)}
+              aria-label={`You have ${unreadCount} new message${
+                unreadCount > 1 ? "s" : ""
+              }, click to open chat`}
+              title="Click to open chat"
+            >
               {unreadCount} new message{unreadCount > 1 ? "s" : ""}
             </div>
           )}
+        </DialogContent>
 
-          <div className="p-2 border-t flex items-center relative gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              onInput={handleTyping}
-              className="flex-1 border rounded-full px-3 py-1 text-sm focus:outline-none mx-1"
-              placeholder="Type a message..."
-            />
-
-            <button
-            type="button"
-            onClick={(e) => handleSend(e)}  
-              className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition"
-            >
-              <IoSend />
-              
-            </button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        <Box
+          component="form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSend(e);
+          }}
+          sx={{
+            p: 2,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            backgroundColor: "#ffffff",
+            borderTop: "1px solid #d2e7db",
+          }}
+        >
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            onInput={handleTyping}
+            placeholder="Type a message..."
+            aria-label="Type a message"
+            className="flex-grow border border-green-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+            style={{ fontFamily: "inherit" }}
+          />
+          <IconButton
+            type="submit"
+            color="success"
+            disabled={!input.trim()}
+            aria-label="Send message"
+            sx={{
+              bgcolor: "green",
+              "&:hover": { bgcolor: "darkgreen" },
+              color: "#fff",
+              p: 1.5,
+              borderRadius: "50%",
+              boxShadow: "0 2px 8px rgba(0, 100, 0, 0.25)",
+              transition: "transform 0.2s ease",
+              "&:active": { transform: "scale(0.9)" },
+            }}
+          >
+            <IoSend size={22} />
+          </IconButton>
+        </Box>
+      </Dialog>
+    </>
   );
 };
 
 export default RideChat;
-

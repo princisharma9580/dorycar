@@ -2,184 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import rideService from "../../services/rideService";
 import { toast } from "react-toastify";
-import Footer from "../Footer"; 
-
-// const CreateRide = () => {
-//   const navigate = useNavigate();
-//   const [formData, setFormData] = useState({
-//     origin: "",
-//     destination: "",
-//     date: new Date(),
-//     departureTime: "",
-//     arrivalTime: "",
-//     seats: 1,
-//     price: "",
-//     preferredCommunication: "",
-//     ridePreference: {
-//       ac: true,
-//       pet: true,
-//       smoking: true,
-//       music: true,
-//       luggage: true,
-//       bagMax: true,
-//     },
-//     paymentMethods: "",
-//   });
-
-  // const communicationPrefs = [
-  //   "select preferred communication",
-  //   "Chat",
-  //   "Call",
-  //   "Both",
-  // ];
-
-  // const allPaymentOptions = [
-  //   "select payment method",
-  //   "Cash",
-  //   "UPI",
-  //   "QR",
-  //   "Other",
-  // ];
-
-  // const [qrImage, setQrImage] = useState(null);
-
-  // const [customPayment, setCustomPayment] = useState("");
-  // const [showCustomInput, setShowCustomInput] = useState(false);
-  // const [fieldErrors, setFieldErrors] = useState({});
-
-  // const [loading, setLoading] = useState(false);
-
-// useEffect(() => {
-//   const savedDraft = localStorage.getItem("rideDraft");
-//   if (savedDraft) {
-//     const parsedDraft = JSON.parse(savedDraft);
-//     parsedDraft.date = new Date(parsedDraft.date); // ✅ Convert string to Date
-//     setFormData(parsedDraft);
-//   }
-// }, []);
-
-
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value,
-//     });
-//   };
-
-//   const handleNestedChange = (section, field, value) => {
-//     setFormData((prev) => ({
-//       ...prev,
-//       [section]: { ...prev[section], [field]: value },
-//     }));
-//   };
-
-//   const handleDateChange = (e) => {
-//     const newDate = new Date(e.target.value);
-//     setFormData({
-//       ...formData,
-//       date: newDate,
-//     });
-//   };
-
-//   const formatDateTime = (date, time) => {
-//     const [hours, minutes] = time.split(":");
-//     const newDate = new Date(date);
-//     newDate.setHours(parseInt(hours, 10));
-//     newDate.setMinutes(parseInt(minutes, 10));
-//     newDate.setSeconds(0);
-//     return newDate.toISOString(); 
-//   };
-
-// const validateFields = () => {
-//   const errors = {};
-
-//   if (!formData.origin?.trim()) errors.origin = "Origin is required.";
-//   if (!formData.destination?.trim()) errors.destination = "Destination is required.";
-//   if (!formData.date) errors.date = "Date is required.";
-//   if (!formData.departureTime) errors.departureTime = "Departure time is required.";
-//   if (!formData.arrivalTime) errors.arrivalTime = "Arrival time is required.";
-//   if (!formData.seats || formData.seats < 1) errors.seats = "At least one seat is required.";
-//   if (!formData.price || isNaN(parseFloat(formData.price))) errors.price = "Valid price is required.";
-//   if (!formData.paymentMethods || formData.paymentMethods.length === 0)
-//     errors.paymentMethods = "Select at least one payment method.";
-
-//   setFieldErrors(errors);
-//   return Object.keys(errors).length === 0;
-// };
-
-// const isValid = validateFields();
-// if (!isValid) {
-//   setLoading(false);
-//   return;
-// }
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-
-  //   console.log("Submitting ride data:", formData);
-
-  //   const dep = formData.departureTime;
-  //   const arr = formData.arrivalTime;
-
-  //   if (!dep || !arr) {
-  //     toast.error("Please enter both departure and arrival times.");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   const depDate = new Date(`1970-01-01T${dep}:00`);
-  //   const arrDate = new Date(`1970-01-01T${arr}:00`);
-
-  //   if (arrDate <= depDate) {
-  //     toast.error("Arrival time must be after departure time.");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   try {
-  //     if (showCustomInput && customPayment.trim()) {
-  //       formData.paymentMethods = [
-  //         ...formData.paymentMethods.filter((m) => m !== "Other"),
-  //         customPayment.trim(),
-  //       ];
-  //     }
-
-  //     await rideService.createRide({
-  //       ...formData,
-  //       price: parseFloat(formData.price),
-  //       seats: parseInt(formData.seats),
-  //       paymentMethods: formData.paymentMethods,
-  //       ...formData,
-  //       departureTime: formatDateTime(formData.date, formData.departureTime),
-  //       arrivalTime: formatDateTime(formData.date, formData.arrivalTime),
-  //     });
-
-  //     toast.success("Ride created successfully!");
-  //     navigate("/dashboard");
-  //   } catch (error) {
-  //     console.error("Error creating ride:", error);
-  //     if (
-  //       error.response?.status === 400 &&
-  //       error.response.data?.missingFields
-  //     ) {
-  //       // Save current form data
-  //     localStorage.setItem("rideDraft", JSON.stringify(formData));
-
-  //       const missingFields = error.response.data.missingFields;
-  //       const message = `Please complete the following fields in your profile: ${missingFields.join(
-  //         ", "
-  //       )}`;
-
-  //       toast.error(message);
-  //       navigate("/profile");
-  //     } else {
-  //       toast.error(error.response?.data?.message || "Failed to create ride");
-  //     }
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+import Footer from "../Footer";
 
 const CreateRide = () => {
   const navigate = useNavigate();
@@ -203,7 +26,7 @@ const CreateRide = () => {
     paymentMethods: "",
   });
 
-    const communicationPrefs = [
+  const communicationPrefs = [
     "select preferred communication",
     "Chat",
     "Call",
@@ -224,7 +47,6 @@ const CreateRide = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  
   // Create refs for each input field
   const originRef = useRef();
   const destinationRef = useRef();
@@ -240,7 +62,7 @@ const CreateRide = () => {
     const savedDraft = localStorage.getItem("rideDraft");
     if (savedDraft) {
       const parsedDraft = JSON.parse(savedDraft);
-      parsedDraft.date = new Date(parsedDraft.date); // ✅ Convert string to Date
+      parsedDraft.date = new Date(parsedDraft.date); // Convert string to Date
       setFormData(parsedDraft);
     }
   }, []);
@@ -276,66 +98,70 @@ const CreateRide = () => {
     return newDate.toISOString();
   };
 
-const validateFields = () => {
-  const errors = {};
-  let firstInvalidRef = null;
+  const validateFields = () => {
+    const errors = {};
+    let firstInvalidRef = null;
 
-  if (!formData.origin?.trim()) {
-    errors.origin = "Origin is required.";
-    if (!firstInvalidRef) firstInvalidRef = originRef;
-  }
+    if (!formData.origin?.trim()) {
+      errors.origin = "Origin is required.";
+      if (!firstInvalidRef) firstInvalidRef = originRef;
+    }
 
-  if (!formData.destination?.trim()) {
-    errors.destination = "Destination is required.";
-    if (!firstInvalidRef) firstInvalidRef = destinationRef;
-  }
+    if (!formData.destination?.trim()) {
+      errors.destination = "Destination is required.";
+      if (!firstInvalidRef) firstInvalidRef = destinationRef;
+    }
 
-  if (!formData.date) {
-    errors.date = "Date is required.";
-    if (!firstInvalidRef) firstInvalidRef = dateRef;
-  }
+    if (!formData.date) {
+      errors.date = "Date is required.";
+      if (!firstInvalidRef) firstInvalidRef = dateRef;
+    }
 
-  if (!formData.departureTime) {
-    errors.departureTime = "Departure time is required.";
-    if (!firstInvalidRef) firstInvalidRef = departureTimeRef;
-  }
+    if (!formData.departureTime) {
+      errors.departureTime = "Departure time is required.";
+      if (!firstInvalidRef) firstInvalidRef = departureTimeRef;
+    }
 
-  if (!formData.arrivalTime) {
-    errors.arrivalTime = "Arrival time is required.";
-    if (!firstInvalidRef) firstInvalidRef = arrivalTimeRef;
-  }
+    if (!formData.arrivalTime) {
+      errors.arrivalTime = "Arrival time is required.";
+      if (!firstInvalidRef) firstInvalidRef = arrivalTimeRef;
+    }
 
-  if (!formData.seats || formData.seats < 1) {
-    errors.seats = "At least one seat is required.";
-    if (!firstInvalidRef) firstInvalidRef = seatsRef;
-  }
+    if (!formData.seats || formData.seats < 1) {
+      errors.seats = "At least one seat is required.";
+      if (!firstInvalidRef) firstInvalidRef = seatsRef;
+    }
 
-  if (!formData.price || isNaN(parseFloat(formData.price))) {
-    errors.price = "Valid price is required.";
-    if (!firstInvalidRef) firstInvalidRef = priceRef;
-  }
+    if (!formData.price || isNaN(parseFloat(formData.price))) {
+      errors.price = "Valid price is required.";
+      if (!firstInvalidRef) firstInvalidRef = priceRef;
+    }
 
-  if (!formData.preferredCommunication || formData.preferredCommunication === "select preferred communication") {
-    errors.preferredCommunication = "Select preferred communication.";
-    if (!firstInvalidRef) firstInvalidRef = preferredCommunicationRef;
-  }
+    if (
+      !formData.preferredCommunication ||
+      formData.preferredCommunication === "select preferred communication"
+    ) {
+      errors.preferredCommunication = "Select preferred communication.";
+      if (!firstInvalidRef) firstInvalidRef = preferredCommunicationRef;
+    }
 
-  if (!formData.paymentMethods || formData.paymentMethods === "select payment method") {
-    errors.paymentMethods = "Select at least one payment method.";
-    if (!firstInvalidRef) firstInvalidRef = paymentMethodsRef;
-  }
+    if (
+      !formData.paymentMethods ||
+      formData.paymentMethods === "select payment method"
+    ) {
+      errors.paymentMethods = "Select at least one payment method.";
+      if (!firstInvalidRef) firstInvalidRef = paymentMethodsRef;
+    }
 
-  setFieldErrors(errors);
+    setFieldErrors(errors);
 
-  // Focus first invalid field
-  if (firstInvalidRef?.current) {
-    firstInvalidRef.current.focus();
-  }
+    // Focus first invalid field
+    if (firstInvalidRef?.current) {
+      firstInvalidRef.current.focus();
+    }
 
-  return Object.keys(errors).length === 0;
-};
-
-
+    return Object.keys(errors).length === 0;
+  };
 
   // Handle submit logic
   const handleSubmit = async (e) => {
@@ -404,80 +230,6 @@ const validateFields = () => {
     }
   };
 
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   setLoading(true);
-
-//   // Ensure missingFields function checks all required fields properly
-//   const missingFields = getMissingFields();
-//   if (missingFields.length > 0) {
-//     const missingFieldsList = missingFields.join(", ");
-//     toast.error(`Please fill out the following fields: ${missingFieldsList}`);
-//     setLoading(false);
-//     return;
-//   }
-
-//   const dep = formData.departureTime;
-//   const arr = formData.arrivalTime;
-
-//   if (!dep || !arr) {
-//     toast.error("Please enter both departure and arrival times.");
-//     setLoading(false);
-//     return;
-//   }
-
-//   const depDate = new Date(`1970-01-01T${dep}:00`);
-//   const arrDate = new Date(`1970-01-01T${arr}:00`);
-
-//   if (arrDate <= depDate) {
-//     toast.error("Arrival time must be after departure time.");
-//     setLoading(false);
-//     return;
-//   }
-
-//   try {
-//     // Handle custom payment method if necessary
-//     if (showCustomInput && customPayment.trim()) {
-//       formData.paymentMethods = [
-//         ...formData.paymentMethods.filter((m) => m !== "Other"),
-//         customPayment.trim(),
-//       ];
-//     }
-
-//     // Submit the form data
-//     await rideService.createRide({
-//       ...formData,
-//       price: parseFloat(formData.price),
-//       seats: parseInt(formData.seats),
-//       paymentMethods: formData.paymentMethods,
-//       departureTime: formatDateTime(formData.date, formData.departureTime),
-//       arrivalTime: formatDateTime(formData.date, formData.arrivalTime),
-//     });
-
-//     toast.success("Ride created successfully!");
-//     localStorage.removeItem("rideDraft");
-//     navigate("/dashboard");
-//   } catch (error) {
-//     console.error("Error creating ride:", error);
-
-//     if (
-//       error.response?.status === 400 &&
-//       error.response.data?.missingFields
-//     ) {
-//       // Save current form data
-//       localStorage.setItem("rideDraft", JSON.stringify(formData));
-//       toast.warn("Please complete your profile");
-//       navigate("/profile");
-//     } else {
-//       toast.error(error.response?.data?.message || "Failed to create ride");
-//     }
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-
-
   return (
     <>
       <div className="flex-grow mt-16 bg-white">
@@ -533,7 +285,7 @@ const validateFields = () => {
                       Route
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* <div className="space-y-2">
+                      <div className="space-y-2">
                         <label
                           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                           htmlFor="origin"
@@ -541,37 +293,24 @@ const validateFields = () => {
                           Departure
                         </label>
                         <input
-                          className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-emerald-200 focus:border-emerald-500"
+                          className={`flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                            fieldErrors.origin
+                              ? "border-red-500"
+                              : "border-emerald-200"
+                          }`}
                           id="origin"
                           name="origin"
                           placeholder="City or town"
                           value={formData.origin}
                           onChange={handleChange}
+                          ref={originRef}
                         />
-                         {fieldErrors.origin && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.origin}</p>
-  )}
-                      </div> */}
-                      <div className="space-y-2">
-  <label
-    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-    htmlFor="origin"
-  >
-    Departure
-  </label>
-  <input
-    className={`flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${fieldErrors.origin ? "border-red-500" : "border-emerald-200"}`}
-    id="origin"
-    name="origin"
-    placeholder="City or town"
-    value={formData.origin}
-    onChange={handleChange}
-    ref={originRef}
-  />
-  {fieldErrors.origin && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.origin}</p>
-  )}
-</div>
+                        {fieldErrors.origin && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {fieldErrors.origin}
+                          </p>
+                        )}
+                      </div>
 
                       <div className="space-y-2">
                         <label
@@ -589,39 +328,13 @@ const validateFields = () => {
                           onChange={handleChange}
                           ref={destinationRef}
                         />
-                          {fieldErrors.destination && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.destination}</p>
-  )}
+                        {fieldErrors.destination && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {fieldErrors.destination}
+                          </p>
+                        )}
                       </div>
                     </div>
-                    {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="pickupLocation"
-                      >
-                        Pickup location
-                      </label>
-                      <input
-                        className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-emerald-200 focus:border-emerald-500"
-                        id="pickupLocation"
-                        placeholder="Specific pickup point"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="dropoffLocation"
-                      >
-                        Dropoff location
-                      </label>
-                      <input
-                        className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-emerald-200 focus:border-emerald-500"
-                        id="dropoffLocation"
-                        placeholder="Specific dropoff point"
-                      />
-                    </div>
-                  </div> */}
                   </div>
                   <div className="space-y-4">
                     <h3 className="font-medium flex items-center">
@@ -661,9 +374,11 @@ const validateFields = () => {
                           onChange={handleDateChange}
                           ref={dateRef}
                         />
-                          {fieldErrors.date && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.date}</p>
-  )}
+                        {fieldErrors.date && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {fieldErrors.date}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <label
@@ -681,9 +396,11 @@ const validateFields = () => {
                           onChange={handleChange}
                           ref={departureTimeRef}
                         />
-                          {fieldErrors.departureTime && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.departureTime}</p>
-  )}
+                        {fieldErrors.departureTime && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {fieldErrors.departureTime}
+                          </p>
+                        )}
                       </div>
                       <div className="space-y-2">
                         <label
@@ -701,9 +418,11 @@ const validateFields = () => {
                           onChange={handleChange}
                           ref={arrivalTimeRef}
                         />
-                          {fieldErrors.arrivalTime && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.arrivalTime}</p>
-  )}
+                        {fieldErrors.arrivalTime && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {fieldErrors.arrivalTime}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -756,9 +475,11 @@ const validateFields = () => {
                             </option>
                           ))}
                         </select>
-                          {fieldErrors.seats && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.seats}</p>
-  )}
+                        {fieldErrors.seats && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {fieldErrors.seats}
+                          </p>
+                        )}
                       </div>
 
                       <div className="space-y-2">
@@ -785,76 +506,16 @@ const validateFields = () => {
                             ref={priceRef}
                             onWheel={(e) => e.target.blur()}
                           />
-                            {fieldErrors.price && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.price}</p>
-  )}
+                          {fieldErrors.price && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {fieldErrors.price}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
                   </div>
-                  {/* <div className="space-y-4">
-                  <h3 className="font-medium flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-car h-5 w-5 mr-2 text-emerald-600"
-                    >
-                      <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path>
-                      <circle cx="7" cy="17" r="2"></circle>
-                      <path d="M9 17h6"></path>
-                      <circle cx="17" cy="17" r="2"></circle>
-                    </svg>
-                    Vehicle
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="carMake"
-                      >
-                        Make
-                      </label>
-                      <input
-                        className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-emerald-200 focus:border-emerald-500"
-                        id="carMake"
-                        placeholder="Toyota"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="carModel"
-                      >
-                        Model
-                      </label>
-                      <input
-                        className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-emerald-200 focus:border-emerald-500"
-                        id="carModel"
-                        placeholder="Prius"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        htmlFor="carColor"
-                      >
-                        Color
-                      </label>
-                      <input
-                        className="flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-emerald-200 focus:border-emerald-500"
-                        id="carColor"
-                        placeholder="Blue"
-                      />
-                    </div>
-                  </div>
-                </div> */}
+
                   <div className="space-y-4">
                     <h3 className="font-medium flex items-center">
                       <svg
@@ -1028,9 +689,11 @@ const validateFields = () => {
                           </option>
                         ))}
                       </select>
-                        {fieldErrors.preferredCommunication && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.preferredCommunication}</p>
-  )}
+                      {fieldErrors.preferredCommunication && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {fieldErrors.preferredCommunication}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <label
@@ -1074,9 +737,11 @@ const validateFields = () => {
                           </option>
                         ))}
                       </select>
-                        {fieldErrors.paymentMethods && (
-    <p className="text-red-500 text-sm mt-1">{fieldErrors.paymentMethods}</p>
-  )}
+                      {fieldErrors.paymentMethods && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {fieldErrors.paymentMethods}
+                        </p>
+                      )}
 
                       {showCustomInput && (
                         <input

@@ -54,7 +54,10 @@ function PopularRoutes() {
                 <div className="p-6 pt-4">
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 h-[600px] border rounded-lg overflow-hidden bg-gray-50">
-                      <svg viewBox="0 0 800 600" className="rsm-svg w-full h-full">
+                      <svg
+                        viewBox="0 0 800 600"
+                        className="rsm-svg w-full h-full"
+                      >
                         <g>
                           <rect
                             width="800"
@@ -71,203 +74,203 @@ function PopularRoutes() {
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                               <path
                                 tabIndex="0"
                                 className="rsm-geography "
                                 fill="#EAEAEC"
                                 stroke="#D6D6DA"
-                                style={{outline: "none"}}
+                                style={{ outline: "none" }}
                               ></path>
                             </g>
                             <g>
@@ -279,7 +282,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -290,7 +293,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -299,7 +302,10 @@ function PopularRoutes() {
                                   fill="#10b981"
                                   opacity="0.05900546893826686"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823602)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823602)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M77.1025,28.7041 L72.8777,19.076"
@@ -314,7 +320,10 @@ function PopularRoutes() {
                                   fill="#10b981"
                                   opacity="0.966870764241321"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18675)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18675)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M77.1025,28.7041 L72.8777,19.076"
@@ -329,7 +338,10 @@ function PopularRoutes() {
                                   fill="#10b981"
                                   opacity="0.9409945310617331"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1764)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1764)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M77.1025,28.7041 L72.8777,19.076"
@@ -348,7 +360,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -359,7 +371,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -368,7 +380,10 @@ function PopularRoutes() {
                                   fill="#0ea5e9"
                                   opacity="0.05900546893826686"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823602)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823602)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M77.5946,12.9716 L80.2707,13.0827"
@@ -383,7 +398,10 @@ function PopularRoutes() {
                                   fill="#0ea5e9"
                                   opacity="0.966870764241321"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18675)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18675)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M77.5946,12.9716 L80.2707,13.0827"
@@ -398,7 +416,10 @@ function PopularRoutes() {
                                   fill="#0ea5e9"
                                   opacity="0.9409945310617331"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1764)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1764)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M77.5946,12.9716 L80.2707,13.0827"
@@ -417,7 +438,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -428,7 +449,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -437,7 +458,10 @@ function PopularRoutes() {
                                   fill="#8b5cf6"
                                   opacity="0.05900546893826686"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823602)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823602)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M78.4867,17.385 L77.5946,12.9716"
@@ -452,7 +476,10 @@ function PopularRoutes() {
                                   fill="#8b5cf6"
                                   opacity="0.966870764241321"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18675)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18675)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M78.4867,17.385 L77.5946,12.9716"
@@ -467,7 +494,10 @@ function PopularRoutes() {
                                   fill="#8b5cf6"
                                   opacity="0.9409945310617331"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1764)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1764)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M78.4867,17.385 L77.5946,12.9716"
@@ -486,7 +516,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -497,7 +527,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -506,7 +536,10 @@ function PopularRoutes() {
                                   fill="#ec4899"
                                   opacity="0.05900546893826686"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823602)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823602)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M73.8567,18.5204 L72.8777,19.076"
@@ -521,7 +554,10 @@ function PopularRoutes() {
                                   fill="#ec4899"
                                   opacity="0.966870764241321"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18675)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18675)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M73.8567,18.5204 L72.8777,19.076"
@@ -536,7 +572,10 @@ function PopularRoutes() {
                                   fill="#ec4899"
                                   opacity="0.9409945310617331"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1764)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1764)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M73.8567,18.5204 L72.8777,19.076"
@@ -555,7 +594,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -566,7 +605,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -575,7 +614,10 @@ function PopularRoutes() {
                                   fill="#f59e0b"
                                   opacity="0.05900546893826686"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823602)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823602)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M72.5714,23.0225 L72.8777,19.076"
@@ -590,7 +632,10 @@ function PopularRoutes() {
                                   fill="#f59e0b"
                                   opacity="0.966870764241321"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18675)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18675)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M72.5714,23.0225 L72.8777,19.076"
@@ -605,7 +650,10 @@ function PopularRoutes() {
                                   fill="#f59e0b"
                                   opacity="0.9409945310617331"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1764)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1764)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M72.5714,23.0225 L72.8777,19.076"
@@ -624,7 +672,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -635,7 +683,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -644,7 +692,10 @@ function PopularRoutes() {
                                   fill="#06b6d4"
                                   opacity="0.05900546893826686"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823602)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823602)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M88.3639,22.5726 L77.1025,28.7041"
@@ -659,7 +710,10 @@ function PopularRoutes() {
                                   fill="#06b6d4"
                                   opacity="0.9674381819495466"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18698)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18698)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M88.3639,22.5726 L77.1025,28.7041"
@@ -674,7 +728,10 @@ function PopularRoutes() {
                                   fill="#06b6d4"
                                   opacity="0.940254890389042"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1761)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1761)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M88.3639,22.5726 L77.1025,28.7041"
@@ -693,7 +750,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -704,7 +761,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -713,7 +770,10 @@ function PopularRoutes() {
                                   fill="#14b8a6"
                                   opacity="0.059745109610958025"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823898)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823898)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M75.7873,26.9124 L77.1025,28.7041"
@@ -728,7 +788,10 @@ function PopularRoutes() {
                                   fill="#14b8a6"
                                   opacity="0.9674381819495466"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18698)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18698)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M75.7873,26.9124 L77.1025,28.7041"
@@ -743,7 +806,10 @@ function PopularRoutes() {
                                   fill="#14b8a6"
                                   opacity="0.940254890389042"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1761)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1761)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M75.7873,26.9124 L77.1025,28.7041"
@@ -762,7 +828,7 @@ function PopularRoutes() {
                                 fill="transparent"
                                 strokeOpacity="0.15"
                                 data-tooltip-id="route-tooltip"
-                                style={{cursor: "pointer"}}
+                                style={{ cursor: "pointer" }}
                               ></path>
                               <g opacity="0.7">
                                 <path
@@ -773,7 +839,7 @@ function PopularRoutes() {
                                   fill="transparent"
                                   strokeLinecap="round"
                                   strokeDasharray="1,12"
-                                  style={{cursor: "pointer"}}
+                                  style={{ cursor: "pointer" }}
                                 ></path>
                                 <circle
                                   cx="0"
@@ -782,7 +848,10 @@ function PopularRoutes() {
                                   fill="#6366f1"
                                   opacity="0.059745109610958025"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(0.823898)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(0.823898)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M80.2707,13.0827 L76.9558,11.0168"
@@ -797,7 +866,10 @@ function PopularRoutes() {
                                   fill="#6366f1"
                                   opacity="0.9674381819495466"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.18698)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.18698)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M80.2707,13.0827 L76.9558,11.0168"
@@ -812,7 +884,10 @@ function PopularRoutes() {
                                   fill="#6366f1"
                                   opacity="0.940254890389042"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.1761)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.1761)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 >
                                   <animateMotion
                                     path="M80.2707,13.0827 L76.9558,11.0168"
@@ -841,7 +916,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Delhi: 3850 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 25.64940265845976)">
                                   <rect
@@ -855,7 +933,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Delhi
                                   </text>
@@ -881,7 +964,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Mumbai: 4920 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 25.64940265845976)">
                                   <rect
@@ -895,7 +981,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Mumbai
                                   </text>
@@ -921,7 +1012,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Bangalore: 2880 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 24.989083657021965)">
                                   <rect
@@ -935,7 +1029,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Bangalore
                                   </text>
@@ -961,7 +1060,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Chennai: 2450 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 24.989083657021965)">
                                   <rect
@@ -975,7 +1077,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Chennai
                                   </text>
@@ -1001,7 +1108,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Hyderabad: 1320 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 24.320867318369302)">
                                   <rect
@@ -1015,7 +1125,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Hyderabad
                                   </text>
@@ -1041,7 +1156,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Pune: 2100 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 26.17808975089369)">
                                   <rect
@@ -1055,7 +1173,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Pune
                                   </text>
@@ -1081,7 +1204,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Ahmedabad: 980 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 23.129529542706106)">
                                   <rect
@@ -1095,7 +1221,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Ahmedabad
                                   </text>
@@ -1121,7 +1252,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Kolkata: 760 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 22.11259298916914)">
                                   <rect
@@ -1135,7 +1269,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Kolkata
                                   </text>
@@ -1161,7 +1300,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Jaipur: 1250 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 24.102914577233022)">
                                   <rect
@@ -1175,7 +1317,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Jaipur
                                   </text>
@@ -1201,7 +1348,10 @@ function PopularRoutes() {
                                   data-tooltip-content="Coimbatore: 890 rides/week"
                                   opacity="0.7549373422836652"
                                   transform-origin="0px 0px"
-                                  style={{transform: "scale(1.01831)", transformOrigin: "0px 0px"}}
+                                  style={{
+                                    transform: "scale(1.01831)",
+                                    transformOrigin: "0px 0px",
+                                  }}
                                 ></circle>
                                 <g transform="translate(0, 22.74420510695238)">
                                   <rect
@@ -1215,7 +1365,12 @@ function PopularRoutes() {
                                   ></rect>
                                   <text
                                     textAnchor="middle"
-                                    style={{fontFamily: "system-ui", fontSize: "10px", fontWeight: "bold", fill: "rgb(51, 51, 51)"}}
+                                    style={{
+                                      fontFamily: "system-ui",
+                                      fontSize: "10px",
+                                      fontWeight: "bold",
+                                      fill: "rgb(51, 51, 51)",
+                                    }}
                                   >
                                     Coimbatore
                                   </text>
@@ -1258,7 +1413,7 @@ function PopularRoutes() {
                               <div
                                 className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
                                 data-v0-t="badge"
-                                style={{backgroundColor: "rgb(16, 185, 129)"}}
+                                style={{ backgroundColor: "rgb(16, 185, 129)" }}
                               >
                                 1840 rides
                               </div>
@@ -1286,7 +1441,7 @@ function PopularRoutes() {
                               <div
                                 className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
                                 data-v0-t="badge"
-                                style={{backgroundColor: "rgb(14, 165, 233)"}}
+                                style={{ backgroundColor: "rgb(14, 165, 233)" }}
                               >
                                 1560 rides
                               </div>
@@ -1314,7 +1469,7 @@ function PopularRoutes() {
                               <div
                                 className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
                                 data-v0-t="badge"
-                                style={{backgroundColor: "rgb(139, 92, 246)"}}
+                                style={{ backgroundColor: "rgb(139, 92, 246)" }}
                               >
                                 1320 rides
                               </div>
@@ -1342,7 +1497,7 @@ function PopularRoutes() {
                               <div
                                 className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
                                 data-v0-t="badge"
-                                style={{backgroundColor: "rgb(236, 72, 153)"}}
+                                style={{ backgroundColor: "rgb(236, 72, 153)" }}
                               >
                                 2100 rides
                               </div>
@@ -1370,7 +1525,7 @@ function PopularRoutes() {
                               <div
                                 className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80"
                                 data-v0-t="badge"
-                                style={{backgroundColor: "rgb(245, 158, 11)"}}
+                                style={{ backgroundColor: "rgb(245, 158, 11)" }}
                               >
                                 980 rides
                               </div>
@@ -1391,7 +1546,7 @@ function PopularRoutes() {
                       className="h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground grid grid-cols-2 md:grid-cols-4 gap-2"
                       tabIndex="0"
                       data-orientation="horizontal"
-                      style={{outline: "none"}}
+                      style={{ outline: "none" }}
                     >
                       <button
                         type="button"
@@ -1459,7 +1614,7 @@ function PopularRoutes() {
                     id="radix-«ra5»-content-north"
                     tabIndex="0"
                     className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 space-y-8"
-                    style={{animationDuration: "0s"}}
+                    style={{ animationDuration: "0s" }}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       <div
@@ -1694,7 +1849,9 @@ function PopularRoutes() {
                                   <circle cx="12" cy="12" r="10"></circle>
                                   <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span className="text-sm text-gray-600">4h</span>
+                                <span className="text-sm text-gray-600">
+                                  4h
+                                </span>
                               </div>
                               <div className="flex items-center">
                                 <svg
@@ -1846,7 +2003,9 @@ function PopularRoutes() {
                                   <circle cx="12" cy="12" r="10"></circle>
                                   <polyline points="12 6 12 12 16 14"></polyline>
                                 </svg>
-                                <span className="text-sm text-gray-600">7h</span>
+                                <span className="text-sm text-gray-600">
+                                  7h
+                                </span>
                               </div>
                               <div className="flex items-center">
                                 <svg
@@ -1966,7 +2125,13 @@ function PopularRoutes() {
                     data-nimg="fill"
                     className="object-cover"
                     src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-TgdveqwgFHd9BkjkuVvjQ74sKGbPzf.png"
-                    style={{position: "absolute", height: "100%", width: "100%", inset: "0px", color: "transparent"}}
+                    style={{
+                      position: "absolute",
+                      height: "100%",
+                      width: "100%",
+                      inset: "0px",
+                      color: "transparent",
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
                     <div className="p-6 text-white text-left">

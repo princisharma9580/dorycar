@@ -35,7 +35,7 @@ const Navbar = () => {
     { label: "How It Works", path: "/how-it-works" },
     { label: "Find Rides", path: "/find-rides" },
     { label: "Offer a Ride", path: "/offer-ride" },
-    { label: "Community", path: "/community" },
+    // { label: "Community", path: "/community" },
   ];
 
   const drawer = (

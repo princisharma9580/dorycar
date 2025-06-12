@@ -1,22 +1,46 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  Box,
-  Typography,
-  Paper,
   Avatar,
-  Divider,
-  TextField,
+  Box,
   Button,
-  IconButton,
-  MenuItem,
-  InputLabel,
-  Select,
+  Collapse,
+  Divider,
+  Fade,
   FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
+  Grow,
+  Slide,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
-import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import { PhotoCamera } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import rideService from "../services/rideService";
 import Footer from "./Footer";
+import { keyframes } from "@mui/system";
+
+// Ring animation keyframes
+const pulseRing = keyframes`
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+`;
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -75,25 +99,38 @@ const Profile = () => {
     idProof: "",
     license: "",
   });
+  const [openModal, setOpenModal] = useState(false);
+  const [modalImage, setModalImage] = useState(null);
+  const [modalTitle, setModalTitle] = useState("");
 
-    const extractKeyFromUrl = (url) => {
-  if (!url) return "";
-  try {
-    const urlObj = new URL(url);
-    return urlObj.pathname.slice(1); // remove leading '/'
-  } catch {
-    return "";
-  }
-};
+  const handleOpenModal = (imgSrc, title) => {
+    setModalImage(imgSrc);
+    setModalTitle(title.replace(/([A-Z])/g, " $1").trim());
+    setOpenModal(true);
+  };
 
-// Example: initialize previous keys when loading user data
-const [previousKeys, setPreviousKeys] = useState({
-  profileImageKey: "",
-  vehicleImageKey: "",
-  rcDocumentKey: "",
-  idProofKey: "",
-  licenseKey: "",
-});
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const extractKeyFromUrl = (url) => {
+    if (!url) return "";
+    try {
+      const urlObj = new URL(url);
+      return urlObj.pathname.slice(1); // remove leading '/'
+    } catch {
+      return "";
+    }
+  };
+
+  // Example: initialize previous keys when loading user data
+  const [previousKeys, setPreviousKeys] = useState({
+    profileImageKey: "",
+    vehicleImageKey: "",
+    rcDocumentKey: "",
+    idProofKey: "",
+    licenseKey: "",
+  });
 
   useEffect(() => {
     console.log("formData.profileImage:", formData.profileImage);
@@ -140,13 +177,13 @@ const [previousKeys, setPreviousKeys] = useState({
         license: user.license || "",
         // profileImage: user.profileImage || "",
       });
-       setPreviousKeys({
-      profileImageKey: extractKeyFromUrl(user.profileImage),
-      vehicleImageKey: extractKeyFromUrl(user.vehicleImage),
-      rcDocumentKey: extractKeyFromUrl(user.rcDocument),
-      idProofKey: extractKeyFromUrl(user.idProof),
-      licenseKey: extractKeyFromUrl(user.license),
-    });
+      setPreviousKeys({
+        profileImageKey: extractKeyFromUrl(user.profileImage),
+        vehicleImageKey: extractKeyFromUrl(user.vehicleImage),
+        rcDocumentKey: extractKeyFromUrl(user.rcDocument),
+        idProofKey: extractKeyFromUrl(user.idProof),
+        licenseKey: extractKeyFromUrl(user.license),
+      });
     }
   }, [user]);
 
@@ -173,19 +210,19 @@ const [previousKeys, setPreviousKeys] = useState({
   };
 
   const getFileNameFromUrl = (url) => {
-  if (!url) return "";
-  try {
-    const urlObj = new URL(url);
-    const pathname = urlObj.pathname;
-    return pathname.substring(pathname.lastIndexOf("/") + 1);
-  } catch {
-    // If invalid URL (maybe just a filename string)
-    if (typeof url === "string") {
-      return url.split("/").pop();
+    if (!url) return "";
+    try {
+      const urlObj = new URL(url);
+      const pathname = urlObj.pathname;
+      return pathname.substring(pathname.lastIndexOf("/") + 1);
+    } catch {
+      // If invalid URL (maybe just a filename string)
+      if (typeof url === "string") {
+        return url.split("/").pop();
+      }
+      return "";
     }
-    return "";
-  }
-};
+  };
 
   const handleFileUpload = (e, key) => {
     const file = e.target.files[0];
@@ -304,23 +341,33 @@ const [previousKeys, setPreviousKeys] = useState({
       }
 
       const updated = {
-  ...formData,
-  profileImage: uploadedProfileImage,
-  vehicleImage: uploadedVehicleImage,
-  rcDocument: uploadedRcDocument,
-  idProof: uploadedIdProof,
-  license: uploadedLicense,
-  previousProfileImageKey: uploadedProfileImage !== formData.profileImage ? previousKeys.profileImageKey : "",
-  previousVehicleImageKey: uploadedVehicleImage !== formData.vehicleImage ? previousKeys.vehicleImageKey : "",
-  previousRcDocumentKey: uploadedRcDocument !== formData.rcDocument ? previousKeys.rcDocumentKey : "",
-  previousIdProofKey: uploadedIdProof !== formData.idProof ? previousKeys.idProofKey : "",
-  previousLicenseKey: uploadedLicense !== formData.license ? previousKeys.licenseKey : "",
-  address: formData.address,
-  emergencyContact: formData.emergencyContact,
-  phone: formData.phone,
-  gender: formData.gender,
-};
-
+        ...formData,
+        profileImage: uploadedProfileImage,
+        vehicleImage: uploadedVehicleImage,
+        rcDocument: uploadedRcDocument,
+        idProof: uploadedIdProof,
+        license: uploadedLicense,
+        previousProfileImageKey:
+          uploadedProfileImage !== formData.profileImage
+            ? previousKeys.profileImageKey
+            : "",
+        previousVehicleImageKey:
+          uploadedVehicleImage !== formData.vehicleImage
+            ? previousKeys.vehicleImageKey
+            : "",
+        previousRcDocumentKey:
+          uploadedRcDocument !== formData.rcDocument
+            ? previousKeys.rcDocumentKey
+            : "",
+        previousIdProofKey:
+          uploadedIdProof !== formData.idProof ? previousKeys.idProofKey : "",
+        previousLicenseKey:
+          uploadedLicense !== formData.license ? previousKeys.licenseKey : "",
+        address: formData.address,
+        emergencyContact: formData.emergencyContact,
+        phone: formData.phone,
+        gender: formData.gender,
+      };
 
       console.log("User fetched for interest:", user);
 
@@ -328,14 +375,14 @@ const [previousKeys, setPreviousKeys] = useState({
       updateUser(updated);
       setFormData(updated);
       // After successful update:
-setPreviousKeys({
-  profileImageKey: extractKeyFromUrl(updated.profileImage),
-  vehicleImageKey: extractKeyFromUrl(updated.vehicleImage),
-  rcDocumentKey: extractKeyFromUrl(updated.rcDocument),
-  idProofKey: extractKeyFromUrl(updated.idProof),
-  licenseKey: extractKeyFromUrl(updated.license),
-});
- // Also update local state here!
+      setPreviousKeys({
+        profileImageKey: extractKeyFromUrl(updated.profileImage),
+        vehicleImageKey: extractKeyFromUrl(updated.vehicleImage),
+        rcDocumentKey: extractKeyFromUrl(updated.rcDocument),
+        idProofKey: extractKeyFromUrl(updated.idProof),
+        licenseKey: extractKeyFromUrl(updated.license),
+      });
+      // Also update local state here!
       setEditMode(false);
     } catch (err) {
       console.error("Failed to update profile:", err.message);
@@ -346,505 +393,460 @@ setPreviousKeys({
 
   return (
     <>
-      <Box
-        sx={{
-          pt: 15,
-          pb: 8,
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "2.5rem",
-          background: "white",
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: 600 }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "center",
-              mb: 2,
-              position: "relative",
-            }}
-          >
-            <Avatar
-              src={profilePreview}
-              alt={user.name}
-              sx={{ width: 80, height: 80 }}
-            />
-            {editMode && (
-              <IconButton
-                component="label"
+      <Fade in timeout={800}>
+        <Box
+          sx={{
+            pt: 10,
+            pb: 6,
+            minHeight: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            background: "linear-gradient(to bottom right, #f0fdf4, #d1fae5)",
+            transition: "all 0.5s ease-in-out",
+          }}
+        >
+          <Grow in timeout={1000}>
+            <Paper
+              elevation={6}
+              sx={{
+                p: 5,
+                width: "100%",
+                maxWidth: 700,
+                borderRadius: 4,
+                backgroundColor: "#ffffff",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+              }}
+            >
+              <Box
                 sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: "30%",
-                  bgcolor: "white",
-                  "&:hover": { bgcolor: "#eee" },
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  mb: 2,
+                  position: "relative",
                 }}
               >
-                <PhotoCamera />
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={(e) => {
-                    console.log("Selected file:", e.target.files[0]);
-                    setSelectedFile(e.target.files[0]);
+                {/* Animated Ring */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    width: 120,
+                    height: 120,
+                    borderRadius: "50%",
+                    backgroundColor: "#34d399",
+                    animation: `${pulseRing} 2s infinite ease-out`,
+                    zIndex: 0,
                   }}
                 />
-              </IconButton>
-            )}
-          </Box>
 
-          <Typography variant="h5" align="center" gutterBottom>
-            {editMode ? "Edit Profile" : "Profile"}
-          </Typography>
-          {user.averageRating > 0 && (
-            <Box mt={2}>
-              <Typography>
-                <strong>Your Overall Ratings:</strong>{" "}
-                <span style={{ color: "#fbc02d" }}>
-                  {"★".repeat(Math.round(user.averageRating))}{" "}
-                  {"☆".repeat(5 - Math.round(user.averageRating))} (
-                  {user.averageRating.toFixed(1)})
-                </span>
-              </Typography>
-            </Box>
-          )}
-          <Divider sx={{ mb: 2 }} />
-
-          {editMode ? (
-            <>
-              <TextField
-                fullWidth
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="DOB"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Emergency Contact"
-                name="emergencyContact"
-                value={formData.emergencyContact}
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Gender</InputLabel>
-                <Select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={handleChange}
-                  label="Gender"
-                >
-                  {genders.map((g) => (
-                    <MenuItem key={g} value={g}>
-                      {g}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <Typography variant="h6" mt={2}>
-                Vehicle Info (Only for Ride Creators)
-              </Typography>
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Vehicle Type</InputLabel>
-                <Select
-                  value={formData.vehicle.type}
-                  onChange={(e) =>
-                    handleNestedChange("vehicle", "type", e.target.value)
-                  }
-                >
-                  {vehicleTypes.map((v) => (
-                    <MenuItem key={v} value={v}>
-                      {v}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Make</InputLabel>
-                <Select
-                  value={formData.vehicle.make}
-                  onChange={(e) =>
-                    handleNestedChange("vehicle", "make", e.target.value)
-                  }
-                >
-                  {carMakers.map((v) => (
-                    <MenuItem key={v} value={v}>
-                      {v}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <TextField
-                fullWidth
-                label="Model"
-                value={formData.vehicle.model}
-                onChange={(e) =>
-                  handleNestedChange("vehicle", "model", e.target.value)
-                }
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Color"
-                value={formData.vehicle.color}
-                onChange={(e) =>
-                  handleNestedChange("vehicle", "color", e.target.value)
-                }
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Year"
-                value={formData.vehicle.year}
-                onChange={(e) =>
-                  handleNestedChange("vehicle", "year", e.target.value)
-                }
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                label="Registration"
-                value={formData.vehicle.registration}
-                onChange={(e) =>
-                  handleNestedChange("vehicle", "registration", e.target.value)
-                }
-                sx={{ mb: 2 }}
-              />
-
-              <FormControl fullWidth sx={{ mb: 2 }}>
-                <InputLabel>Fuel Type</InputLabel>
-                <Select
-                  value={formData.vehicle.fuel}
-                  onChange={(e) =>
-                    handleNestedChange("vehicle", "fuel", e.target.value)
-                  }
-                >
-                  {fuelTypes.map((f) => (
-                    <MenuItem key={f} value={f}>
-                      {f}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <Typography variant="h6">Uploads</Typography>
-              <Button
-                component="label"
-                variant="outlined"
-                fullWidth
-                sx={{
-                  mb: 2,
-                  color: "#059669",
-                  borderColor: "#059669",
-                  "&:hover": {
-                    borderColor: "#047857",
-                    backgroundColor: "#ecfdf5",
-                  },
-                }}
-              >
-                {/* {formData.vehicleImage?.name || "Upload Vehicle Image"} */}
-                {formData.vehicleImage instanceof File
-    ? formData.vehicleImage.name
-    : getFileNameFromUrl(formData.vehicleImage) || "Upload Vehicle Image"}
-                <input
-                  type="file"
-                  hidden
-                  onChange={(e) => handleFileUpload(e, "vehicleImage")}
-                />
-              </Button>
-              <Button
-                component="label"
-                variant="outlined"
-                fullWidth
-                sx={{
-                  mb: 1,
-                  color: "#059669",
-                  borderColor: "#059669",
-                  "&:hover": {
-                    borderColor: "#047857",
-                    backgroundColor: "#ecfdf5",
-                  },
-                }}
-              >
-                {/* {formData.rcDocument?.name || "Upload RC Document"} */}
-                {formData.rcDocument instanceof File
-    ? formData.rcDocument.name
-    : getFileNameFromUrl(formData.rcDocument) || "Upload RC Document"}
-                <input
-                  type="file"
-                  hidden
-                  onChange={(e) => handleFileUpload(e, "rcDocument")}
-                />
-              </Button>
-              <Button
-                component="label"
-                variant="outlined"
-                fullWidth
-                sx={{
-                  mb: 2,
-                  color: "#059669",
-                  borderColor: "#059669",
-                  "&:hover": {
-                    borderColor: "#047857",
-                    backgroundColor: "#ecfdf5",
-                  },
-                }}
-              >
-                {/* {formData.idProof?.name || "Upload ID Proof"} */}
-                {formData.idProof instanceof File
-    ? formData.idProof.name
-    : getFileNameFromUrl(formData.idProof) || "Upload ID Proof"}
-                <input
-                  type="file"
-                  hidden
-                  onChange={(e) => handleFileUpload(e, "idProof")}
-                />
-              </Button>
-              <Button
-                component="label"
-                variant="outlined"
-                fullWidth
-                sx={{
-                  mb: 2,
-                  color: "#059669",
-                  borderColor: "#059669",
-                  "&:hover": {
-                    borderColor: "#047857",
-                    backgroundColor: "#ecfdf5",
-                  },
-                }}
-              >
-                {/* {formData.license?.name || "Upload License"} */}
-                {formData.license instanceof File
-    ? formData.license.name
-    : getFileNameFromUrl(formData.license) || "Upload License"}
-                <input
-                  type="file"
-                  hidden
-                  onChange={(e) => handleFileUpload(e, "license")}
-                />
-              </Button>
-
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Button
-                  variant="contained"
-                  onClick={handleSave}
+                {/* Avatar Container */}
+                <Box
                   sx={{
-                    backgroundColor: "#059669",
-                    "&:hover": {
-                      backgroundColor: "#047857",
+                    width: 100,
+                    height: 100,
+                    borderRadius: "50%",
+                    overflow: "hidden",
+                    position: "relative",
+                    boxShadow: "0 0 12px #34d399",
+                    zIndex: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    "&:hover .avatar-img": {
+                      transform: "scale(1.05)",
+                    },
+                    "&:hover .avatar-overlay": {
+                      opacity: 1,
                     },
                   }}
+                  onClick={() =>
+                    handleOpenModal(profilePreview, "Profile Image")
+                  }
                 >
-                  Save
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => setEditMode(false)}
-                >
-                  Cancel
-                </Button>
+                  <Avatar
+                    src={profilePreview}
+                    alt={user.name}
+                    className="avatar-img"
+                    sx={{
+                      width: "100%",
+                      height: "100%",
+                      transition: "transform 0.3s ease-in-out",
+                    }}
+                  />
+
+                  <Box
+                    className="avatar-overlay"
+                    sx={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      borderRadius: "50%",
+                      backgroundColor: "rgba(0, 0, 0, 0.4)",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      color: "#fff",
+                      opacity: 0,
+                      transition: "opacity 0.3s ease-in-out",
+                      zIndex: 2,
+                    }}
+                  >
+                    {!editMode ? (
+                      <Typography variant="caption">View</Typography>
+                    ) : null}
+                  </Box>
+                </Box>
+
+                {/* Camera Icon Outside (only in edit mode) */}
+                {editMode && (
+                  <IconButton
+                    component="label"
+                    sx={{
+                      position: "absolute",
+                      bottom: -20,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      bgcolor: "#f9fafb",
+                      border: "2px solid #d1d5db",
+                      boxShadow: 3,
+                      p: 1.2,
+                      zIndex: 3,
+                      transition: "all 0.3s ease-in-out",
+                      "&:hover": {
+                        bgcolor: "#f3f4f6",
+                        transform: "translateX(-50%) scale(1.05)",
+                      },
+                    }}
+                  >
+                    <PhotoCamera color="action" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      onChange={(e) => setSelectedFile(e.target.files[0])}
+                    />
+                  </IconButton>
+                )}
               </Box>
-            </>
-          ) : (
-            <>
-              {user.name && (
-                <Typography>
-                  <strong>Name:</strong> {user.name}
-                </Typography>
-              )}
-              {user.email && (
-                <Typography>
-                  <strong>Email:</strong> {user.email}
-                </Typography>
-              )}
-              {user.phone && (
-                <Typography>
-                  <strong>Phone:</strong> {user.phone}
-                </Typography>
-              )}
-              {user.gender && (
-                <Typography>
-                  <strong>Gender:</strong> {user.gender}
-                </Typography>
-              )}
-              {formData.dob && (
-                <Typography>
-                  <strong>DOB:</strong> {formData.dob}
-                </Typography>
-              )}
-              {formData.emergencyContact && (
-                <Typography>
-                  <strong>Emergency Contact:</strong>{" "}
-                  {formData.emergencyContact}
-                </Typography>
-              )}
-              {formData.address && (
-                <Typography>
-                  <strong>Address:</strong> {formData.address}
-                </Typography>
-              )}
 
-              {formData.vehicle?.type && (
-                <>
-                  <Typography sx={{ mt: 2 }}>
-                    <strong>Vehicle:</strong> {formData.vehicle.type}
-                  </Typography>
-                  {formData.vehicle.make && (
-                    <Typography>
-                      <strong>Make:</strong> {formData.vehicle.make}
-                    </Typography>
-                  )}
-                  {formData.vehicle.model && (
-                    <Typography>
-                      <strong>Model:</strong> {formData.vehicle.model}
-                    </Typography>
-                  )}
-                  {formData.vehicle.color && (
-                    <Typography>
-                      <strong>Color:</strong> {formData.vehicle.color}
-                    </Typography>
-                  )}
-                  {formData.vehicle.year && (
-                    <Typography>
-                      <strong>Year:</strong> {formData.vehicle.year}
-                    </Typography>
-                  )}
-                  {formData.vehicle.registration && (
-                    <Typography>
-                      <strong>Registration:</strong>{" "}
-                      {formData.vehicle.registration}
-                    </Typography>
-                  )}
-
-                  {formData.vehicle.fuel && (
-                    <Typography>
-                      <strong>Fuel:</strong> {formData.vehicle.fuel}
-                    </Typography>
-                  )}
-                  {formData.idProof && (
-                    <Typography>
-                      <strong>ID Proof:</strong>{" "}
-                      <img
-                        src={formData.idProof}
-                        alt="Vehicle Preview"
-                        style={{
-                          width: "100%",
-                          maxHeight: 200,
-                          objectFit: "contain",
-                          marginBottom: 16,
-                        }}
-                      />
-                    </Typography>
-                  )}
-
-                  {formData.license && (
-                    <Typography>
-                      <strong>License:</strong>{" "}
-                      <img
-                        src={formData.license}
-                        alt="Vehicle Preview"
-                        style={{
-                          width: "100%",
-                          maxHeight: 200,
-                          objectFit: "contain",
-                          marginBottom: 16,
-                        }}
-                      />
-                    </Typography>
-                  )}
-                  
-                  {formData.rcDocument && (
-                    <Typography>
-                      <strong>RC Document:</strong>{" "}
-                      <img
-                        src={formData.rcDocument}
-                        alt="Vehicle Preview"
-                        style={{
-                          width: "100%",
-                          maxHeight: 200,
-                          objectFit: "contain",
-                          marginBottom: 16,
-                        }}
-                      />
-                    </Typography>
-                  )}
-
-                  {formData.vehicleImage && (
-                    <Typography>
-                      <strong>Vehicle Image :</strong>{" "}
-                      <img
-                        src={formData.vehicleImage}
-                        alt="Vehicle Preview"
-                        style={{
-                          width: "100%",
-                          maxHeight: 200,
-                          objectFit: "contain",
-                          marginBottom: 16,
-                        }}
-                      />
-                    </Typography>
-                  )}
-                </>
-              )}
-
-              <Button
-                fullWidth
-                variant="contained"
-                sx={{
-                  mt: 3,
-                  backgroundColor: "#059669",
-                  "&:hover": {
-                    backgroundColor: "#047857",
-                  },
-                }}
-                onClick={() => setEditMode(true)}
+              {/* Title */}
+              <Typography
+                variant="h5"
+                align="center"
+                fontWeight="bold"
+                gutterBottom
+                sx={{ color: "#047857", transition: "color 0.3s" }}
               >
-                Edit Profile
-              </Button>
-            </>
-          )}
-        </Paper>
-      </Box>
+                {editMode ? "Edit Your Profile" : "Profile Details"}
+              </Typography>
+
+              {user.averageRating > 0 && (
+                <Typography align="center" sx={{ mt: 1, mb: 2 }}>
+                  <strong>Your Rating:</strong>{" "}
+                  <span style={{ color: "#fbbf24", fontSize: "1.2rem" }}>
+                    {"★".repeat(Math.round(user.averageRating))}
+                    {"☆".repeat(5 - Math.round(user.averageRating))} (
+                    {user.averageRating.toFixed(1)})
+                  </span>
+                </Typography>
+              )}
+
+              <Divider sx={{ mb: 3 }} />
+
+              {/* Form or Read View */}
+              <Collapse in={editMode}>
+                <Box>
+                  {[
+                    { name: "name", label: "Name" },
+                    { name: "email", label: "Email" },
+                    { name: "phone", label: "Phone" },
+                    { name: "dob", label: "DOB" },
+                    { name: "emergencyContact", label: "Emergency Contact" },
+                    { name: "address", label: "Address" },
+                  ].map((field) => (
+                    <TextField
+                      key={field.name}
+                      fullWidth
+                      name={field.name}
+                      label={field.label}
+                      value={formData[field.name]}
+                      onChange={handleChange}
+                      sx={{ mb: 2 }}
+                    />
+                  ))}
+
+                  {/* Gender */}
+                  <FormControl fullWidth sx={{ mb: 2 }}>
+                    <InputLabel>Gender</InputLabel>
+                    <Select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleChange}
+                      label="Gender"
+                    >
+                      {genders.map((g) => (
+                        <MenuItem key={g} value={g}>
+                          {g}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
+                  {/* Vehicle Info */}
+                  <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+                    Vehicle Info (For Ride Creators)
+                  </Typography>
+                  {[
+                    ["vehicle", "type", "Vehicle Type", vehicleTypes],
+                    ["vehicle", "make", "Make", carMakers],
+                    ["vehicle", "fuel", "Fuel Type", fuelTypes],
+                  ].map(([section, field, label, options]) => (
+                    <FormControl fullWidth sx={{ mb: 2 }} key={field}>
+                      <InputLabel>{label}</InputLabel>
+                      <Select
+                        value={formData[section][field]}
+                        onChange={(e) =>
+                          handleNestedChange(section, field, e.target.value)
+                        }
+                      >
+                        {options.map((opt) => (
+                          <MenuItem key={opt} value={opt}>
+                            {opt}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  ))}
+
+                  {["model", "color", "year", "registration"].map((field) => (
+                    <TextField
+                      key={field}
+                      fullWidth
+                      label={field.charAt(0).toUpperCase() + field.slice(1)}
+                      value={formData.vehicle[field]}
+                      onChange={(e) =>
+                        handleNestedChange("vehicle", field, e.target.value)
+                      }
+                      sx={{ mb: 2 }}
+                    />
+                  ))}
+
+                  {/* Uploads */}
+                  <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
+                    Upload Documents
+                  </Typography>
+                  {[
+                    ["vehicleImage", "Vehicle Image"],
+                    ["rcDocument", "RC Document"],
+                    ["idProof", "ID Proof"],
+                    ["license", "License"],
+                  ].map(([field, label]) => (
+                    <Button
+                      key={field}
+                      component="label"
+                      variant="outlined"
+                      fullWidth
+                      sx={{
+                        mb: 2,
+                        color: "#059669",
+                        borderColor: "#059669",
+                        "&:hover": {
+                          borderColor: "#047857",
+                          backgroundColor: "#ecfdf5",
+                        },
+                      }}
+                    >
+                      {formData[field] instanceof File
+                        ? formData[field].name
+                        : getFileNameFromUrl(formData[field]) ||
+                          `Upload ${label}`}
+                      <input
+                        type="file"
+                        hidden
+                        onChange={(e) => handleFileUpload(e, field)}
+                      />
+                    </Button>
+                  ))}
+
+                  {/* Buttons */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      mt: 3,
+                    }}
+                  >
+                    <Button
+                      variant="contained"
+                      onClick={handleSave}
+                      sx={{
+                        backgroundColor: "#059669",
+                        "&:hover": {
+                          backgroundColor: "#047857",
+                        },
+                      }}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => setEditMode(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </Box>
+                </Box>
+              </Collapse>
+
+              <Collapse in={!editMode}>
+                <Box>
+                  {[
+                    ["Name", user.name],
+                    ["Email", user.email],
+                    ["Phone", user.phone],
+                    ["Gender", user.gender],
+                    ["DOB", formData.dob],
+                    ["Emergency Contact", formData.emergencyContact],
+                    ["Address", formData.address],
+                  ].map(
+                    ([label, value]) =>
+                      value && (
+                        <Typography key={label} sx={{ mb: 1 }}>
+                          <strong>{label}:</strong> {value}
+                        </Typography>
+                      )
+                  )}
+
+                  {formData.vehicle?.type && (
+                    <>
+                      <Divider sx={{ my: 2 }} />
+                      <Typography variant="h6" sx={{ mb: 1 }}>
+                        Vehicle Details
+                      </Typography>
+                      {[
+                        ["Type", formData.vehicle.type],
+                        ["Make", formData.vehicle.make],
+                        ["Model", formData.vehicle.model],
+                        ["Color", formData.vehicle.color],
+                        ["Year", formData.vehicle.year],
+                        ["Registration", formData.vehicle.registration],
+                        ["Fuel", formData.vehicle.fuel],
+                      ].map(
+                        ([label, value]) =>
+                          value && (
+                            <Typography key={label} sx={{ mb: 1 }}>
+                              <strong>{label}:</strong> {value}
+                            </Typography>
+                          )
+                      )}
+                    </>
+                  )}
+
+                  {["idProof", "license", "rcDocument", "vehicleImage"].map(
+                    (docKey) =>
+                      formData[docKey] && (
+                        <Box
+                          key={docKey}
+                          sx={{
+                            width: "100%",
+                            mb: 2,
+                            position: "relative",
+                            overflow: "hidden",
+                            borderRadius: 2,
+                            border: "1px solid #e5e7eb",
+                            p: 1,
+                            cursor: "pointer",
+                            "&:hover .doc-title": {
+                              opacity: 1,
+                              transform: "translateY(0)",
+                            },
+                            "&:hover img": {
+                              transform: "scale(1.05)",
+                            },
+                          }}
+                          onClick={() =>
+                            handleOpenModal(formData[docKey], docKey)
+                          }
+                        >
+                          {/* Image */}
+                          <img
+                            src={formData[docKey]}
+                            alt={docKey}
+                            style={{
+                              width: "100%",
+                              height: 200,
+                              objectFit: "contain",
+                              transition: "transform 0.3s ease",
+                            }}
+                          />
+
+                          {/* Animated title */}
+                          <Box
+                            className="doc-title"
+                            sx={{
+                              position: "absolute",
+                              bottom: 8,
+                              left: 8,
+                              right: 8,
+                              backgroundColor: "rgba(0,0,0,0.6)",
+                              color: "white",
+                              borderRadius: 1,
+                              px: 1,
+                              py: 0.5,
+                              opacity: 0,
+                              transform: "translateY(10px)",
+                              transition: "all 0.3s ease",
+                              fontSize: 14,
+                            }}
+                          >
+                            {docKey.replace(/([A-Z])/g, " $1").trim()}{" "}
+                            {/* prettify key */}
+                          </Box>
+                        </Box>
+                      )
+                  )}
+
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    sx={{
+                      mt: 4,
+                      backgroundColor: "#059669",
+                      "&:hover": {
+                        backgroundColor: "#047857",
+                      },
+                    }}
+                    onClick={() => setEditMode(true)}
+                  >
+                    Edit Profile
+                  </Button>
+                </Box>
+              </Collapse>
+            </Paper>
+          </Grow>
+        </Box>
+      </Fade>
       <Footer />
+      {/* Lightbox Modal */}
+      <Dialog
+        open={openModal}
+        onClose={handleCloseModal}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>{modalTitle}</DialogTitle>
+        <DialogContent sx={{ textAlign: "center" }}>
+          <img
+            src={modalImage}
+            alt={modalTitle}
+            style={{ width: "100%", maxHeight: "80vh", objectFit: "contain" }}
+          />
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
