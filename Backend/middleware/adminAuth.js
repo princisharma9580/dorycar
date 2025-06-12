@@ -1,22 +1,24 @@
-// routes/adminAuth.js or controllers/adminAuth.js
-
+// middleware/adminAuth.js
 const jwt = require("jsonwebtoken");
 
-const loginAdmin = async (req, res) => {
-  const { email, password } = req.body;
+module.exports = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-  if (
-    email === process.env.ADMIN_EMAIL &&
-    password === process.env.ADMIN_PASSWORD
-  ) {
-    const token = jwt.sign({ role: "admin" }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    return res.json({ token });
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Unauthorized - No token provided" });
   }
 
-  return res.status(401).json({ message: "Invalid credentials" });
-};
+  const token = authHeader.split(" ")[1];
 
-module.exports = { loginAdmin };
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ message: "Forbidden - Not an admin" });
+    }
+
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "Unauthorized - Invalid token" });
+  }
+};

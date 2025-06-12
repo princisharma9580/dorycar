@@ -13,24 +13,6 @@ aws.config.update({
 
 const s3 = new aws.S3();
 
-// router.get("/presigned-url", auth, async (req, res) => {
-//   const key = `profile-images/${uuidv4()}.jpeg`; // adjust path and extension
-
-//   const params = {
-//     Bucket: process.env.AWS_BUCKET_NAME,
-//     Key: key,
-//     Expires: 60, // 1 minute
-//     ContentType: "image/jpeg", // change if uploading PNG, etc.
-//   };
-
-//   try {
-//     const url = await s3.getSignedUrlPromise("putObject", params);
-//     res.json({ url, key });
-//   } catch (err) {
-//     res.status(500).json({ message: "Failed to generate presigned URL", error: err.message });
-//   }
-// });
-
 router.get("/presigned-url", auth, async (req, res) => {
   const { fileType, extension = "jpeg", contentType = "image/jpeg" } = req.query;
 
@@ -185,62 +167,5 @@ router.put("/:userId", auth, async (req, res) => {
       .json({ message: "Error updating user profile", error: err.message });
   }
 });
-
-// Update user profile
-// router.put("/:userId", auth, async (req, res) => {
-//   try {
-//     const {
-//       name,
-//       email,
-//       gender,
-//       phone,
-//       dob,
-//       profileImage,
-//       emergencyContact,
-//       address,
-//       preferredCommunication,
-//       ridePreference,
-//       vehicle,
-//       vehicleImage,
-//       rcDocument,
-//       idProof,
-//       license,
-//     } = req.body;
-
-//     const updatedUser = await User.findByIdAndUpdate(
-//       req.params.userId,
-//       {
-//         name,
-//         email,
-//         gender,
-//         phone,
-//         dob,
-//         profileImage,
-//         emergencyContact,
-//         address,
-//         preferredCommunication,
-//         ridePreference,
-//         vehicle,
-//         vehicleImage,
-//         rcDocument,
-//         idProof,
-//         license,
-//       },
-//       { new: true }
-//     ).select("-password");
-
-//     console.log("updated user", updatedUser);
-
-//     if (!updatedUser) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.json(updatedUser);
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ message: "Error updating user profile", error: err.message });
-//   }
-// });
 
 module.exports = router;
