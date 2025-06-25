@@ -10,10 +10,9 @@ const socketAuth = require("./middleware/socketAuth");
 
 const app = express();
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS.split(",");
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "").split(",");
 
 const server = http.createServer(app);
-
 const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
@@ -90,6 +89,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
 
 
 app.use(express.json());

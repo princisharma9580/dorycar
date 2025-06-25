@@ -278,39 +278,26 @@ import {
   FaUsers,
   FaMoneyBillWave,
   FaCheckCircle,
-  FaChartBar,
-  FaChartLine,
+  FaClock,
+  FaTimesCircle,
+  FaStar,
+  FaRoute,
+  FaCar,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  LineChart,
-  Line,
-} from "recharts";
+import { Grid, Typography, Box, CircularProgress } from "@mui/material";
 import adminAuthService from "../services/adminAuthService";
-import CountUp from 'react-countup';
-// import { Tooltip } from 'react-tooltip'; 
+import DashboardCard from "../components/DashboardCard";
+import AnalyticsSection from "../components/AnalyticsSection"; 
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-const COLORS = ["#4F46E5", "#2563EB", "#10B981", "#F59E0B", "#EF4444"];
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [rides, setRides] = useState({});
   const [users, setUsers] = useState(null);
+  const [revenueStats, setRevenueStats] = useState(null);
   const [error, setError] = useState(null);
-  const [chartType, setChartType] = useState("bar");
-const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -347,260 +334,416 @@ const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
     fetchData();
   }, []);
 
-  const earningsTrendData = [
-    { month: "Jan", earnings: 5000 },
-    { month: "Feb", earnings: 7000 },
-    { month: "Mar", earnings: 6000 },
-    { month: "Apr", earnings: 8000 },
-    { month: "May", earnings: 7500 },
-    { month: "Jun", earnings: 9000 },
-  ];
-
-  const monthlyRideData = [
-  { date: "Jan", rides: 500 },
-  { date: "Feb", rides: 600 },
-  { date: "Mar", rides: 700 },
-  { date: "Apr", rides: 800 },
-  { date: "May", rides: 900 },
-  { date: "Jun", rides: 1000 },
-  { date: "Jul", rides: 750 },
-  { date: "Aug", rides: 870 },
-  { date: "Sep", rides: 950 },
-  { date: "Oct", rides: 1200 },
-  { date: "Nov", rides: 980 },
-  { date: "Dec", rides: 1100 },
-];
-
-const currentData = [monthlyRideData[currentMonthIndex]];
-
-  // Pie chart data from API
-  const statusData = rides.statusCounts
-    ? Object.entries(rides.statusCounts).map(([status, value], i) => ({
-        name: status.charAt(0).toUpperCase() + status.slice(1),
-        value,
-        color: COLORS[i % COLORS.length],
-      }))
-    : [];
-
-  // Loading spinner + message
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-r from-indigo-50 via-white to-green-50 font-poppins">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mb-4"></div>
-        <p className="text-green-700 text-lg font-semibold">Loading dashboard...</p>
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+        <CircularProgress color="success" />
+      </Box>
     );
   }
 
-  // Error UI
   if (error) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-red-50 font-poppins">
-        <p className="text-red-600 font-bold text-xl mb-2">Oops! Something went wrong.</p>
-        <p className="text-red-400">{error}</p>
-      </div>
+      <Box textAlign="center" mt={10}>
+        <Typography color="error" variant="h6">
+          Oops! Something went wrong.
+        </Typography>
+        <Typography>{error}</Typography>
+      </Box>
     );
   }
 
   return (
-    <div className="p-8 bg-gradient-to-r from-indigo-50 via-white to-green-50 min-h-screen font-poppins text-gray-900">
-            <h2 className="text-4xl font-extrabold mb-10 tracking-wide text-green-600 drop-shadow-md">
-        Admin Dashboard
-      </h2>
+    <Box p={4}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        DoryCar Admin Dashboard
+      </Typography>
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        Comprehensive platform analytics and insights
+      </Typography>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-  {/* Total Rides */}
-  <div className="flex items-center bg-green-500 shadow-md rounded-xl p-6 text-white hover:shadow-lg hover:shadow-green-700 transition duration-300">
-    <FaCarSide title="Total Rides - All time" className="text-white text-4xl mr-4 cursor-pointer" />
-    <div>
-      <p className="text-sm uppercase tracking-wider font-medium opacity-90">Total Rides</p>
-      <p className="text-3xl font-bold">
-        <CountUp end={rides.totalRides ?? 0} duration={2} separator="," />
-      </p>
-    </div>
-  </div>
+      <Grid container spacing={3} mt={2}>
+        <DashboardCard title="Total Rides" value={rides?.totalRides ?? 0} subtitle="This month" icon={<FaCarSide />} change="+12%" bgColor="#10b981" isPrimary />
+        <DashboardCard title="Total Users" value={users?.totalUsers ?? 0} subtitle="Registered users" icon={<FaUsers />} change="+8%" bgColor="#6b7280" />
+        <DashboardCard title="Revenue" value={`₹${rides?.totalEarnings ?? 0}`} subtitle="This month" icon={<FaMoneyBillWave />} change="+24%" bgColor="#6366f1" />
+        <DashboardCard title="Completed Rides" value={rides?.statusCounts?.completed ?? 0} subtitle="Success rate: 80%" icon={<FaCheckCircle />} change="+15%" bgColor="#22c55e" />
+        <DashboardCard title="Pending Rides" value={rides?.statusCounts?.pending ?? 0} subtitle="Awaiting drivers" icon={<FaClock />} change="-5%" bgColor="#6b7280" />
+        <DashboardCard title="Cancelled Rides" value={rides?.statusCounts?.cancelled ?? 0} subtitle="Cancellation rate: 11%" icon={<FaTimesCircle />} change="+3%" bgColor="#ef4444" />
+        <DashboardCard title="Avg Rating" value={rides?.avgRating ?? "N/A"} subtitle="Driver rating" icon={<FaStar />} change="+0.2" bgColor="#facc15" />
+        <DashboardCard title="Coverage Area" value={rides?.coverageZones ?? 0} subtitle="Active zones" icon={<FaMapMarkerAlt />} change="+2" bgColor="#10b981" />
+        <DashboardCard title="Peak Hour Performance" value={rides?.peakHour ?? "N/A"} subtitle="Highest demand period" icon={<FaClock />} change="+32%" bgColor="#3b82f6" />
+        <DashboardCard title="Average Trip Distance" value={`${rides?.avgDistance ?? "N/A"} km`} subtitle="Monthly average" icon={<FaRoute />} change="+8%" bgColor="#10b981" />
+        <DashboardCard title="Driver Utilization" value={`${rides?.driverUtilization ?? 0}%`} subtitle="Active drivers ratio" icon={<FaCar />} change="-3%" bgColor="#8b5cf6" />
+        <DashboardCard title="Customer Satisfaction" value={`${rides?.customerSatisfaction ?? "N/A"}/5`} subtitle="Average rating" icon={<FaStar />} change="+0.2" bgColor="#facc15" />
+      </Grid>
 
-  {/* Registered Users */}
-  <div className="flex items-center bg-white shadow-md rounded-xl p-6 border border-green-300 hover:shadow-lg hover:shadow-green-500 transition duration-300">
-    <FaUsers title="Total Registered Users" className="text-green-600 text-4xl mr-4 cursor-pointer" />
-    <div>
-      <p className="text-sm uppercase tracking-wider text-green-600 font-medium mb-1">Users</p>
-      <p className="text-3xl font-bold text-green-700">
-        <CountUp end={users?.totalUsers ?? 0} duration={2} separator="," />
-      </p>
-    </div>
-  </div>
-
-  {/* Total Earnings */}
-  <div className="flex items-center bg-white shadow-md rounded-xl p-6 border border-green-300 hover:shadow-lg hover:shadow-green-500 transition duration-300">
-    <FaMoneyBillWave title="Total Transaction Earnings" className="text-green-500 text-4xl mr-4 cursor-pointer" />
-    <div>
-      <p className="text-sm uppercase tracking-wider text-green-600 font-medium mb-1">Transactions</p>
-      <p className="text-3xl font-bold text-green-700">
-        ₹<CountUp end={rides?.totalEarnings ?? 0} duration={2} separator="," />
-      </p>
-    </div>
-  </div>
-
-  {/* Completed Rides */}
-  <div className="flex items-center bg-white shadow-md rounded-xl p-6 border border-green-300 hover:shadow-lg hover:shadow-green-500 transition duration-300">
-    <FaCheckCircle title="Total Completed Rides" className="text-green-600 text-4xl mr-4 cursor-pointer" />
-    <div>
-      <p className="text-sm uppercase tracking-wider text-green-600 font-medium mb-1">Completed Rides</p>
-      <p className="text-3xl font-bold text-green-700">
-        <CountUp end={rides.statusCounts?.completed ?? 0} duration={2} separator="," />
-      </p>
-    </div>
-  </div>
-</div>
-
-{/* Charts Section */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
-  {/* Pie Chart: Ride Status */}
-  <ChartCard title="Ride Status Distribution">
-    {statusData.length > 0 ? (
-      <ResponsiveContainer width="100%" height={300}>
-        <PieChart>
-          <Pie
-            data={statusData}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-            labelLine={false}
-          >
-            {statusData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip formatter={(value) => [value, "Rides"]} />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    ) : (
-      <p className="text-center text-gray-500">No data available</p>
+      {revenueStats?.kpis && (
+      <AnalyticsSection
+        kpi={revenueStats.kpis}
+        revenueData={revenueStats.revenueByService}
+        dailyData={revenueStats.dailyRevenue}
+      />
     )}
-  </ChartCard>
 
-  {/* Line Chart: Monthly Earnings */}
-  <ChartCard title="Monthly Earnings Trend">
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={earningsTrendData} margin={{ top: 20, right: 20, left: -10, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="month" />
-        <YAxis />
-        <Tooltip formatter={(value) => `₹${value}`} />
-        <Line
-          type="monotone"
-          dataKey="earnings"
-          stroke="#F59E0B"
-          strokeWidth={3}
-          dot={{ r: 5 }}
-          activeDot={{ r: 8 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
-  </ChartCard>
-</div>
-
-{/* Monthly Rides Chart Section */}
-<div className="max-w-6xl mx-auto mt-10">
-  <div className="flex items-center justify-between mb-4">
-    <h3 className="text-xl font-semibold text-gray-700">Monthly Rides</h3>
-    <div className="flex items-center gap-4">
-      <button
-        onClick={() => setChartType(chartType === "bar" ? "line" : "bar")}
-        className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-      >
-        {chartType === "bar" ? "Switch to Line" : "Switch to Bar"}
-      </button>
-      <button
-        onClick={() =>
-          setCurrentMonthIndex((prev) => (prev > 0 ? prev - 1 : monthlyRideData.length - 1))
-        }
-        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
-      >
-        Prev
-      </button>
-      <span className="text-gray-600 font-medium">
-        {monthlyRideData[currentMonthIndex].date}
-      </span>
-      <button
-        onClick={() =>
-          setCurrentMonthIndex((prev) =>
-            prev < monthlyRideData.length - 1 ? prev + 1 : 0
-          )
-        }
-        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
-      >
-        Next
-      </button>
-    </div>
-  </div>
-
-  <ChartCard title="">
-    <div className="bg-gradient-to-br from-green-50 to-white rounded-lg p-4 shadow-md border border-green-200 transition duration-300 hover:shadow-lg">
-      <ResponsiveContainer width="100%" height={300}>
-        {chartType === "bar" ? (
-          <BarChart data={currentData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Bar
-              dataKey="rides"
-              fill="#10B981"
-              animationDuration={800}
-              radius={[5, 5, 0, 0]}
-            />
-          </BarChart>
-        ) : (
-          <LineChart data={currentData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="rides"
-              stroke="#10B981"
-              strokeWidth={3}
-              activeDot={{ r: 8 }}
-              animationDuration={800}
-            />
-          </LineChart>
-        )}
-      </ResponsiveContainer>
-    </div>
-  </ChartCard>
-</div>
-</div>
-
+    </Box>
   );
 };
 
-// Reusable Card component with icon and hover animation
-const Card = ({ icon, iconColor, title, value }) => (
-  <div className="flex items-center bg-white shadow-lg rounded-lg p-6 border border-gray-200 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-default">
-    <div className={`${iconColor} text-5xl mr-5 drop-shadow-md`}>{icon}</div>
-    <div>
-      <p className="text-sm uppercase tracking-widest text-gray-400 font-semibold mb-1">{title}</p>
-      <p className="text-4xl font-extrabold text-gray-800">{value}</p>
-    </div>
-  </div>
-);
-
-// Reusable Chart card wrapper
-const ChartCard = ({ children, title }) => (
-  <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
-    <h3 className="text-xl font-semibold mb-4 text-gray-700">{title}</h3>
-    {children}
-  </div>
-);
-
 export default Dashboard;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{/*UPDATING*/}
+// import { useEffect, useState } from "react";
+// import {
+//   FaCarSide,
+//   FaUsers,
+//   FaMoneyBillWave,
+//   FaCheckCircle,
+//   FaChartBar,
+//   FaChartLine,
+// } from "react-icons/fa";
+// import {
+//   PieChart,
+//   Pie,
+//   Cell,
+//   Tooltip,
+//   ResponsiveContainer,
+//   Legend,
+//   BarChart,
+//   Bar,
+//   XAxis,
+//   YAxis,
+//   CartesianGrid,
+//   LineChart,
+//   Line,
+// } from "recharts";
+// import adminAuthService from "../services/adminAuthService";
+// import CountUp from 'react-countup';
+// // import { Tooltip } from 'react-tooltip'; 
+
+// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// const COLORS = ["#4F46E5", "#2563EB", "#10B981", "#F59E0B", "#EF4444"];
+
+// const Dashboard = () => {
+//   const [loading, setLoading] = useState(true);
+//   const [rides, setRides] = useState({});
+//   const [users, setUsers] = useState(null);
+//   const [error, setError] = useState(null);
+//   const [chartType, setChartType] = useState("bar");
+// const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         setError(null);
+//         const token = adminAuthService.getToken();
+//         if (!token) throw new Error("No token found");
+
+//         const [rideRes, userRes] = await Promise.all([
+//           fetch(`${API_BASE_URL}/admin/ride-stats`, {
+//             headers: { Authorization: `Bearer ${token}` },
+//           }),
+//           fetch(`${API_BASE_URL}/admin/user-stats`, {
+//             headers: { Authorization: `Bearer ${token}` },
+//           }),
+          
+//         ]);
+
+//         if (!rideRes.ok) throw new Error("Failed to fetch ride stats");
+//         if (!userRes.ok) throw new Error("Failed to fetch user stats");
+
+//         const rideData = await rideRes.json();
+//         const userData = await userRes.json();
+
+      
+
+
+//         setRides(rideData);
+//         setUsers(userData);
+//       } catch (err) {
+//         console.error(err);
+//         setError(err.message);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchData();
+//   }, []);
+
+//   const earningsTrendData = [
+//     { month: "Jan", earnings: 5000 },
+//     { month: "Feb", earnings: 7000 },
+//     { month: "Mar", earnings: 6000 },
+//     { month: "Apr", earnings: 8000 },
+//     { month: "May", earnings: 7500 },
+//     { month: "Jun", earnings: 9000 },
+//   ];
+
+//   const monthlyRideData = [
+//   { date: "Jan", rides: 500 },
+//   { date: "Feb", rides: 600 },
+//   { date: "Mar", rides: 700 },
+//   { date: "Apr", rides: 800 },
+//   { date: "May", rides: 900 },
+//   { date: "Jun", rides: 1000 },
+//   { date: "Jul", rides: 750 },
+//   { date: "Aug", rides: 870 },
+//   { date: "Sep", rides: 950 },
+//   { date: "Oct", rides: 1200 },
+//   { date: "Nov", rides: 980 },
+//   { date: "Dec", rides: 1100 },
+// ];
+
+// const currentData = [monthlyRideData[currentMonthIndex]];
+
+//   // Pie chart data from API
+//   const statusData = rides.statusCounts
+//     ? Object.entries(rides.statusCounts).map(([status, value], i) => ({
+//         name: status.charAt(0).toUpperCase() + status.slice(1),
+//         value,
+//         color: COLORS[i % COLORS.length],
+//       }))
+//     : [];
+
+//   // Loading spinner + message
+//   if (loading) {
+//     return (
+//       <div className="flex flex-col justify-center items-center h-screen bg-gradient-to-r from-indigo-50 via-white to-green-50 font-poppins">
+//         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mb-4"></div>
+//         <p className="text-green-700 text-lg font-semibold">Loading dashboard...</p>
+//       </div>
+//     );
+//   }
+
+//   // Error UI
+//   if (error) {
+//     return (
+//       <div className="flex flex-col justify-center items-center h-screen bg-red-50 font-poppins">
+//         <p className="text-red-600 font-bold text-xl mb-2">Oops! Something went wrong.</p>
+//         <p className="text-red-400">{error}</p>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="p-8 bg-gradient-to-r from-indigo-50 via-white to-green-50 min-h-screen font-poppins text-gray-900">
+//             <h2 className="text-4xl font-extrabold mb-10 tracking-wide text-green-600 drop-shadow-md">
+//         Admin Dashboard
+//       </h2>
+
+// <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+//   {/* Total Rides */}
+//   <div className="flex items-center bg-green-500 shadow-md rounded-xl p-6 text-white hover:shadow-lg hover:shadow-green-700 transition duration-300">
+//     <FaCarSide title="Total Rides - All time" className="text-white text-4xl mr-4 cursor-pointer" />
+//     <div>
+//       <p className="text-sm uppercase tracking-wider font-medium opacity-90">Total Rides</p>
+//       <p className="text-3xl font-bold">
+//         <CountUp end={rides.totalRides ?? 0} duration={2} separator="," />
+//       </p>
+//     </div>
+//   </div>
+
+//   {/* Registered Users */}
+//   <div className="flex items-center bg-white shadow-md rounded-xl p-6 border border-green-300 hover:shadow-lg hover:shadow-green-500 transition duration-300">
+//     <FaUsers title="Total Registered Users" className="text-green-600 text-4xl mr-4 cursor-pointer" />
+//     <div>
+//       <p className="text-sm uppercase tracking-wider text-green-600 font-medium mb-1">Users</p>
+//       <p className="text-3xl font-bold text-green-700">
+//         <CountUp end={users?.totalUsers ?? 0} duration={2} separator="," />
+//       </p>
+//     </div>
+//   </div>
+
+//   {/* Total Earnings */}
+//   <div className="flex items-center bg-white shadow-md rounded-xl p-6 border border-green-300 hover:shadow-lg hover:shadow-green-500 transition duration-300">
+//     <FaMoneyBillWave title="Total Transaction Earnings" className="text-green-500 text-4xl mr-4 cursor-pointer" />
+//     <div>
+//       <p className="text-sm uppercase tracking-wider text-green-600 font-medium mb-1">Transactions</p>
+//       <p className="text-3xl font-bold text-green-700">
+//         ₹<CountUp end={rides?.totalEarnings ?? 0} duration={2} separator="," />
+//       </p>
+//     </div>
+//   </div>
+
+//   {/* Completed Rides */}
+//   <div className="flex items-center bg-white shadow-md rounded-xl p-6 border border-green-300 hover:shadow-lg hover:shadow-green-500 transition duration-300">
+//     <FaCheckCircle title="Total Completed Rides" className="text-green-600 text-4xl mr-4 cursor-pointer" />
+//     <div>
+//       <p className="text-sm uppercase tracking-wider text-green-600 font-medium mb-1">Completed Rides</p>
+//       <p className="text-3xl font-bold text-green-700">
+//         <CountUp end={rides.statusCounts?.completed ?? 0} duration={2} separator="," />
+//       </p>
+//     </div>
+//   </div>
+// </div>
+
+// {/* Charts Section */}
+// <div className="grid grid-cols-1 md:grid-cols-2 gap-10 max-w-6xl mx-auto">
+//   {/* Pie Chart: Ride Status */}
+//   <ChartCard title="Ride Status Distribution">
+//     {statusData.length > 0 ? (
+//       <ResponsiveContainer width="100%" height={300}>
+//         <PieChart>
+//           <Pie
+//             data={statusData}
+//             dataKey="value"
+//             nameKey="name"
+//             cx="50%"
+//             cy="50%"
+//             outerRadius={100}
+//             label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+//             labelLine={false}
+//           >
+//             {statusData.map((entry, index) => (
+//               <Cell key={`cell-${index}`} fill={entry.color} />
+//             ))}
+//           </Pie>
+//           <Tooltip formatter={(value) => [value, "Rides"]} />
+//           <Legend />
+//         </PieChart>
+//       </ResponsiveContainer>
+//     ) : (
+//       <p className="text-center text-gray-500">No data available</p>
+//     )}
+//   </ChartCard>
+
+//   {/* Line Chart: Monthly Earnings */}
+//   <ChartCard title="Monthly Earnings Trend">
+//     <ResponsiveContainer width="100%" height={300}>
+//       <LineChart data={earningsTrendData} margin={{ top: 20, right: 20, left: -10, bottom: 5 }}>
+//         <CartesianGrid strokeDasharray="3 3" />
+//         <XAxis dataKey="month" />
+//         <YAxis />
+//         <Tooltip formatter={(value) => `₹${value}`} />
+//         <Line
+//           type="monotone"
+//           dataKey="earnings"
+//           stroke="#F59E0B"
+//           strokeWidth={3}
+//           dot={{ r: 5 }}
+//           activeDot={{ r: 8 }}
+//         />
+//       </LineChart>
+//     </ResponsiveContainer>
+//   </ChartCard>
+// </div>
+
+// {/* Monthly Rides Chart Section */}
+// <div className="max-w-6xl mx-auto mt-10">
+//   <div className="flex items-center justify-between mb-4">
+//     <h3 className="text-xl font-semibold text-gray-700">Monthly Rides</h3>
+//     <div className="flex items-center gap-4">
+//       <button
+//         onClick={() => setChartType(chartType === "bar" ? "line" : "bar")}
+//         className="px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+//       >
+//         {chartType === "bar" ? "Switch to Line" : "Switch to Bar"}
+//       </button>
+//       <button
+//         onClick={() =>
+//           setCurrentMonthIndex((prev) => (prev > 0 ? prev - 1 : monthlyRideData.length - 1))
+//         }
+//         className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
+//       >
+//         Prev
+//       </button>
+//       <span className="text-gray-600 font-medium">
+//         {monthlyRideData[currentMonthIndex].date}
+//       </span>
+//       <button
+//         onClick={() =>
+//           setCurrentMonthIndex((prev) =>
+//             prev < monthlyRideData.length - 1 ? prev + 1 : 0
+//           )
+//         }
+//         className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 transition"
+//       >
+//         Next
+//       </button>
+//     </div>
+//   </div>
+
+//   <ChartCard title="">
+//     <div className="bg-gradient-to-br from-green-50 to-white rounded-lg p-4 shadow-md border border-green-200 transition duration-300 hover:shadow-lg">
+//       <ResponsiveContainer width="100%" height={300}>
+//         {chartType === "bar" ? (
+//           <BarChart data={currentData}>
+//             <CartesianGrid strokeDasharray="3 3" />
+//             <XAxis dataKey="date" />
+//             <YAxis />
+//             <Tooltip />
+//             <Bar
+//               dataKey="rides"
+//               fill="#10B981"
+//               animationDuration={800}
+//               radius={[5, 5, 0, 0]}
+//             />
+//           </BarChart>
+//         ) : (
+//           <LineChart data={currentData}>
+//             <CartesianGrid strokeDasharray="3 3" />
+//             <XAxis dataKey="date" />
+//             <YAxis />
+//             <Tooltip />
+//             <Line
+//               type="monotone"
+//               dataKey="rides"
+//               stroke="#10B981"
+//               strokeWidth={3}
+//               activeDot={{ r: 8 }}
+//               animationDuration={800}
+//             />
+//           </LineChart>
+//         )}
+//       </ResponsiveContainer>
+//     </div>
+//   </ChartCard>
+// </div>
+// </div>
+
+//   );
+// };
+
+// // Reusable Card component with icon and hover animation
+// const Card = ({ icon, iconColor, title, value }) => (
+//   <div className="flex items-center bg-white shadow-lg rounded-lg p-6 border border-gray-200 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 cursor-default">
+//     <div className={`${iconColor} text-5xl mr-5 drop-shadow-md`}>{icon}</div>
+//     <div>
+//       <p className="text-sm uppercase tracking-widest text-gray-400 font-semibold mb-1">{title}</p>
+//       <p className="text-4xl font-extrabold text-gray-800">{value}</p>
+//     </div>
+//   </div>
+// );
+
+// // Reusable Chart card wrapper
+// const ChartCard = ({ children, title }) => (
+//   <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+//     <h3 className="text-xl font-semibold mb-4 text-gray-700">{title}</h3>
+//     {children}
+//   </div>
+// );
+
+// export default Dashboard;
+{/*UPDATING*/}
+
+
+
 
 
 // import { useEffect, useState } from "react";
