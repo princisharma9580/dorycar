@@ -1,46 +1,70 @@
-import { Box, Grid, Typography, Paper } from "@mui/material";
-import { FaChartLine } from "react-icons/fa";
+import { Box, Grid, Paper, Typography } from "@mui/material";
+import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { FaChartPie } from "react-icons/fa";
 
-const AnalyticsSection = ({ kpi }) => {
+const COLORS = ["#10b981", "#3b82f6", "#f59e0b"]; // green, blue, yellow
+
+const AnalyticsSection = ({ kpi, revenueData, dailyData }) => {
   return (
     <Box mt={6}>
-      <Typography variant="h5" fontWeight="bold" gutterBottom display="flex" alignItems="center">
-        <FaChartLine style={{ marginRight: 8, color: "#10b981" }} />
-        Key Performance Indicators
+      <Typography variant="h5" fontWeight="bold" gutterBottom>
+        Revenue Analytics
       </Typography>
 
-      <Paper elevation={2} sx={{ mt: 2, p: 3, borderRadius: 3 }}>
-        <Grid container spacing={2}>
-          {kpi &&
-            Object.entries(kpi).map(([key, item]) => (
-              <Grid key={key} item xs={12} sm={6} md={3}>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    textAlign: "center",
-                    p: 2,
-                    backgroundColor: "#f9fafb",
-                    borderRadius: 2,
-                  }}
+      <Grid container spacing={3}>
+        {/* Pie Chart Section */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} sx={{ p: 3 }}>
+            <Box display="flex" alignItems="center" mb={2}>
+              <FaChartPie style={{ color: "green", marginRight: 8 }} />
+              <Typography variant="h6" fontWeight="bold">
+                Revenue by Service Type
+              </Typography>
+            </Box>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={revenueData}
+                  dataKey="value"
+                  nameKey="type"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  label
                 >
-                  <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                    {item.label}
-                  </Typography>
-                  <Typography variant="h6" fontWeight="bold" gutterBottom>
-                    {item.value}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color={item.change >= 0 ? "green" : "error"}
-                    fontWeight="medium"
-                  >
-                    {item.change >= 0 ? `+${item.change}%` : `${item.change}%`}
-                  </Typography>
-                </Paper>
-              </Grid>
+                  {revenueData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <RechartsTooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            {revenueData.map((item, index) => (
+              <Typography key={index} mt={1}>
+                <span style={{ color: COLORS[index], fontWeight: "bold" }}>{item.type}:</span> ₹{item.value.toLocaleString()} ({item.percentage}%)
+              </Typography>
             ))}
+          </Paper>
         </Grid>
-      </Paper>
+
+        {/* Bar Chart Section */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={3} sx={{ p: 3 }}>
+            <Typography variant="h6" fontWeight="bold" gutterBottom>
+              Daily Revenue Trend
+            </Typography>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={dailyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <RechartsTooltip />
+                <Bar dataKey="value" fill="#10b981" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

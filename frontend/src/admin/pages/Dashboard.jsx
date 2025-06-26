@@ -289,6 +289,9 @@ import { Grid, Typography, Box, CircularProgress } from "@mui/material";
 import adminAuthService from "../services/adminAuthService";
 import DashboardCard from "../components/DashboardCard";
 import AnalyticsSection from "../components/AnalyticsSection"; 
+import GeographicInsights from "../components/GeographicInsights";
+import { useNavigate } from "react-router-dom";
+
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -296,33 +299,53 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [rides, setRides] = useState({});
   const [users, setUsers] = useState(null);
-  const [revenueStats, setRevenueStats] = useState(null);
+  const [drivers, setDrivers] = useState([]);
+  const [avgRating, setAvgRating] = useState("N/A");
+  const navigate = useNavigate();
+  const handleTotalRidesClick = () => {
+  navigate("/admin/rides"); 
+  };
+  //const [revenueStats, setRevenueStats] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setError(null);
+        //setError(null);
         const token = adminAuthService.getToken();
         if (!token) throw new Error("No token found");
 
-        const [rideRes, userRes] = await Promise.all([
+        const [rideRes, userRes, driverRes] = await Promise.all([
           fetch(`${API_BASE_URL}/admin/ride-stats`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           fetch(`${API_BASE_URL}/admin/user-stats`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
+          fetch(`${API_BASE_URL}/admin/drivers`, {
+          headers: { Authorization: `Bearer ${token}` },
+          }),
+          //fetch(`${API_BASE_URL}/admin/revenue-stats`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
         if (!rideRes.ok) throw new Error("Failed to fetch ride stats");
         if (!userRes.ok) throw new Error("Failed to fetch user stats");
-
+        if (!driverRes.ok) throw new Error("Failed to fetch driver stats");
+        //if (!revenueRes.ok) throw new Error("Failed to fetch revenue stats");
+        
         const rideData = await rideRes.json();
         const userData = await userRes.json();
+        const driverData = await driverRes.json();
+        //const revenueData = await revenueRes.json();
 
         setRides(rideData);
         setUsers(userData);
+        setDrivers(driverData);
+        //setRevenueStats(revenueData);
+        const validRatings = driverData.map(d => d.averageRating).filter(r => typeof r === "number");
+        const avg = validRatings.length > 0 ? (validRatings.reduce((a, b) => a + b, 0) / validRatings.length).toFixed(1) : "N/A";
+        setAvgRating(avg);
+
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -363,13 +386,13 @@ const Dashboard = () => {
       </Typography>
 
       <Grid container spacing={3} mt={2}>
-        <DashboardCard title="Total Rides" value={rides?.totalRides ?? 0} subtitle="This month" icon={<FaCarSide />} change="+12%" bgColor="#10b981" isPrimary />
+        <DashboardCard title="Total Rides" value={rides?.totalRides ?? 0} subtitle="This month" icon={<FaCarSide />} change="+12%" bgColor="#10b981" isPrimary onClick={() => navigate("/admin/rides")}/>
         <DashboardCard title="Total Users" value={users?.totalUsers ?? 0} subtitle="Registered users" icon={<FaUsers />} change="+8%" bgColor="#6b7280" />
         <DashboardCard title="Revenue" value={`₹${rides?.totalEarnings ?? 0}`} subtitle="This month" icon={<FaMoneyBillWave />} change="+24%" bgColor="#6366f1" />
         <DashboardCard title="Completed Rides" value={rides?.statusCounts?.completed ?? 0} subtitle="Success rate: 80%" icon={<FaCheckCircle />} change="+15%" bgColor="#22c55e" />
         <DashboardCard title="Pending Rides" value={rides?.statusCounts?.pending ?? 0} subtitle="Awaiting drivers" icon={<FaClock />} change="-5%" bgColor="#6b7280" />
         <DashboardCard title="Cancelled Rides" value={rides?.statusCounts?.cancelled ?? 0} subtitle="Cancellation rate: 11%" icon={<FaTimesCircle />} change="+3%" bgColor="#ef4444" />
-        <DashboardCard title="Avg Rating" value={rides?.avgRating ?? "N/A"} subtitle="Driver rating" icon={<FaStar />} change="+0.2" bgColor="#facc15" />
+        <DashboardCard title="Avg Rating" value={avgRating} subtitle="Driver rating" icon={<FaStar />} change="+0.2" bgColor="#facc15"/>
         <DashboardCard title="Coverage Area" value={rides?.coverageZones ?? 0} subtitle="Active zones" icon={<FaMapMarkerAlt />} change="+2" bgColor="#10b981" />
         <DashboardCard title="Peak Hour Performance" value={rides?.peakHour ?? "N/A"} subtitle="Highest demand period" icon={<FaClock />} change="+32%" bgColor="#3b82f6" />
         <DashboardCard title="Average Trip Distance" value={`${rides?.avgDistance ?? "N/A"} km`} subtitle="Monthly average" icon={<FaRoute />} change="+8%" bgColor="#10b981" />
@@ -377,13 +400,32 @@ const Dashboard = () => {
         <DashboardCard title="Customer Satisfaction" value={`${rides?.customerSatisfaction ?? "N/A"}/5`} subtitle="Average rating" icon={<FaStar />} change="+0.2" bgColor="#facc15" />
       </Grid>
 
-      {revenueStats?.kpis && (
-      <AnalyticsSection
-        kpi={revenueStats.kpis}
-        revenueData={revenueStats.revenueByService}
-        dailyData={revenueStats.dailyRevenue}
-      />
-    )}
+      <GeographicInsights
+  popularRoutes={[
+    { name: "Airport → City Center", rides: 145, avgFare: 150, revenue: 21750 },
+    { name: "Business District → Mall", rides: 128, avgFare: 150, revenue: 19200 },
+    { name: "University → Tech Park", rides: 98, avgFare: 150, revenue: 14700 },
+    { name: "Railway Station → Hotel Zone", rides: 87, avgFare: 150, revenue: 13050 },
+    { name: "Residential Area → Shopping Center", rides: 76, avgFare: 150, revenue: 11400 },
+  ]}
+  zonePerformance={[
+    { name: "Zone A - Central", rides: 487, revenue: 73050, growth: 15 },
+    { name: "Zone B - North", rides: 356, revenue: 53400, growth: 8 },
+    { name: "Zone C - South", rides: 298, revenue: 44700, growth: 12 },
+    { name: "Zone D - East", rides: 234, revenue: 35100, growth: 5 },
+    { name: "Zone E - West", rides: 189, revenue: 28350, growth: 18 },
+  ]}
+  stats={{
+    revenueGrowth: 24,
+    activeUsers: 8,
+    totalUsers: 11,
+    userRate: 72,
+    activeDrivers: 6,
+    avgDistance: 12.5,
+  }}
+/>
+
+
 
     </Box>
   );

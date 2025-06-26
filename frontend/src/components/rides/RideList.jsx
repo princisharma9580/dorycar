@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
+
 import {
   Container,
   Typography,
@@ -13,16 +14,31 @@ import rideService from "../../services/rideService";
 import RideDetailsModal from "./RideDetailsModal";
 import RideChat from "./RideChat";
 
-const RideList = ({ currentUser, searchResults }) => {
+const RideList = ({ currentUser}) => {
+  const [searchResults, setSearchResults] = useState([]); 
   const [selectedRide, setSelectedRide] = useState(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
   const navigate = useNavigate();
+  useEffect(() => {
+    const fetchRides = async () => {
+      try {
+        const res = await rideService.getAllRides();
+        setSearchResults(res.data);
+        console.log("Fetched rides:", res.data); // ✅ Moved here
+      } catch (error) {
+        console.error("Failed to fetch rides", error);
+      }
+    };
+
+    fetchRides();
+  }, []);
+   console.log("Search results:", searchResults); // ✅ Moved here
 
   // Defensive: ensure searchResults is an array
-  const rides = Array.isArray(searchResults) ? searchResults : [];
+  const rides = Array.isArray(searchResults) && searchResults.length > 0 ? searchResults : [];
 
   const totalPages = Math.ceil(rides.length / pageSize);
 

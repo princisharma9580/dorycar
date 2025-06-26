@@ -7,6 +7,8 @@ import Rides from "./pages/rides";
 import Drivers from "./pages/drivers";
 import Users from "./pages/users";
 import Payouts from "./pages/payouts";
+//import RideList from "../components/rides/RideList";
+import RideList from "../components/rides/RideList";
 
 const AdminRoutes = () => (
   <Routes>
@@ -26,6 +28,9 @@ const AdminRoutes = () => (
       <Route path="drivers" element={<Drivers />} />
       <Route path="users" element={<Users />} />
       <Route path="payouts" element={<Payouts />} />
+      <Route path="/admin/rides" element={<RideList />} />
+
+
     </Route>
   </Routes>
 );
