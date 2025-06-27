@@ -291,7 +291,8 @@ import DashboardCard from "../components/DashboardCard";
 import AnalyticsSection from "../components/AnalyticsSection"; 
 import GeographicInsights from "../components/GeographicInsights";
 import { useNavigate } from "react-router-dom";
-
+import TopPerformers from "../components/TopPerformers";
+import StatusAndPeakHours from "../components/StatusAndPeakHours";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -424,6 +425,15 @@ const Dashboard = () => {
     avgDistance: 12.5,
   }}
 />
+
+<Grid container spacing={3} mt={1}>
+  <TopPerformers />
+</Grid> 
+
+<Grid item xs={12} md={4}>
+    <StatusAndPeakHours /> {/* Renders Ride Status Distribution */}
+  </Grid>
+  
 
 
 
