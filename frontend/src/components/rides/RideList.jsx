@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React, { useState, useEffect } from "react"; 
 
 import {
   Container,
@@ -25,9 +25,9 @@ const RideList = ({ currentUser}) => {
   useEffect(() => {
     const fetchRides = async () => {
       try {
-        const res = await rideService.getAllRides();
-        setSearchResults(res.data);
-        console.log("Fetched rides:", res.data); // ✅ Moved here
+        const res = await rideService.getRides();
+        setSearchResults(res);
+        console.log("Fetched rides:", res); // ✅ Moved here
       } catch (error) {
         console.error("Failed to fetch rides", error);
       }

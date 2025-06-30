@@ -1423,7 +1423,7 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
 
              <Grid container spacing={3} mt={2}>
       <Grid item xs={12}>
-        <TopPerformers />
+        {/* <TopPerformers /> */}
       </Grid>
     </Grid>
 
