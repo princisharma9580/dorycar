@@ -9,6 +9,12 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import {
+  FaUser,
+  FaUserTie,
+  FaMapMarkerAlt,
+  FaRupeeSign,
+} from "react-icons/fa";
 
 const Rides = () => {
   const [loading, setLoading] = useState(true);
@@ -63,7 +69,7 @@ const Rides = () => {
   return (
     <div className=" max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <div className="flex justify-between border-b pb-2">
-        <h2 className="text-3xl font-semibold mb-6 text-green-800 ">
+        <h2 className="text-3xl font-semibold mb-6 text-black-800 ">
           Total Rides
         </h2>
 
@@ -99,7 +105,7 @@ const Rides = () => {
         </div>
       ) : filteredRides.length > 0 ? (
         <>
-          <div className="overflow-x-auto shadow border border-gray-20 mt-5">
+          {/* <div className="overflow-x-auto shadow border border-gray-20 mt-5">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className=" border border-gray-300  bg-green-50 sticky top-0 z-10">
                 <tr>
@@ -168,7 +174,58 @@ const Rides = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+          </div> */}
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+  {paginatedRides.map((ride, i) => (
+    <div
+      key={i}
+      className="bg-white border border-gray-200 rounded-lg shadow p-4 flex flex-col justify-between text-black transition transform hover:-translate-y-1 hover:shadow-lg duration-200"
+    >
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-xs text-gray-600 font-medium">{ride._id}</span>
+        <span
+          className={`text-xs font-semibold px-2 py-1 rounded-full ${
+            ride.status === "completed"
+              ? "bg-green-100 text-green-700"
+              : ride.status === "pending"
+              ? "bg-yellow-100 text-yellow-700"
+              : ride.status === "cancelled"
+              ? "bg-red-100 text-red-700"
+              : "bg-gray-100 text-gray-700"
+          }`}
+        >
+          {ride.status}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2 font-semibold text-sm mt-1">
+        <FaUserTie className="text-green-700" />
+        {ride.creator?.name || "N/A"}
+      </div>
+
+      <div className="flex items-center gap-2 text-sm mt-1">
+        <FaUser className="text-green-700" />
+        Passenger:{" "}
+        {Array.isArray(ride.acceptor)
+          ? ride.acceptor.map((p) => p.name).filter(Boolean).join(", ")
+          : ride.acceptor?.name || "N/A"}
+      </div>
+
+      <div className="flex items-center gap-2 text-sm mt-1">
+        <FaMapMarkerAlt className="text-green-700" />
+        {ride.origin} → {ride.destination}
+      </div>
+
+      <div className="flex items-center gap-2 text-md mt-2">
+        <FaRupeeSign className="text-green-700" />
+        ₹{ride.price}
+      </div>
+    </div>
+  ))}
+</div>
+
+
 
           {/* Pagination Controls */}
           <div className="flex justify-center items-center gap-4 mt-4 text-green-700">

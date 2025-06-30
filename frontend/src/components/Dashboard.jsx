@@ -37,7 +37,6 @@ import RideDetailsModal from "./rides/RideDetailsModal";
 import RideChat from "./rides/RideChat";
 import rideService from "../services/rideService";
 import StarIcon from "@mui/icons-material/Star";
-import TopPerformers from "../admin/components/TopPerformers";
 
 const Dashboard = ({ currentUser }) => {
   console.log("current user", currentUser);
@@ -1330,14 +1329,7 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
 
 
 
-            {/* <TopPerformers
-              performers={[
-                { initials: "RK", name: "Rajesh Kumar", rating: 4.9, rides: 156, earnings: 15680 },
-                { initials: "AS", name: "Amit Singh", rating: 4.8, rides: 142, earnings: 14250 },
-                { initials: "PS", name: "Priya Sharma", rating: 4.9, rides: 138, earnings: 13890 },
-                { initials: "MA", name: "Mohammed Ali", rating: 4.7, rides: 134, earnings: 13420 },
-              ]}
-            /> */}
+            
 
 
 
@@ -1421,11 +1413,7 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
                   ))}
                 </Grid>
 
-             <Grid container spacing={3} mt={2}>
-      <Grid item xs={12}>
-        {/* <TopPerformers /> */}
-      </Grid>
-    </Grid>
+             
 
 
 

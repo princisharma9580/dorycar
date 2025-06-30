@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import adminAuthService from "../services/adminAuthService";
+import { FaStar } from "react-icons/fa";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const ITEMS_PER_PAGE = 10;
@@ -56,63 +57,73 @@ const Drivers = () => {
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border-collapse border border-gray-200">
-              <thead className="bg-green-100">
-                <tr>
-                  <th className="p-3 border text-left text-green-700 font-semibold">Profile</th>
-                  <th className="p-3 border text-left text-green-700 font-semibold">Name</th>
-                  <th className="p-3 border text-left text-green-700 font-semibold">Email</th>
-                  <th className="p-3 border text-left text-green-700 font-semibold">Phone</th>
-                  <th className="p-3 border text-left text-green-700 font-semibold">Vehicle</th>
-                  <th className="p-3 border text-left text-green-700 font-semibold">Rating</th>
-                  <th className="p-3 border text-left text-green-700 font-semibold">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedDrivers.map((driver, i) => (
-                  <tr key={i} className="hover:bg-green-50 transition duration-200">
-                    <td className="p-3 border">
-                      {driver.profileImage ? (
-                        <img
-                          src={driver.profileImage}
-                          alt={driver.name}
-                          className="w-10 h-10 rounded-full object-cover border-2 border-green-400"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
-                          N/A
-                        </div>
-                      )}
-                    </td>
-                    <td className="p-3 border">{driver.name || "N/A"}</td>
-                    <td className="p-3 border">{driver.email || "N/A"}</td>
-                    <td className="p-3 border">{driver.phone || "N/A"}</td>
-                    <td className="p-3 border">
-                      {driver.vehicle?.make
-                        ? `${driver.vehicle.make} ${driver.vehicle.model}`
-                        : "N/A"}
-                    </td>
-                    <td className="p-3 border text-center">
-                      {driver.averageRating?.toFixed(1) || "N/A"}
-                    </td>
-                    <td className="p-3 border">
-                      <span
-                        className={`px-2 py-1 rounded text-sm font-medium ${
-                          driver.status === "Active"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {driver.status || "Unknown"}
-                      </span>
-                    </td>
-                    
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+  {paginatedDrivers.map((driver, i) => {
+    const initials = driver.name
+      ? driver.name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")
+          .toUpperCase()
+      : "N/A";
+    const vehicle =
+      driver.vehicle?.make && driver.vehicle?.model
+        ? `${driver.vehicle.make} ${driver.vehicle.model}`
+        : "N/A";
+    const rating = typeof driver.averageRating === "number"
+      ? driver.averageRating.toFixed(1)
+      : "0";
+
+    return (
+      <div
+        key={i}
+        className="relative bg-white rounded-lg p-4 shadow-md border border-gray-200 transition hover:-translate-y-1 hover:shadow-lg duration-200"
+      >
+        {/* Rating Badge */}
+        <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+          <FaStar className="text-green-600" /> {rating}
+        </span>
+
+        {/* Profile Image or Initials */}
+        <div className="flex justify-center mb-3">
+          {driver.profileImage ? (
+            <img
+              src={driver.profileImage}
+              alt={driver.name}
+              className="w-16 h-16 rounded-full object-cover border-2 border-green-400"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-green-500 text-white flex items-center justify-center text-xl font-semibold">
+              {initials}
+            </div>
+          )}
+        </div>
+
+        {/* Driver Info */}
+        <div className="text-center text-black">
+          <p className="font-bold text-lg">{driver.name || "N/A"}</p>
+          <p className="text-sm text-gray-600">{driver.email || "N/A"}</p>
+          <p className="text-sm text-gray-600">{driver.phone || "N/A"}</p>
+          <p className="text-sm italic text-gray-500 mt-1">{vehicle}</p>
+        </div>
+
+        {/* Status Badge */}
+        <div className="text-center mt-3">
+          <span
+            className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+              driver.status === "Active"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {driver.status || "Unknown"}
+          </span>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
 
           {/* Pagination */}
           <div className="flex justify-between items-center mt-4">
