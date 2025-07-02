@@ -21,6 +21,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { FaStar, FaChartLine } from "react-icons/fa";
+import adminAuthService from "../services/adminAuthService";
 
 // Default Data
 const samplePerformers = [
@@ -57,14 +58,32 @@ const StatusAndPeakHours = () => {
   });
 
   useEffect(() => {
-    // Replace with actual API call
-    setRideData({
-      Completed: 0,
-      Pending: 2,
-      Cancelled: 0,
-      Accepted: 0,
-    });
-  }, []);
+  const fetchRideStats = async () => {
+    try {
+      const token = adminAuthService.getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/rides/status-summary`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      console.log("Ride status data:", data);
+
+      setRideData({
+        Completed: data.Completed || 0,
+        Pending: data.Pending || 0,
+        Cancelled: data.Cancelled || 0,
+        Accepted: data.Accepted || 0,
+      });
+    } catch (error) {
+      console.error("Failed to fetch ride status:", error);
+    }
+  };
+
+  fetchRideStats();
+}, []);
+
 
   const total = Object.values(rideData).reduce((acc, val) => acc + val, 0);
   const rideStatusData = Object.keys(rideData).map((key) => ({

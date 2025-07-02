@@ -1,4 +1,12 @@
-import { Box, Card, CardContent, Typography, Grid } from "@mui/material";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  CircularProgress,
+} from "@mui/material";
 import {
   LineChart,
   Line,
@@ -9,16 +17,55 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const revenueData = [
-  { month: "Jul", revenue: 29000 },
-  { month: "Aug", revenue: 31000 },
-  { month: "Sep", revenue: 29500 },
-  { month: "Oct", revenue: 38000 },
-  { month: "Nov", revenue: 41500 },
-  { month: "Dec", revenue: 45000 },
-];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const RevenueTrend = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRevenueStats = async () => {
+      try {
+        const token = localStorage.getItem("adminToken");
+        const res = await fetch(`${API_BASE_URL}/admin/monthly-stats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch monthly stats");
+        const result = await res.json();
+        setData(result);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRevenueStats();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" py={4}>
+        <CircularProgress color="primary" />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Typography color="error" mt={2}>
+        Error: {error}
+      </Typography>
+    );
+  }
+
+  const totalRevenue = data.reduce((sum, d) => sum + d.revenue, 0);
+  const avgRevenue = Math.round(totalRevenue / data.length);
+  const growthRate = "+13.5%"; 
+
   return (
     <Card>
       <CardContent>
@@ -31,7 +78,7 @@ const RevenueTrend = () => {
             <Box bgcolor="#d1fae5" p={2} borderRadius={2}>
               <Typography variant="body2">Total Revenue</Typography>
               <Typography fontWeight="bold" variant="h6">
-                ₹2,16,580
+                ₹{totalRevenue.toLocaleString()}
               </Typography>
             </Box>
           </Grid>
@@ -47,7 +94,7 @@ const RevenueTrend = () => {
             <Box bgcolor="#f3e8ff" p={2} borderRadius={2}>
               <Typography variant="body2">Avg Revenue/Month</Typography>
               <Typography fontWeight="bold" variant="h6">
-                ₹36,097
+                ₹{avgRevenue.toLocaleString()}
               </Typography>
             </Box>
           </Grid>
@@ -55,7 +102,7 @@ const RevenueTrend = () => {
             <Box bgcolor="#fff7ed" p={2} borderRadius={2}>
               <Typography variant="body2">Growth Rate</Typography>
               <Typography fontWeight="bold" variant="h6" color="green">
-                +13.5%
+                {growthRate}
               </Typography>
             </Box>
           </Grid>
@@ -63,7 +110,7 @@ const RevenueTrend = () => {
 
         <Box mt={3} height={200}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={revenueData}>
+            <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="month" />
               <YAxis />

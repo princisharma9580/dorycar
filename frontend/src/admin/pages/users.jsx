@@ -8,7 +8,8 @@ const ITEMS_PER_PAGE = 10;
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
+  const [rideCounts, setRideCounts] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -27,6 +28,7 @@ const Users = () => {
         });
 
         setUsers(res.data);
+        await fetchRideCounts(res.data);
       } catch (err) {
         console.error("Error fetching users", err);
       } finally {
@@ -36,7 +38,28 @@ const Users = () => {
 
     fetchUsers();
   }, []);
+  
 
+  const fetchRideCounts = async (users) => {
+  const token = adminAuthService.getToken();
+  const counts = {};
+
+  await Promise.all(
+    users.map(async (user) => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/admin/user-rides/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        counts[user._id] = res.data.totalRides || 0;
+      } catch (err) {
+        counts[user._id] = 0;
+      }
+    })
+  );
+
+  setRideCounts(counts);
+  console.log("Fetched ride counts:", counts);
+};
   
   const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
   const paginatedUsers = users.slice(
@@ -56,7 +79,7 @@ const Users = () => {
         No users found.
       </div>
     );
-
+  console.log("Rendering with ride counts:", rideCounts);
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-3xl font-semibold mb-6 text-black-800 border-b pb-2">
@@ -73,7 +96,7 @@ const Users = () => {
       ) : (
         <>
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-  {users.map((user, i) => {
+  {paginatedUsers.map((user, i) => {
     const initials = user.name
       ? user.name
           .split(" ")
@@ -81,7 +104,7 @@ const Users = () => {
           .join("")
           .toUpperCase()
       : "N/A";
-    const rideCount = user.totalRides ?? 0;
+    const rideCount = rideCounts[user._id] ?? 0;
     const address =
       user.address && user.address.trim() !== ""
         ? user.address

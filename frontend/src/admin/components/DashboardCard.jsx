@@ -1,5 +1,5 @@
 // src/admin/components/DashboardCard.jsx
-import { Card, CardContent, Grid, Typography, Box, Avatar } from "@mui/material";
+{/*import { Card, CardContent, Grid, Typography, Box, Avatar } from "@mui/material";
 
 const DashboardCard = ({
   title,
@@ -83,6 +83,109 @@ const DashboardCard = ({
         </Card>
       </Box>
     </Grid>
+  );
+};
+
+export default DashboardCard;*/}
+
+
+
+
+import React from "react";
+import { Card, CardContent, Typography, Box } from "@mui/material";
+
+const DashboardCard = ({
+  title,
+  value,
+  subtitle,
+  icon,
+  change,
+  bgColor = "#ffffff",
+  isPrimary = false,
+  onClick,
+}) => {
+  return (
+    <Card
+      onClick={onClick}
+      sx={{
+        minHeight: 160,
+        cursor: onClick ? "pointer" : "default",
+        backgroundColor: isPrimary ? bgColor : "#fff",
+        boxShadow: 3,
+        borderRadius: 2,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        p: 2,
+        transition: "all 0.3s ease-in-out", 
+        "&:hover": {
+          transform: "translateY(-6px)",    
+          boxShadow: "0 10px 20px rgba(0,0,0,0.1)", 
+        },
+      }}
+    >
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+        <Box
+          sx={{
+            backgroundColor: isPrimary ? "rgba(255, 255, 255, 0.15)" : "#f3f4f6",
+            color: isPrimary ? "#fff" : "#374151",
+            borderRadius: 2,
+            width: 40,
+            height: 40,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 20,
+          }}
+        >
+          {icon}
+        </Box>
+        <Typography
+          variant="body2"
+          sx={{
+            color: change?.startsWith("-") ? "#ef4444" : "#10b981",
+            fontWeight: 600,
+            fontSize: 14,
+          }}
+        >
+          {change}
+        </Typography>
+      </Box>
+
+      <CardContent sx={{ px: 0, pt: 1.5, pb: 0 }}>
+        <Typography
+          sx={{
+            fontSize: 14,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            color: isPrimary ? "#ffffff" : "#6b7280",
+          }}
+        >
+          {title}
+        </Typography>
+
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: 700,
+            mt: 0.5,
+            color: isPrimary ? "#ffffff" : "#111827",
+          }}
+        >
+          {value}
+        </Typography>
+
+        <Typography
+          sx={{
+            fontSize: 12,
+            mt: 0.2,
+            color: isPrimary ? "#ffffff" : "#6b7280",
+          }}
+        >
+          {subtitle}
+        </Typography>
+      </CardContent>
+    </Card>
   );
 };
 
