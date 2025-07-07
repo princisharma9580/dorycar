@@ -148,7 +148,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaTachometerAlt,
   FaCar,
-  FaUserTie,
   FaUsers,
   FaSignOutAlt,
   FaBell,
@@ -159,7 +158,7 @@ import {
 } from "react-icons/fa";
 import adminAuthService from "../services/adminAuthService";
 
-const Sidebar = () => {
+const Sidebar = ({ collapsed }) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -176,111 +175,119 @@ const Sidebar = () => {
     }`;
 
   return (
-    <div className="fixed top-0 left-0 h-screen w-64 bg-white shadow-md flex flex-col justify-between z-50">
+    <div
+      className={`fixed top-0 left-0 h-screen bg-white shadow-md flex flex-col justify-between z-50 transition-all duration-300 ${
+        collapsed ? "w-16" : "w-64"
+      } overflow-hidden`}
+    >
       {/* Header */}
       <div>
-        <div className="px-4 py-4 border-b">
-          <div className="flex items-center gap-3">
-            <div className="bg-green-100 p-2 rounded-full">
-              <FaCar className="text-green-600 text-base" />
-            </div>
+        <div className="px-4 py-4 border-b flex items-center gap-3">
+          <div className="bg-green-100 p-2 rounded-full">
+            <FaCar className="text-green-600 text-base" />
+          </div>
+          {!collapsed && (
             <div>
               <p className="text-base font-semibold">DoryCar</p>
               <p className="text-xs text-gray-500">Admin Portal</p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Core Operations */}
-        <div className="mt-3 px-4 text-xs text-gray-400">Core Operations</div>
+        {!collapsed && (
+          <div className="mt-3 px-4 text-xs text-gray-400">Core Operations</div>
+        )}
         <nav className="mt-1 space-y-0.5">
           <Link to="/admin/dashboard" className={linkClass("/admin/dashboard")}>
             <FaTachometerAlt className="text-sm" />
-            <span>Dashboard</span>
+            {!collapsed && <span>Dashboard</span>}
           </Link>
           <Link to="/admin/users" className={linkClass("/admin/users")}>
             <FaUsers className="text-sm" />
-            <span>User Management</span>
+            {!collapsed && <span>User Management</span>}
           </Link>
-          <Link to="#" className={linkClass("#")}>
+          <Link to="/admin/vehicles" className={linkClass("/admin/vehicles")}>
             <FaCar className="text-sm" />
-            <span>Vehicle Listings</span>
+            {!collapsed && <span>Vehicle Listings</span>}
           </Link>
+
           <Link to="/admin/rides" className={linkClass("/admin/rides")}>
             <FaTachometerAlt className="text-sm" />
-            <span>Bookings</span>
+            {!collapsed && <span>Bookings</span>}
           </Link>
-          <Link to="#" className={linkClass("#")}>
+          {/* <Link to="#" className={linkClass("#")}>
             <FaUsers className="text-sm" />
-            <span>Payments & Refunds</span>
-          </Link>
+            {!collapsed && <span>Payments & Refunds</span>}
+          </Link> */}
         </nav>
 
         {/* Growth & Engagement */}
-        <div className="mt-4 px-4 text-xs text-gray-400">Growth & Engagement</div>
+        {!collapsed && (
+          <div className="mt-4 px-4 text-xs text-gray-400">Growth & Engagement</div>
+        )}
         <nav className="mt-1 space-y-0.5">
           <Link to="#" className={linkClass("#")}>
             <FaTachometerAlt className="text-sm" />
-            <span>Reports & Analytics</span>
+            {!collapsed && <span>Reports & Analytics</span>}
           </Link>
           <Link to="#" className={linkClass("#")}>
             <FaUsers className="text-sm" />
-            <span>Customer Support</span>
+            {!collapsed && <span>Customer Support</span>}
           </Link>
           <Link to="#" className={linkClass("#")}>
             <FaBell className="text-sm" />
-            <span>Notifications</span>
+            {!collapsed && <span>Notifications</span>}
           </Link>
         </nav>
 
         {/* Setup & Customization */}
-        <div className="mt-4 px-4 text-xs text-gray-400">Setup & Customization</div>
+        {!collapsed && (
+          <div className="mt-4 px-4 text-xs text-gray-400">Setup & Customization</div>
+        )}
         <nav className="mt-1 space-y-0.5">
-          <Link to="#" className={linkClass("#")}>
+          {/* <Link to="#" className={linkClass("#")}>
             <FaCogs className="text-sm" />
-            <span>Site Configuration</span>
+            {!collapsed && <span>Site Configuration</span>}
           </Link>
           <Link to="#" className={linkClass("#")}>
             <FaSearch className="text-sm" />
-            <span>SEO & Meta Settings</span>
-          </Link>
+            {!collapsed && <span>SEO & Meta Settings</span>}
+          </Link> */}
           <Link to="#" className={linkClass("#")}>
             <FaShieldAlt className="text-sm" />
-            <span>Access Logs</span>
+            {!collapsed && <span>Access Logs</span>}
           </Link>
         </nav>
       </div>
 
       {/* Bottom Section */}
-<div className="px-4 py-3 border-t pt-4">
-  <ul className="space-y-1">
-    <li className="flex items-center gap-3 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
-      <FaCog className="text-sm" />
-      <span>Settings</span>
-    </li>
-  </ul>
+      <div className="px-4 py-3 border-t pt-4">
+        <ul className="space-y-1">
+          <li className="flex items-center gap-3 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
+            <FaCog className="text-sm" />
+            {!collapsed && <span>Settings</span>}
+          </li>
+        </ul>
 
-  {/* This margin-top creates that subtle gap like in the screenshot */}
-  <ul className="space-y-1 mt-0">
-    <li>
-      <button
-        onClick={handleLogout}
-        className="w-full flex items-center gap-3 px-2 py-2 rounded-md text-red-600 hover:bg-red-100 hover:text-red-700 transition duration-200"
-      >
-        <FaSignOutAlt className="text-sm" />
-        <span>Logout</span>
-      </button>
-    </li>
-  </ul>
-</div>
-
-
-
+        <ul className="space-y-1 mt-0">
+          <li>
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-2 py-2 rounded-md text-red-600 hover:bg-red-100 hover:text-red-700 transition duration-200"
+            >
+              <FaSignOutAlt className="text-sm" />
+              {!collapsed && <span>Logout</span>}
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 };
 
 export default Sidebar;
+
 
 
 

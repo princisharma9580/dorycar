@@ -81,7 +81,7 @@ const Users = () => {
     );
   console.log("Rendering with ride counts:", rideCounts);
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="w-full p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-3xl font-semibold mb-6 text-black-800 border-b pb-2">
         Users
       </h2>
@@ -95,7 +95,7 @@ const Users = () => {
         </div>
       ) : (
         <>
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 mt-6">
   {paginatedUsers.map((user, i) => {
     const initials = user.name
       ? user.name

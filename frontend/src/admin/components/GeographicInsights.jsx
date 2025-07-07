@@ -6,16 +6,17 @@ import RoomIcon from "@mui/icons-material/Room";
 
 const GeographicInsights = ({ popularRoutes, zonePerformance, stats }) => {
   return (
-    <Box mt={6}>
+    <Box mt={3} mb={3} >
       <Typography variant="h5" fontWeight="bold" gutterBottom>
         Geographic Insights
       </Typography>
   
-      <Grid container spacing={3}>
+      <Grid container spacing={1} mt={1.5}>
         {/* Popular Routes */}
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
+            <Typography variant="h5" fontWeight="bold" gutterBottom display="flex" alignItems="center" gap={1}>
+              <RoomIcon color="primary" />
               Popular Routes
             </Typography>
             <Box display="flex" flexDirection="column" gap={2}>
@@ -50,7 +51,8 @@ const GeographicInsights = ({ popularRoutes, zonePerformance, stats }) => {
         {/* Zone Performance */}
         <Grid item xs={12} md={6}>
           <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6" fontWeight="bold" gutterBottom>
+            <Typography variant="h5" fontWeight="bold" gutterBottom display="flex" alignItems="center" gap={1}>
+              <TrendingUpIcon color="success" />
               Zone Performance
             </Typography>
             <Box display="flex" flexDirection="column" gap={2}>
@@ -84,56 +86,62 @@ const GeographicInsights = ({ popularRoutes, zonePerformance, stats }) => {
       </Grid>
 
       {/* Bottom Stats */}
-      <Grid container spacing={3} mt={3}>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, bgcolor: "#3b82f6", color: "#fff" }}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <TrendingUpIcon />
-              <Typography>Revenue Growth</Typography>
-            </Box>
-            <Typography variant="h6" fontWeight="bold">
-              +{stats.revenueGrowth}%
-            </Typography>
-            <Typography variant="caption">vs last month</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, bgcolor: "#10b981", color: "#fff" }}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <PeopleIcon />
-              <Typography>Active Users</Typography>
-            </Box>
-            <Typography variant="h6" fontWeight="bold">
-              {stats.activeUsers}/{stats.totalUsers}
-            </Typography>
-            <Typography variant="caption">{stats.userRate}% active rate</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, bgcolor: "#8b5cf6", color: "#fff" }}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <LocalTaxiIcon />
-              <Typography>Active Drivers</Typography>
-            </Box>
-            <Typography variant="h6" fontWeight="bold">
-              {stats.activeDrivers}
-            </Typography>
-            <Typography variant="caption">Available now</Typography>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={3}>
-          <Paper sx={{ p: 2, bgcolor: "#f97316", color: "#fff" }}>
-            <Box display="flex" alignItems="center" gap={1}>
-              <RoomIcon />
-              <Typography>Avg Distance</Typography>
-            </Box>
-            <Typography variant="h6" fontWeight="bold">
-              {stats.avgDistance}km
-            </Typography>
-            <Typography variant="caption">per ride</Typography>
-          </Paper>
-        </Grid>
-      </Grid>
+      <Grid container spacing={3} mt={1}>
+  {/* <Grid item xs={12} md={3}>
+    <Paper sx={{ p: 3, height: 140, bgcolor: "#3b82f6", color: "#fff", borderRadius: 2 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
+        <Box>
+          <Typography variant="subtitle1" >Revenue Growth</Typography>
+          <Typography variant="h5" fontWeight="bold">+{stats.revenueGrowth}%</Typography>
+          <Typography variant="caption">vs last month</Typography>
+        </Box>
+        <TrendingUpIcon sx={{ fontSize: 42, mt: 1 }} />
+      </Box>
+    </Paper>
+  </Grid> */}
+
+  <Grid item xs={12} md={4}>
+    <Paper sx={{ p: 3, height: 140, bgcolor: "#10b981", color: "#fff", borderRadius: 2 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
+        <Box>
+          <Typography variant="subtitle1" fontWeight="bold">Active Users</Typography>
+          <Typography variant="h5" fontWeight="bold">{stats.activeUsers}/{stats.totalUsers}</Typography>
+          <Typography variant="caption">{stats.userRate}% active rate</Typography>
+        </Box>
+        <PeopleIcon sx={{ fontSize: 42, mt: 1 }} />
+      </Box>
+    </Paper>
+  </Grid>
+
+  <Grid item xs={12} md={4}>
+    <Paper sx={{ p: 3, height: 140, bgcolor: "#8b5cf6", color: "#fff", borderRadius: 2 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
+        <Box>
+          <Typography variant="subtitle1" fontWeight="bold">Active Drivers</Typography>
+          <Typography variant="h5" fontWeight="bold">{stats.activeDrivers}</Typography>
+          <Typography variant="caption">Available now</Typography>
+        </Box>
+        <LocalTaxiIcon sx={{ fontSize: 42, mt: 1 }} />
+      </Box>
+    </Paper>
+  </Grid>
+
+  <Grid item xs={12} md={4}>
+    <Paper sx={{ p: 3, height: 140, bgcolor: "#f97316", color: "#fff", borderRadius: 2 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
+        <Box>
+          <Typography variant="subtitle1" fontWeight="bold">Avg Distance</Typography>
+          <Typography variant="h5" fontWeight="bold">{stats.avgDistance}km</Typography>
+          <Typography variant="caption">per ride</Typography>
+        </Box>
+        <RoomIcon sx={{ fontSize: 42, mt: 1 }} />
+      </Box>
+    </Paper>
+  </Grid>
+</Grid>
+
+
+
     </Box>
   );
 };

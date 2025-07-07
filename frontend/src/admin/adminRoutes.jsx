@@ -9,6 +9,7 @@ import Users from "./pages/users";
 import Payouts from "./pages/payouts";
 //import RideList from "../components/rides/RideList";
 import RideList from "../components/rides/RideList";
+import VehicleListings from "./pages/VehicleListings"; 
 
 const AdminRoutes = () => (
   <Routes>
@@ -29,6 +30,7 @@ const AdminRoutes = () => (
       <Route path="users" element={<Users />} />
       <Route path="payouts" element={<Payouts />} />
       <Route path="/admin/rides" element={<RideList />} />
+      <Route path="/admin/vehicles" element={<VehicleListings />} />
 
 
     </Route>
