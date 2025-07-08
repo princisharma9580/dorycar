@@ -59,17 +59,18 @@ const StatusAndPeakHours = () => {
       try {
         const token = adminAuthService.getToken();
         const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/admin/rides/status-summary`,
+          `${import.meta.env.VITE_API_BASE_URL}/admin/ride-stats`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
         const data = await response.json();
+
         setRideData({
-          Completed: data.Completed || 0,
-          Pending: data.Pending || 0,
-          Cancelled: data.Cancelled || 0,
-          Accepted: data.Accepted || 0,
+          Completed: data?.statusCounts?.completed || 0,
+          Pending: data?.statusCounts?.pending || 0,
+          Cancelled: data?.statusCounts?.cancelled || 0,
+          Accepted: data?.statusCounts?.accepted || 0,
         });
       } catch (error) {
         console.error("Failed to fetch ride status:", error);
@@ -88,11 +89,10 @@ const StatusAndPeakHours = () => {
   return (
     <Box sx={{ mt: 2, px: 2 }}>
       <Grid container spacing={3} justifyContent="center">
-        {/* Ride Status Distribution */}
         <Grid item xs={12} sm={12} md={4}>
           <Card sx={{ borderRadius: 3, p: 3, height: "100%", minHeight: 330 }}>
             <Typography variant="h6" fontWeight="bold" mb={1}>
-              Ride Status Distribution{" "}
+              Ride Status Distribution {" "}
               <Typography component="span" variant="caption" color="text.secondary">
                 Last 30 days
               </Typography>
@@ -139,11 +139,10 @@ const StatusAndPeakHours = () => {
           </Card>
         </Grid>
 
-        {/* Peak Hours Analysis */}
         <Grid item xs={12} sm={12} md={4}>
-          <Card sx={{borderRadius: 3, p: 3, height: "100%", minHeight: 330 }}>
+          <Card sx={{ borderRadius: 3, p: 3, height: "100%", minHeight: 330 }}>
             <Typography variant="h6" fontWeight="bold" mb={1}>
-              Peak Hours Analysis{" "}
+              Peak Hours Analysis {" "}
               <Typography component="span" variant="caption" color="text.secondary">
                 Today
               </Typography>
@@ -166,9 +165,8 @@ const StatusAndPeakHours = () => {
           </Card>
         </Grid>
 
-        {/* Top Performers */}
         <Grid item xs={12} sm={12} md={4}>
-          <Card sx={{borderRadius: 3, p: 3, height: "100%", minHeight: 330 }}>
+          <Card sx={{ borderRadius: 3, p: 3, height: "100%", minHeight: 330 }}>
             <Box display="flex" alignItems="center" gap={1} mb={2}>
               <FaChartLine color="#22c55e" size={20} />
               <Typography variant="h6" fontWeight="bold">

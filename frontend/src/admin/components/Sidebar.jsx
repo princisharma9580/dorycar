@@ -188,7 +188,7 @@ const Sidebar = ({ collapsed }) => {
           </div>
           {!collapsed && (
             <div>
-              <p className="text-base font-semibold">DoryCar</p>
+              <p className="text-base font-semibold text-green-600">DoryCar</p>
               <p className="text-xs text-gray-500">Admin Portal</p>
             </div>
           )}
@@ -212,7 +212,7 @@ const Sidebar = ({ collapsed }) => {
             {!collapsed && <span>Vehicle Listings</span>}
           </Link>
 
-          <Link to="/admin/rides" className={linkClass("/admin/rides")}>
+          <Link to="/admin/rides" className={linkClass("#")}>
             <FaTachometerAlt className="text-sm" />
             {!collapsed && <span>Bookings</span>}
           </Link>

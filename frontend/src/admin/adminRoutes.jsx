@@ -33,6 +33,7 @@ const AdminRoutes = () => (
       <Route path="/admin/vehicles" element={<VehicleListings />} />
 
 
+
     </Route>
   </Routes>
 );
