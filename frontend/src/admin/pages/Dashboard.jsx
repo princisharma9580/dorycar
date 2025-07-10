@@ -199,107 +199,105 @@ const Dashboard = () => {
 
 
 
-      <Grid container spacing={3} justifyContent="center">
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Total Rides"
-      value={rides?.totalRides ?? 0}
-      subtitle="This month"
-      icon={<FaCarSide size={20} />}
-      change="+12%"
-      bgColor="#10b981"
-      isPrimary
-      onClick={() => navigate("/admin/rides")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Total Users"
-      value={users?.totalUsers ?? 0}
-      subtitle="Registered users"
-      icon={<FaUsers size={20} />}
-      change="+8%"
-      onClick={() => navigate("/admin/users")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Completed Rides"
-      value={rides?.statusCounts?.completed ?? 0}
-      subtitle="Success rate: 80%"
-      icon={<FaCheckCircle size={20} />}
-      change="+15%"
-      bgColor="#22c55e"
-      onClick={() => navigate("/admin/rides")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Pending Rides"
-      value={rides?.statusCounts?.pending ?? 0}
-      subtitle="Awaiting drivers"
-      icon={<FaClock size={20} />}
-      change="-5%"
-      bgColor="#6b7280"
-      onClick={() => navigate("/admin/rides")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Cancelled Rides"
-      value={rides?.statusCounts?.cancelled ?? 0}
-      subtitle="Cancellation rate: 11%"
-      icon={<FaTimesCircle size={20} />}
-      change="+3%"
-      bgColor="#ef4444"
-      onClick={() => navigate("/admin/rides")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Avg Rating"
-      value={avgRating}
-      subtitle="Driver rating"
-      icon={<FaStar size={20} />}
-      change="+0.2"
-      bgColor="#facc15"
-      onClick={() => navigate("/admin/drivers")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Coverage Area"
-      value={rides?.coverageZones ?? 0}
-      subtitle="Active zones"
-      icon={<FaMapMarkerAlt size={20} />}
-      change="+2"
-      bgColor="#10b981"
-      onClick={() => navigate("/admin/Dashboard")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Peak Hour Performance"
-      value={rides?.peakHour ?? "N/A"}
-      subtitle="Highest demand period"
-      icon={<FaClock size={20} />}
-      change="+32%"
-      bgColor="#3b82f6"
-      onClick={() => navigate("/admin/Dashboard")}
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={4}>
-    <DashboardCard
-      title="Avg Trip Distance"
-      value={`${rides?.avgDistance ?? "N/A"} km`}
-      subtitle="Monthly average"
-      icon={<FaRoute size={20} />}
-      change="+8%"
-      bgColor="#10b981"
-      onClick={() => navigate("/admin/Dashboard")}
-    />
-  </Grid>
+      <Grid container spacing={3} justifyContent="flex-start">
+  {[
+    {
+      title: "Total Rides",
+      value: rides?.totalRides ?? 0,
+      subtitle: "This month",
+      icon: <FaCarSide size={20} />,
+      change: "+12%",
+      bgColor: "#10b981",
+      isPrimary: true,
+      onClick: () => navigate("/admin/rides")
+    },
+    {
+      title: "Total Users",
+      value: users?.totalUsers ?? 0,
+      subtitle: "Registered users",
+      icon: <FaUsers size={20} />,
+      change: "+8%",
+      onClick: () => navigate("/admin/users")
+    },
+    {
+      title: "Completed Rides",
+      value: rides?.statusCounts?.completed ?? 0,
+      subtitle: "Success rate: 80%",
+      icon: <FaCheckCircle size={20} />,
+      change: "+15%",
+      bgColor: "#22c55e",
+      onClick: () => navigate("/admin/rides")
+    },
+    {
+      title: "Pending Rides",
+      value: rides?.statusCounts?.pending ?? 0,
+      subtitle: "Awaiting drivers",
+      icon: <FaClock size={20} />,
+      change: "-5%",
+      bgColor: "#6b7280",
+      onClick: () => navigate("/admin/rides")
+    },
+    {
+      title: "Cancelled Rides",
+      value: rides?.statusCounts?.cancelled ?? 0,
+      subtitle: "Cancellation rate: 11%",
+      icon: <FaTimesCircle size={20} />,
+      change: "+3%",
+      bgColor: "#ef4444",
+      onClick: () => navigate("/admin/rides")
+    },
+    {
+  title: "Started Rides",
+  value: rides?.statusCounts?.starting ?? 0,
+  subtitle: "Currently active rides",
+  icon: <FaCar size={20} />,
+  change: "+10%",
+  bgColor: "#34d399",
+  onClick: () => navigate("/admin/rides")
+},
+    {
+      title: "Avg Rating",
+      value: avgRating,
+      subtitle: "Driver rating",
+      icon: <FaStar size={20} />,
+      change: "+0.2",
+      bgColor: "#facc15",
+      onClick: () => navigate("/admin/drivers")
+    },
+    {
+      title: "Coverage Area",
+      value: rides?.coverageZones ?? 0,
+      subtitle: "Active zones",
+      icon: <FaMapMarkerAlt size={20} />,
+      change: "+2",
+      bgColor: "#10b981",
+      onClick: () => navigate("/admin/Dashboard")
+    },
+    {
+      title: "Peak Hour Performance",
+      value: rides?.peakHour ?? "N/A",
+      subtitle: "Highest demand period",
+      icon: <FaClock size={20} />,
+      change: "+32%",
+      bgColor: "#3b82f6",
+      onClick: () => navigate("/admin/Dashboard")
+    },
+    {
+      title: "Avg Trip Distance",
+      value: `${rides?.avgDistance ?? "N/A"} km`,
+      subtitle: "Monthly average",
+      icon: <FaRoute size={20} />,
+      change: "+8%",
+      bgColor: "#10b981",
+      onClick: () => navigate("/admin/Dashboard")
+    }
+  ].map((card, index) => (
+    <Grid key={index} item xs={12} sm={6} md={4} lg={3}>
+      <DashboardCard {...card} />
+    </Grid>
+  ))}
 </Grid>
+
 
 
 
@@ -347,5 +345,4 @@ const Dashboard = () => {
     </div>
   );
 };
-
 export default Dashboard;

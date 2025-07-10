@@ -44,6 +44,7 @@ const COLORS = {
   Pending: "#facc15",
   Cancelled: "#ef4444",
   Accepted: "#3b82f6",
+  Started: "#6366f1", 
 };
 
 const StatusAndPeakHours = () => {
@@ -52,6 +53,7 @@ const StatusAndPeakHours = () => {
     Pending: 0,
     Cancelled: 0,
     Accepted: 0,
+    Started: 0,
   });
 
   useEffect(() => {
@@ -71,6 +73,7 @@ const StatusAndPeakHours = () => {
           Pending: data?.statusCounts?.pending || 0,
           Cancelled: data?.statusCounts?.cancelled || 0,
           Accepted: data?.statusCounts?.accepted || 0,
+          Started: data?.statusCounts?.starting || 0, 
         });
       } catch (error) {
         console.error("Failed to fetch ride status:", error);
@@ -92,7 +95,7 @@ const StatusAndPeakHours = () => {
         <Grid item xs={12} sm={12} md={4}>
           <Card sx={{ borderRadius: 3, p: 3, height: "100%", minHeight: 330 }}>
             <Typography variant="h6" fontWeight="bold" mb={1}>
-              Ride Status Distribution {" "}
+              Ride Status Distribution{" "}
               <Typography component="span" variant="caption" color="text.secondary">
                 Last 30 days
               </Typography>
@@ -114,6 +117,7 @@ const StatusAndPeakHours = () => {
                 <Tooltip formatter={(value, name) => [`${value} rides`, name]} />
               </PieChart>
             </ResponsiveContainer>
+
             <Grid container spacing={1} justifyContent="center">
               {rideStatusData.map((entry) => (
                 <Grid item key={entry.name}>
@@ -123,6 +127,7 @@ const StatusAndPeakHours = () => {
                 </Grid>
               ))}
             </Grid>
+
             <Grid container spacing={1} justifyContent="center" mt={1}>
               {rideStatusData.map((entry) => (
                 <Grid item key={entry.name}>
@@ -142,7 +147,7 @@ const StatusAndPeakHours = () => {
         <Grid item xs={12} sm={12} md={4}>
           <Card sx={{ borderRadius: 3, p: 3, height: "100%", minHeight: 330 }}>
             <Typography variant="h6" fontWeight="bold" mb={1}>
-              Peak Hours Analysis {" "}
+              Peak Hours Analysis{" "}
               <Typography component="span" variant="caption" color="text.secondary">
                 Today
               </Typography>
