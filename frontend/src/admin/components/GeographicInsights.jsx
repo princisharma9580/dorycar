@@ -87,26 +87,12 @@ const GeographicInsights = ({ popularRoutes, zonePerformance, stats }) => {
 
       {/* Bottom Stats */}
       <Grid container spacing={3} mt={1}>
-  {/* <Grid item xs={12} md={3}>
-    <Paper sx={{ p: 3, height: 140, bgcolor: "#3b82f6", color: "#fff", borderRadius: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
-        <Box>
-          <Typography variant="subtitle1" >Revenue Growth</Typography>
-          <Typography variant="h5" fontWeight="bold">+{stats.revenueGrowth}%</Typography>
-          <Typography variant="caption">vs last month</Typography>
-        </Box>
-        <TrendingUpIcon sx={{ fontSize: 42, mt: 1 }} />
-      </Box>
-    </Paper>
-  </Grid> */}
-
   <Grid item xs={12} md={4}>
     <Paper sx={{ p: 3, height: 140, bgcolor: "#10b981", color: "#fff", borderRadius: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
         <Box>
-          <Typography variant="subtitle1" fontWeight="bold">Active Users</Typography>
-          <Typography variant="h5" fontWeight="bold">{stats.activeUsers}/{stats.totalUsers}</Typography>
-          <Typography variant="caption">{stats.userRate}% active rate</Typography>
+          <Typography variant="subtitle1" fontWeight="bold">Total Users</Typography>
+          <Typography variant="h5" fontWeight="bold">{stats.totalUsers}</Typography>
         </Box>
         <PeopleIcon sx={{ fontSize: 42, mt: 1 }} />
       </Box>
@@ -117,9 +103,8 @@ const GeographicInsights = ({ popularRoutes, zonePerformance, stats }) => {
     <Paper sx={{ p: 3, height: 140, bgcolor: "#8b5cf6", color: "#fff", borderRadius: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
         <Box>
-          <Typography variant="subtitle1" fontWeight="bold">Active Drivers</Typography>
-          <Typography variant="h5" fontWeight="bold">{stats.activeDrivers}</Typography>
-          <Typography variant="caption">Available now</Typography>
+          <Typography variant="subtitle1" fontWeight="bold">Total Drivers</Typography>
+          <Typography variant="h5" fontWeight="bold">{stats.totalDrivers}</Typography>
         </Box>
         <LocalTaxiIcon sx={{ fontSize: 42, mt: 1 }} />
       </Box>
@@ -131,7 +116,7 @@ const GeographicInsights = ({ popularRoutes, zonePerformance, stats }) => {
       <Box display="flex" justifyContent="space-between" alignItems="flex-start" height="100%">
         <Box>
           <Typography variant="subtitle1" fontWeight="bold">Avg Distance</Typography>
-          <Typography variant="h5" fontWeight="bold">{stats.avgDistance}km</Typography>
+          <Typography variant="h5" fontWeight="bold">{stats.avgDistance} km</Typography>
           <Typography variant="caption">per ride</Typography>
         </Box>
         <RoomIcon sx={{ fontSize: 42, mt: 1 }} />

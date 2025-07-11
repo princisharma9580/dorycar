@@ -73,7 +73,7 @@ const StatusAndPeakHours = () => {
           Pending: data?.statusCounts?.pending || 0,
           Cancelled: data?.statusCounts?.cancelled || 0,
           Accepted: data?.statusCounts?.accepted || 0,
-          Started: data?.statusCounts?.starting || 0, 
+          Started: data?.statusCounts?.started || 0, 
         });
       } catch (error) {
         console.error("Failed to fetch ride status:", error);

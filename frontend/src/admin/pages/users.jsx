@@ -12,43 +12,49 @@ const Users = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = adminAuthService.getToken();
-        if (!token) {
-          console.warn("Admin token not found");
-          setLoading(false);
-          return;
-        }
-
-        const [usersRes, rideStatsRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/admin/users`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${API_BASE_URL}/admin/ride-stats`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-        ]);
-
-        const fetchedUsers = usersRes.data;
-        const rideData = rideStatsRes.data?.userRideCounts || {};
-
-        const counts = {};
-        fetchedUsers.forEach(user => {
-          counts[user._id] = rideData[user._id] ?? 0;
-        });
-
-        setUsers(fetchedUsers);
-        setRideCounts(counts);
-      } catch (err) {
-        console.error("Error fetching data", err);
-      } finally {
+  const fetchData = async () => {
+    try {
+      const token = adminAuthService.getToken();
+      if (!token) {
+        console.warn("Admin token not found");
         setLoading(false);
+        return;
       }
-    };
 
-    fetchData();
-  }, []);
+      const [usersRes, ridesRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/admin/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${API_BASE_URL}/admin/rides`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      const fetchedUsers = usersRes.data;
+      const allRides = ridesRes.data || [];
+
+      const counts = {};
+      fetchedUsers.forEach((user) => {
+        const completedRides = allRides.filter(
+          (ride) =>
+            ride.creator?._id === user._id && ride.status === "completed"
+        );
+        counts[user._id] = completedRides.length;
+      });
+
+      setUsers(fetchedUsers);
+      setRideCounts(counts);
+    } catch (err) {
+      console.error("Error fetching data", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, []);
+
+
 
   const totalPages = Math.ceil(users.length / ITEMS_PER_PAGE);
   const paginatedUsers = users.slice(
