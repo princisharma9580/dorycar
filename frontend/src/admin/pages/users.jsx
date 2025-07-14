@@ -33,14 +33,26 @@ const Users = () => {
       const fetchedUsers = usersRes.data;
       const allRides = ridesRes.data || [];
 
+      localStorage.setItem("allRides", JSON.stringify(allRides));
+
+      
       const counts = {};
       fetchedUsers.forEach((user) => {
-        const completedRides = allRides.filter(
-          (ride) =>
-            ride.creator?._id === user._id && ride.status === "completed"
-        );
-        counts[user._id] = completedRides.length;
+        const userRides = allRides.filter((ride) => {
+          const isRideTaken =
+            (Array.isArray(ride.acceptor) &&
+              ride.acceptor.some((r) => r._id === user._id)) ||
+            ride.acceptor?._id === user._id;
+
+          const isValidStatus =
+            ride.status === "completed" || ride.status === "started";
+
+          return isRideTaken && isValidStatus;
+        });
+
+        counts[user._id] = userRides.length;
       });
+
 
       setUsers(fetchedUsers);
       setRideCounts(counts);

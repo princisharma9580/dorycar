@@ -57,30 +57,49 @@ const StatusAndPeakHours = () => {
   });
 
   useEffect(() => {
-    const fetchRideStats = async () => {
-      try {
-        const token = adminAuthService.getToken();
-        const response = await fetch(
-          `${import.meta.env.VITE_API_BASE_URL}/admin/ride-stats`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        const data = await response.json();
-//rides?.statusCounts?.started ?? 0
-        setRideData({
-          Completed: data?.statusCounts?.completed || 0,
-          Pending: data?.statusCounts?.pending || 0,
-          Cancelled: data?.statusCounts?.cancelled || 0,
-          Accepted: data?.statusCounts?.accepted || 0,
-          Started: data?.statusCounts?.started || 0, 
-        });
-      } catch (error) {
-        console.error("Failed to fetch ride status:", error);
-      }
-    };
-    fetchRideStats();
-  }, []);
+  const fetchRideStats = async () => {
+    try {
+      const token = adminAuthService.getToken();
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/rides`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const allRides = await res.json();
+
+      
+      const takenRides = allRides.filter(
+        (ride) =>
+          (Array.isArray(ride.acceptor) && ride.acceptor.length > 0) ||
+          ride.acceptor?._id
+      );
+
+      
+      const statusCounts = {
+        Completed: 0,
+        Pending: 0,
+        Cancelled: 0,
+        Accepted: 0,
+        Started: 0,
+      };
+
+      takenRides.forEach((ride) => {
+        const status = ride.status?.toLowerCase();
+        if (status === "completed") statusCounts.Completed++;
+        else if (status === "pending") statusCounts.Pending++;
+        else if (status === "cancelled") statusCounts.Cancelled++;
+        else if (status === "accepted") statusCounts.Accepted++;
+        else if (status === "started") statusCounts.Started++;
+      });
+
+      setRideData(statusCounts);
+    } catch (error) {
+      console.error("Failed to fetch and filter ride data:", error);
+    }
+  };
+
+  fetchRideStats();
+}, []);
+
 
   const total = Object.values(rideData).reduce((acc, val) => acc + val, 0);
   const rideStatusData = Object.keys(rideData).map((key) => ({

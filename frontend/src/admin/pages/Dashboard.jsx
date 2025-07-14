@@ -36,13 +36,12 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { toggleSidebar } = useOutletContext();
   const [geoStats, setGeoStats] = useState({
-  activeUsers: 0,
-  totalUsers: 0,
-  userRate: 0,
-  totalDrivers: 0,
-  avgDistance: 0,
-});
-
+    activeUsers: 0,
+    totalUsers: 0,
+    userRate: 0,
+    activeDrivers: 0,
+    avgDistance: 0,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,25 +68,27 @@ const Dashboard = () => {
         const rideData = await rideRes.json();
         const userData = await userRes.json();
         const driverData = await driverRes.json();
+        console.log("Fetched driverData:", driverData);
 
         setRides(rideData);
         setUsers(userData);
-        setDrivers(driverData);
+        setDrivers(
+          Array.isArray(driverData) ? driverData : driverData?.drivers || []
+        );
+        console.log("Parsed drivers:", driverData?.drivers || []);
+
         const allUsers = userData?.users || [];
         const totalUsers = allUsers.filter((u) => u.role === "user").length;
 
-        const totalDrivers = allUsers.filter(
-          (u) => u.role !== "user" && !u.admin 
+        const totalDrivers = (driverData?.drivers || []).filter(
+          (u) => u.role !== "user" && !u.createdBy
         ).length;
 
         setGeoStats({
           totalUsers,
           totalDrivers,
-          avgDistance: rideData.avgDistance || 0, 
+          avgDistance: rideData.avgDistance || 0,
         });
-
-
-
 
         const validRatings = driverData
           .map((d) => d.averageRating)
@@ -95,7 +96,9 @@ const Dashboard = () => {
 
         const avg =
           validRatings.length > 0
-            ? (validRatings.reduce((a, b) => a + b, 0) / validRatings.length).toFixed(1)
+            ? (
+                validRatings.reduce((a, b) => a + b, 0) / validRatings.length
+              ).toFixed(1)
             : "N/A";
         setAvgRating(avg);
       } catch (err) {
@@ -111,7 +114,12 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="80vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="80vh"
+      >
         <CircularProgress color="success" />
       </Box>
     );
@@ -163,7 +171,11 @@ const Dashboard = () => {
                 stroke="currentColor"
                 style={{ width: 20, height: 20, color: "#000" }}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
 
@@ -274,7 +286,7 @@ const Dashboard = () => {
             },
             {
               title: "Started Rides",
-              value: rides?.statusCounts?.started ?? 0, 
+              value: rides?.statusCounts?.started ?? 0,
               subtitle: "Currently active rides",
               icon: <FaCar size={20} />,
               change: "+10%",
@@ -326,14 +338,44 @@ const Dashboard = () => {
 
         <GeographicInsights
           popularRoutes={[
-            { name: "Airport → City Center", rides: 145, avgFare: 150, revenue: 21750 },
-            { name: "Business District → Mall", rides: 128, avgFare: 150, revenue: 19200 },
-            { name: "University → Tech Park", rides: 98, avgFare: 150, revenue: 14700 },
-            { name: "Railway Station → Hotel Zone", rides: 87, avgFare: 150, revenue: 13050 },
-            { name: "Residential Area → Shopping Center", rides: 76, avgFare: 150, revenue: 11400 },
+            {
+              name: "Airport → City Center",
+              rides: 145,
+              avgFare: 150,
+              revenue: 21750,
+            },
+            {
+              name: "Business District → Mall",
+              rides: 128,
+              avgFare: 150,
+              revenue: 19200,
+            },
+            {
+              name: "University → Tech Park",
+              rides: 98,
+              avgFare: 150,
+              revenue: 14700,
+            },
+            {
+              name: "Railway Station → Hotel Zone",
+              rides: 87,
+              avgFare: 150,
+              revenue: 13050,
+            },
+            {
+              name: "Residential Area → Shopping Center",
+              rides: 76,
+              avgFare: 150,
+              revenue: 11400,
+            },
           ]}
           zonePerformance={[
-            { name: "Zone A - Central", rides: 487, revenue: 73050, growth: 15 },
+            {
+              name: "Zone A - Central",
+              rides: 487,
+              revenue: 73050,
+              growth: 15,
+            },
             { name: "Zone B - North", rides: 356, revenue: 53400, growth: 8 },
             { name: "Zone C - South", rides: 298, revenue: 44700, growth: 12 },
             { name: "Zone D - East", rides: 234, revenue: 35100, growth: 5 },
@@ -341,11 +383,9 @@ const Dashboard = () => {
           ]}
           stats={{
             totalUsers: users?.totalUsers ?? 0,
-            totalDrivers: drivers?.activeDrivers ?? 0,
+            totalDrivers: drivers.length,
             avgDistance: geoStats.avgDistance,
           }}
-
-
         />
 
         <Grid container spacing={3} mt={1}>

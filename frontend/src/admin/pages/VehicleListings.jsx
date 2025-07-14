@@ -159,7 +159,7 @@ import {
   FaRupeeSign,
 } from "react-icons/fa";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+//const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const statusStyles = {
   Available: "bg-green-100 text-green-700",
@@ -173,28 +173,32 @@ const VehicleListings = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const token = localStorage.getItem("adminToken");
-        const res = await fetch(`${API_BASE_URL}/admin/vehicles`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  const rideData = JSON.parse(localStorage.getItem("allRides")) || [];
 
-        if (!res.ok) throw new Error("Failed to fetch vehicle data");
+  const vehicleMap = new Map();
 
-        const data = await res.json();
-        setVehicles(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  rideData.forEach((ride) => {
+    const v = ride.vehicle;
+    if (v && v._id && !vehicleMap.has(v._id)) {
+      vehicleMap.set(v._id, {
+        id: v._id,
+        name: v.name,
+        year: v.year,
+        type: v.type,
+        location: v.location,
+        km: v.kmDriven,
+        price: v.pricePerDay,
+        features: v.features || [],
+        status: ride.status,
+      });
+    }
+  });
 
-    fetchVehicles();
-  }, []);
+  setVehicles(Array.from(vehicleMap.values()));
+  setLoading(false);
+}, []);
+
+
 
   const availableVehicles = vehicles.filter((v) => v.status === "Available");
 
@@ -289,5 +293,4 @@ const VehicleListings = () => {
     </div>
   );
 };
-
 export default VehicleListings;

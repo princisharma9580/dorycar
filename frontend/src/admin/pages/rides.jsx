@@ -56,7 +56,11 @@ const Rides = () => {
         : rides.filter((ride) => ride.status === statusFilter);
 
     const bySearch = byStatus.filter((ride) =>
-      ride.creator?.name?.toLowerCase().includes(search.toLowerCase())
+      Array.isArray(ride.acceptor)
+        ? ride.acceptor.some((p) =>
+            p.name?.toLowerCase().includes(search.toLowerCase())
+          )
+        : ride.acceptor?.name?.toLowerCase().includes(search.toLowerCase())
     );
 
     return bySearch;
@@ -82,7 +86,7 @@ const Rides = () => {
           <TextField
             variant="outlined"
             size="small"
-            label="Search rides..."
+            label="Search passengers..."
             className="w-full md:w-64"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -144,17 +148,21 @@ const Rides = () => {
                   </span>
                 </div>
 
+                {/* Passenger */}
                 <div className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                  <FaUserTie className="text-green-600" />{" "}
-                  {ride.creator?.name || "N/A"}
-                </div>
-                <div className="text-sm mt-1 text-gray-700 flex items-center gap-2">
                   <FaUser className="text-green-600" />
                   Passenger:{" "}
                   {Array.isArray(ride.acceptor)
                     ? ride.acceptor.map((p) => p.name).filter(Boolean).join(", ")
                     : ride.acceptor?.name || "N/A"}
                 </div>
+
+                {/* who offered the ride */}
+                <div className="text-sm mt-1 text-gray-600 flex items-center gap-2">
+                  <FaUserTie className="text-green-500" />
+                  Offered by: {ride.creator?.name || "N/A"}
+                </div>
+
                 <div className="text-sm mt-1 text-gray-700 flex items-center gap-2">
                   <FaMapMarkerAlt className="text-green-600" />
                   {ride.origin} → {ride.destination}
