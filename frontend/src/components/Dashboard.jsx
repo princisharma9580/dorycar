@@ -320,59 +320,62 @@ const Dashboard = ({ currentUser }) => {
         //     toast.error("Failed to accept user");
         //   }
         //   break;
-         case "accept":
-        try {
-          const updatedRide = await rideService.acceptInterest(rideId, userId);
-          toast.success("Ride accepted successfully");
+        case "accept":
+          try {
+            const updatedRide = await rideService.acceptInterest(
+              rideId,
+              userId
+            );
+            toast.success("Ride accepted successfully");
 
-          // Update userRides with the updated ride from backend
-          setUserRides((prevRides) =>
-            prevRides.map((ride) =>
-              ride._id === rideId ? updatedRide : ride
-            )
-          );
-        } catch (error) {
-          console.error("Accept ride failed:", error);
-          toast.error("Failed to accept user");
-        }
-        break;
+            // Update userRides with the updated ride from backend
+            setUserRides((prevRides) =>
+              prevRides.map((ride) =>
+                ride._id === rideId ? updatedRide : ride
+              )
+            );
+          } catch (error) {
+            console.error("Accept ride failed:", error);
+            toast.error("Failed to accept user");
+          }
+          break;
         // case "cancel":
         //   const reason = prompt("Please provide a reason for cancellation:");
         //   await rideService.cancelRide(rideId, reason);
 
         //   break;
         case "cancel":
-  try {
-    const reason = prompt("Please provide a reason for cancellation:");
-    const updatedRide = await rideService.cancelRide(rideId, reason);
+          try {
+            const reason = prompt("Please provide a reason for cancellation:");
+            const updatedRide = await rideService.cancelRide(rideId, reason);
 
-    toast.success("Ride cancelled successfully");
+            toast.success("Ride cancelled successfully");
 
-    // Update seats count locally if the current user was accepted before cancellation
-    setUserRides((prevRides) =>
-      prevRides.map((ride) => {
-        if (ride._id === rideId) {
-          // Find current user status before cancellation
-          const userInterest = ride.interestedUsers.find(
-            (i) =>
-              i.user?._id === user._id || i.user === user._id
-          );
-          const wasAccepted = userInterest?.status === "accepted" || userInterest?.status === "started";
+            // Update seats count locally if the current user was accepted before cancellation
+            setUserRides((prevRides) =>
+              prevRides.map((ride) => {
+                if (ride._id === rideId) {
+                  // Find current user status before cancellation
+                  const userInterest = ride.interestedUsers.find(
+                    (i) => i.user?._id === user._id || i.user === user._id
+                  );
+                  const wasAccepted =
+                    userInterest?.status === "accepted" ||
+                    userInterest?.status === "started";
 
-          return {
-            ...updatedRide,
-            seats: wasAccepted ? ride.seats + 1 : ride.seats,
-          };
-        }
-        return ride;
-      })
-    );
-  } catch (error) {
-    console.error("Cancel ride failed:", error);
-    toast.error("Failed to cancel ride");
-  }
-  break;
-
+                  return {
+                    ...updatedRide,
+                    seats: wasAccepted ? ride.seats + 1 : ride.seats,
+                  };
+                }
+                return ride;
+              })
+            );
+          } catch (error) {
+            console.error("Cancel ride failed:", error);
+            toast.error("Failed to cancel ride");
+          }
+          break;
 
         case "complete":
           try {
@@ -478,59 +481,53 @@ const Dashboard = ({ currentUser }) => {
       return () => clearInterval(timerRef.current);
     }, [ride.status, ride.startedAt]);
 
-    // Inside your RideCard component (somewhere before return):
-
-// Helper function to get progress bar class per user status
-
-const getProgressBarClass = (interestStatus, rideStatus) => {
-  if (interestStatus === "rejected") return "w-[25%] bg-red-400";
-  if (interestStatus === "interested" || interestStatus === "pending") return "w-1/4 bg-yellow-400";
-  if (interestStatus === "accepted") {
-    if (rideStatus === "pending") return "w-1/2 bg-green-400";
-    if (rideStatus === "started") return "w-3/4 bg-green-600";
-    if (rideStatus === "completed") return "w-full bg-green-700";
-    return "w-1/2 bg-green-400"; // fallback
-  }
-  return "w-0"; // default no progress
-};
-
-const progressBarClass = isCreator
-  ? (() => {
-      // For creator, use ride status only
-      switch (rideStatus) {
-        case "pending":
-          return "w-1/4 bg-green-500";
-        case "accepted":
-          return "w-1/2 bg-green-500";
-        case "started":
-          return "w-3/4 bg-green-500";
-        case "completed":
-          return "w-full bg-green-500";
-        case "cancelled":
-          return "w-[50%] bg-red-400";
-        default:
-          return "w-0";
+    const getProgressBarClass = (interestStatus, rideStatus) => {
+      if (interestStatus === "rejected") return "w-[25%] bg-red-400";
+      if (interestStatus === "interested" || interestStatus === "pending")
+        return "w-1/4 bg-yellow-400";
+      if (interestStatus === "accepted") {
+        if (rideStatus === "pending") return "w-1/2 bg-green-400";
+        if (rideStatus === "started") return "w-3/4 bg-green-600";
+        if (rideStatus === "completed") return "w-full bg-green-700";
+        return "w-1/2 bg-green-400";
       }
-    })()
-  : getProgressBarClass(userInterest?.status, rideStatus);
+      return "w-0";
+    };
 
+    const progressBarClass = isCreator
+      ? (() => {
+          switch (rideStatus) {
+            case "pending":
+              return "w-1/4 bg-green-500";
+            case "accepted":
+              return "w-1/2 bg-green-500";
+            case "started":
+              return "w-3/4 bg-green-500";
+            case "completed":
+              return "w-full bg-green-500";
+            case "cancelled":
+              return "w-[50%] bg-red-400";
+            default:
+              return "w-0";
+          }
+        })()
+      : getProgressBarClass(userInterest?.status, rideStatus);
 
-
-const getUserDisplayStatus = (interestStatus, rideStatus) => {
-  if (interestStatus === "rejected") return "Rejected";
-  if (interestStatus === "interested" || interestStatus === "pending") return "Pending";
-  if (interestStatus === "accepted") return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
-  if (interestStatus === "cancelled") return "Cancelled";
-  return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
-};
- 
-
+    const getUserDisplayStatus = (interestStatus, rideStatus) => {
+      if (interestStatus === "rejected") return "Rejected";
+      if (interestStatus === "interested" || interestStatus === "pending")
+        return "Pending";
+      if (interestStatus === "accepted")
+        return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
+      if (interestStatus === "cancelled") return "Cancelled";
+      return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
+    };
 
     return (
       <Card
         sx={{
-          mb: { xs: 2, md: 4 }, // smaller margin bottom on mobile
-          mt: { xs: 2, md: 10 }, // smaller margin top on mobile
+          mb: { xs: 2, md: 4 },
+          mt: { xs: 2, md: 10 },
           borderRadius: 3,
           border:
             ride._id === highlightedRideId
@@ -593,33 +590,34 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
                     </svg>
 
                     <span>{durationText} •</span>
-                    
-{ride.status !== "started" && (
-  <>
-  <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="lucide lucide-users h-4 w-4 mx-1"
-                    >
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-  <span>
-    {ride.seats === 0 ? "Full" : `${ride.seats} seats available`} •
-  </span>
-  </>
 
-)}
-
+                    {ride.status !== "started" && (
+                      <>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="lucide lucide-users h-4 w-4 mx-1"
+                        >
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                          <circle cx="9" cy="7" r="4"></circle>
+                          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        <span>
+                          {ride.seats === 0
+                            ? "Full"
+                            : `${ride.seats} seats available`}{" "}
+                          •
+                        </span>
+                      </>
+                    )}
 
                     <span>{new Date(ride.date).toLocaleDateString()}</span>
                   </div>
@@ -711,28 +709,28 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
 </div>
                     
                   </div> */}
-                  {/* Progress bar for current logged-in user's status */}
-<div className="w-full h-2 mt-2 bg-gray-200 rounded-full overflow-hidden">
-  <div className={`h-full transition-all duration-500 ${progressBarClass}`} />
-</div>
+                    {/* Progress bar for current logged-in user's status */}
+                    <div className="w-full h-2 mt-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-500 ${progressBarClass}`}
+                      />
+                    </div>
+                  </div>
 
-</div>
-
-
-                                   {/* <p className="text-sm font-semibold text-gray-700 mb-3">
+                  {/* <p className="text-sm font-semibold text-gray-700 mb-3">
   Status:{" "}
   <span className="capitalize">
     {isRejected ? "Rejected" : ride.status}
   </span>
 </p> */}
 
-{/* Status text based on user's interest status */}
-<p className="text-sm font-semibold text-gray-700 mb-3">
-  Status:{" "}
-  <span className="capitalize">
-    {getUserDisplayStatus(userInterest?.status, ride.status)}
-  </span>
-</p>
+                  {/* Status text based on user's interest status */}
+                  <p className="text-sm font-semibold text-gray-700 mb-3">
+                    Status:{" "}
+                    <span className="capitalize">
+                      {getUserDisplayStatus(userInterest?.status, ride.status)}
+                    </span>
+                  </p>
 
                   {!isCreator &&
                     ride.interestedUsers?.some(
@@ -781,9 +779,11 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
                     ride.status !== "started" &&
                     ride.status !== "completed" &&
                     ride.status !== "cancelled" && ( */}
-                    {isCreator &&
-   ride.interestedUsers?.length > 0 &&
-   !["started", "completed", "cancelled"].includes(ride.status) && (
+                  {isCreator &&
+                    ride.interestedUsers?.length > 0 &&
+                    !["started", "completed", "cancelled"].includes(
+                      ride.status
+                    ) && (
                       <Box mt={1} ml={2}>
                         <Typography variant="subtitle2" gutterBottom>
                           Interested Users:
@@ -800,204 +800,206 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
                               {interest.user?.name || "Unnamed User"} – Status:{" "}
                               {interest.status}
                             </Typography>
-                            
-                            {isCreator &&
-                            !isRejected &&
-                            interest.status === "interested" && (
-                              <Box
-                                sx={{
-                                  display: "flex",
-                                  flexDirection: { xs: "column", sm: "row" },
-                                  alignItems: "center",
-                                  gap: 2,
-                                  mt: 1.5,
-                                  flexWrap: "wrap",
-                                }}
-                              >
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  color="success"
-                                  sx={{
-                                    textTransform: "none",
-                                    fontWeight: 700,
-                                    borderWidth: 2,
-                                    px: 4,
-                                    py: 1.25,
-                                    borderRadius: "9999px", // pill shape
-                                    transition: "all 0.3s ease",
-                                    background:
-                                      "linear-gradient(90deg, #e6f4ea, #d0f0db)",
-                                    color: "success.dark",
-                                    boxShadow:
-                                      "0 2px 8px rgba(44,169,133,0.3)",
-                                    "&:hover": {
-                                      background:
-                                        "linear-gradient(90deg, #1f9d55, #2ca985)",
-                                      color: "#fff",
-                                      borderColor: "success.dark",
-                                      boxShadow:
-                                        "0 6px 20px rgba(31,157,85,0.6)",
-                                      transform: "scale(1.05)",
-                                    },
-                                  }}
-                                  onClick={() =>
-                                    handleDetailsOpen(interest.user._id)
-                                  }
-                                  startIcon={
-                                    <StarIcon sx={{ color: "success.main" }} />
-                                  }
-                                >
-                                  Show Profile
-                                </Button>
 
-                                <Modal
-                                  open={openDetails === interest.user._id}
-                                  onClose={handleDetailsClose}
-                                  aria-labelledby="user-details-modal"
-                                  aria-describedby="user-details-description"
+                            {isCreator &&
+                              !isRejected &&
+                              interest.status === "interested" && (
+                                <Box
+                                  sx={{
+                                    display: "flex",
+                                    flexDirection: { xs: "column", sm: "row" },
+                                    alignItems: "center",
+                                    gap: 2,
+                                    mt: 1.5,
+                                    flexWrap: "wrap",
+                                  }}
                                 >
-                                  <Box
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    color="success"
                                     sx={{
-                                      position: "absolute",
-                                      top: "50%",
-                                      left: "50%",
-                                      transform: "translate(-50%, -50%)",
-                                      width: { xs: 320, sm: 380 },
-                                      bgcolor: "background.paper",
-                                      borderRadius: 3,
-                                      boxShadow: 28,
-                                      p: 5,
-                                      outline: "none",
-                                      maxHeight: "90vh",
-                                      overflowY: "auto",
-                                    }}
-                                  >
-                                    <Avatar
-                                      src={interest?.user?.profileImage}
-                                      alt={interest?.user?.name}
-                                      sx={{
-                                        width: 100,
-                                        height: 100,
-                                        mb: 3,
-                                        mx: "auto",
-                                        border: "3px solid",
-                                        borderColor: "success.main",
+                                      textTransform: "none",
+                                      fontWeight: 700,
+                                      borderWidth: 2,
+                                      px: 4,
+                                      py: 1.25,
+                                      borderRadius: "9999px", // pill shape
+                                      transition: "all 0.3s ease",
+                                      background:
+                                        "linear-gradient(90deg, #e6f4ea, #d0f0db)",
+                                      color: "success.dark",
+                                      boxShadow:
+                                        "0 2px 8px rgba(44,169,133,0.3)",
+                                      "&:hover": {
+                                        background:
+                                          "linear-gradient(90deg, #1f9d55, #2ca985)",
+                                        color: "#fff",
+                                        borderColor: "success.dark",
                                         boxShadow:
-                                          "0 0 20px rgba(44, 169, 133, 0.7)",
-                                      }}
-                                    />
-                                    <Typography
-                                      variant="h5"
-                                      align="center"
-                                      gutterBottom
+                                          "0 6px 20px rgba(31,157,85,0.6)",
+                                        transform: "scale(1.05)",
+                                      },
+                                    }}
+                                    onClick={() =>
+                                      handleDetailsOpen(interest.user._id)
+                                    }
+                                    startIcon={
+                                      <StarIcon
+                                        sx={{ color: "success.main" }}
+                                      />
+                                    }
+                                  >
+                                    Show Profile
+                                  </Button>
+
+                                  <Modal
+                                    open={openDetails === interest.user._id}
+                                    onClose={handleDetailsClose}
+                                    aria-labelledby="user-details-modal"
+                                    aria-describedby="user-details-description"
+                                  >
+                                    <Box
                                       sx={{
-                                        fontWeight: "bold",
-                                        textTransform: "capitalize",
-                                        color: "success.dark",
-                                        mb: 3,
-                                        letterSpacing: 1,
-                                        textShadow:
-                                          "0 1px 3px rgba(44,169,133,0.5)",
+                                        position: "absolute",
+                                        top: "50%",
+                                        left: "50%",
+                                        transform: "translate(-50%, -50%)",
+                                        width: { xs: 320, sm: 380 },
+                                        bgcolor: "background.paper",
+                                        borderRadius: 3,
+                                        boxShadow: 28,
+                                        p: 5,
+                                        outline: "none",
+                                        maxHeight: "90vh",
+                                        overflowY: "auto",
                                       }}
                                     >
-                                      {interest.user?.name || "Unnamed User"}
-                                    </Typography>
-
-                                    {[
-                                      {
-                                        label: "Phone",
-                                        value: interest.user?.phone,
-                                        icon: "📞",
-                                      },
-                                      {
-                                        label: "Emergency Contact",
-                                        value:
-                                          interest.user?.emergencyContact,
-                                        icon: "🚨",
-                                      },
-                                      {
-                                        label: "Gender",
-                                        value: interest.user?.gender,
-                                        icon: "⚧",
-                                      },
-                                      {
-                                        label: "Address",
-                                        value: interest.user?.address,
-                                        icon: "🏠",
-                                      },
-                                    ].map(({ label, value, icon }) => (
-                                      <Box
-                                        key={label}
+                                      <Avatar
+                                        src={interest?.user?.profileImage}
+                                        alt={interest?.user?.name}
                                         sx={{
-                                          display: "flex",
-                                          alignItems: "center",
-                                          mb: 1.8,
-                                          px: 2,
-                                          borderRadius: 2,
-                                          bgcolor: "#e6f4ea",
+                                          width: 100,
+                                          height: 100,
+                                          mb: 3,
+                                          mx: "auto",
+                                          border: "3px solid",
+                                          borderColor: "success.main",
                                           boxShadow:
-                                            "inset 0 0 4px rgba(44,169,133,0.15)",
+                                            "0 0 20px rgba(44, 169, 133, 0.7)",
+                                        }}
+                                      />
+                                      <Typography
+                                        variant="h5"
+                                        align="center"
+                                        gutterBottom
+                                        sx={{
+                                          fontWeight: "bold",
+                                          textTransform: "capitalize",
+                                          color: "success.dark",
+                                          mb: 3,
+                                          letterSpacing: 1,
+                                          textShadow:
+                                            "0 1px 3px rgba(44,169,133,0.5)",
                                         }}
                                       >
-                                        <Typography
-                                          sx={{
-                                            fontWeight: 700,
-                                            color: "success.main",
-                                            mr: 2,
-                                            fontSize: "1.2rem",
-                                          }}
-                                        >
-                                          {icon}
-                                        </Typography>
-                                        <Typography
-                                          variant="body1"
-                                          sx={{
-                                            fontWeight: 600,
-                                            color: "success.dark",
-                                            textTransform: "capitalize",
-                                          }}
-                                        >
-                                          {label}:
-                                        </Typography>
-                                        <Typography
-                                          variant="body2"
-                                          sx={{
-                                            ml: 1,
-                                            fontWeight: 500,
-                                            color: "text.primary",
-                                          }}
-                                        >
-                                          {value || "N/A"}
-                                        </Typography>
-                                      </Box>
-                                    ))}
+                                        {interest.user?.name || "Unnamed User"}
+                                      </Typography>
 
-                                    <Button
-                                      variant="contained"
-                                      color="success"
-                                      onClick={handleDetailsClose}
-                                      fullWidth
-                                      sx={{
-                                        mt: 4,
-                                        fontWeight: 700,
-                                        textTransform: "none",
-                                        py: 1.5,
-                                        borderRadius: "9999px",
-                                        boxShadow:
-                                          "0 6px 18px rgba(44, 169, 133, 0.6)",
-                                        "&:hover": {
-                                          backgroundColor: "success.dark",
-                                          boxShadow:
-                                            "0 8px 25px rgba(31, 157, 85, 0.8)",
-                                          transform: "scale(1.05)",
+                                      {[
+                                        {
+                                          label: "Phone",
+                                          value: interest.user?.phone,
+                                          icon: "📞",
                                         },
-                                      }}
-                                    >
-                                      Close
-                                    </Button>
-                                  </Box>
-                                </Modal>
+                                        {
+                                          label: "Emergency Contact",
+                                          value:
+                                            interest.user?.emergencyContact,
+                                          icon: "🚨",
+                                        },
+                                        {
+                                          label: "Gender",
+                                          value: interest.user?.gender,
+                                          icon: "⚧",
+                                        },
+                                        {
+                                          label: "Address",
+                                          value: interest.user?.address,
+                                          icon: "🏠",
+                                        },
+                                      ].map(({ label, value, icon }) => (
+                                        <Box
+                                          key={label}
+                                          sx={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            mb: 1.8,
+                                            px: 2,
+                                            borderRadius: 2,
+                                            bgcolor: "#e6f4ea",
+                                            boxShadow:
+                                              "inset 0 0 4px rgba(44,169,133,0.15)",
+                                          }}
+                                        >
+                                          <Typography
+                                            sx={{
+                                              fontWeight: 700,
+                                              color: "success.main",
+                                              mr: 2,
+                                              fontSize: "1.2rem",
+                                            }}
+                                          >
+                                            {icon}
+                                          </Typography>
+                                          <Typography
+                                            variant="body1"
+                                            sx={{
+                                              fontWeight: 600,
+                                              color: "success.dark",
+                                              textTransform: "capitalize",
+                                            }}
+                                          >
+                                            {label}:
+                                          </Typography>
+                                          <Typography
+                                            variant="body2"
+                                            sx={{
+                                              ml: 1,
+                                              fontWeight: 500,
+                                              color: "text.primary",
+                                            }}
+                                          >
+                                            {value || "N/A"}
+                                          </Typography>
+                                        </Box>
+                                      ))}
+
+                                      <Button
+                                        variant="contained"
+                                        color="success"
+                                        onClick={handleDetailsClose}
+                                        fullWidth
+                                        sx={{
+                                          mt: 4,
+                                          fontWeight: 700,
+                                          textTransform: "none",
+                                          py: 1.5,
+                                          borderRadius: "9999px",
+                                          boxShadow:
+                                            "0 6px 18px rgba(44, 169, 133, 0.6)",
+                                          "&:hover": {
+                                            backgroundColor: "success.dark",
+                                            boxShadow:
+                                              "0 8px 25px rgba(31, 157, 85, 0.8)",
+                                            transform: "scale(1.05)",
+                                          },
+                                        }}
+                                      >
+                                        Close
+                                      </Button>
+                                    </Box>
+                                  </Modal>
                                   <Button
                                     size="small"
                                     variant="contained"
@@ -1264,7 +1266,7 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
                           Book
                         </button>
                       )}
-                    
+
                     <Tooltip title="Message the ride owner">
                       <button
                         onClick={() => handleChatClick(ride)}
@@ -1303,7 +1305,6 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
     );
   };
 
-
   return (
     <Container
       maxWidth="lg"
@@ -1325,16 +1326,6 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
               overflowX: "auto", // allow horizontal scroll if needed on small devices
             }}
           >
-
-
-
-
-            
-
-
-
-
-
             <Box
               display="flex"
               flexDirection={{ xs: "column", sm: "row" }}
@@ -1412,13 +1403,6 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
                     </Grid>
                   ))}
                 </Grid>
-
-             
-
-
-
-
-
 
                 {/* Pagination */}
                 {userRides.length > ridesPerPage && (
