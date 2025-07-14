@@ -67,7 +67,7 @@ const StatusAndPeakHours = () => {
           }
         );
         const data = await response.json();
-
+//rides?.statusCounts?.started ?? 0
         setRideData({
           Completed: data?.statusCounts?.completed || 0,
           Pending: data?.statusCounts?.pending || 0,

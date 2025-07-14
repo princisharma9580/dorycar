@@ -39,7 +39,7 @@ const Dashboard = () => {
   activeUsers: 0,
   totalUsers: 0,
   userRate: 0,
-  activeDrivers: 0,
+  totalDrivers: 0,
   avgDistance: 0,
 });
 
@@ -77,7 +77,7 @@ const Dashboard = () => {
         const totalUsers = allUsers.filter((u) => u.role === "user").length;
 
         const totalDrivers = allUsers.filter(
-          (u) => u.role !== "user" && !u.createdBy
+          (u) => u.role !== "user" && !u.admin 
         ).length;
 
         setGeoStats({
