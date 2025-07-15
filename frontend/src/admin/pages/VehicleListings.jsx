@@ -159,7 +159,6 @@ import {
   FaRupeeSign,
 } from "react-icons/fa";
 
-//const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const statusStyles = {
   Available: "bg-green-100 text-green-700",
@@ -172,34 +171,20 @@ const VehicleListings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  
   useEffect(() => {
-  const rideData = JSON.parse(localStorage.getItem("allRides")) || [];
-
-  const vehicleMap = new Map();
-
-  rideData.forEach((ride) => {
-    const v = ride.vehicle;
-    if (v && v._id && !vehicleMap.has(v._id)) {
-      vehicleMap.set(v._id, {
-        id: v._id,
-        name: v.name,
-        year: v.year,
-        type: v.type,
-        location: v.location,
-        km: v.kmDriven,
-        price: v.pricePerDay,
-        features: v.features || [],
-        status: ride.status,
-      });
+    try {
+      const vehicleData = JSON.parse(localStorage.getItem("allVehicles")) || [];
+      setVehicles(vehicleData);
+    } catch (err) {
+      console.error("Error loading vehicles from localStorage:", err);
+      setError("Failed to load vehicle data.");
+    } finally {
+      setLoading(false);
     }
-  });
+  }, []);
 
-  setVehicles(Array.from(vehicleMap.values()));
-  setLoading(false);
-}, []);
-
-
-
+    
   const availableVehicles = vehicles.filter((v) => v.status === "Available");
 
   return (
@@ -293,4 +278,5 @@ const VehicleListings = () => {
     </div>
   );
 };
+
 export default VehicleListings;

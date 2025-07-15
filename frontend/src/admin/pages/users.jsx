@@ -37,21 +37,25 @@ const Users = () => {
 
       
       const counts = {};
-      fetchedUsers.forEach((user) => {
-        const userRides = allRides.filter((ride) => {
-          const isRideTaken =
-            (Array.isArray(ride.acceptor) &&
-              ride.acceptor.some((r) => r._id === user._id)) ||
-            ride.acceptor?._id === user._id;
 
-          const isValidStatus =
-            ride.status === "completed" || ride.status === "started";
+fetchedUsers.forEach((user) => {
+  const userRides = allRides.filter((ride) => {
+    const isAcceptor =
+      (Array.isArray(ride.acceptor) &&
+        ride.acceptor.some((r) => r._id === user._id)) ||
+      ride.acceptor?._id === user._id;
 
-          return isRideTaken && isValidStatus;
-        });
+    const isCreator = ride.creator?._id === user._id;
 
-        counts[user._id] = userRides.length;
-      });
+    const isValidStatus =
+      ride.status === "completed" || ride.status === "started";
+
+    return (isAcceptor || isCreator) && isValidStatus;
+  });
+
+  counts[user._id] = userRides.length;
+});
+
 
 
       setUsers(fetchedUsers);
