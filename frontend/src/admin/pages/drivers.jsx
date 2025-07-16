@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import adminAuthService from "../services/adminAuthService";
 import { FaStar } from "react-icons/fa";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const ITEMS_PER_PAGE = 10;
 
 const Drivers = () => {
@@ -12,12 +12,10 @@ const Drivers = () => {
 
   useEffect(() => {
     const fetchDrivers = async () => {
-      try { 
+      try {
         const token = adminAuthService.getToken();
         const res = await fetch(`${API_BASE_URL}/admin/drivers`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!res.ok) throw new Error("Failed to fetch drivers");
@@ -40,7 +38,7 @@ const Drivers = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="w-full px-6 py-6 bg-white shadow-md min-h-screen">
       <h2 className="text-3xl font-semibold mb-6 text-gray-800 border-b pb-2">
         Drivers
       </h2>
@@ -55,7 +53,7 @@ const Drivers = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-4">
             {paginatedDrivers.map((driver, i) => {
               const initials = driver.name
                 ? driver.name
@@ -130,7 +128,7 @@ const Drivers = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex justify-between items-center mt-4">
+          <div className="flex justify-between items-center mt-6">
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((prev) => prev - 1)}

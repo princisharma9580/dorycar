@@ -158,34 +158,57 @@ import {
   FaTachometerAlt,
   FaRupeeSign,
 } from "react-icons/fa";
-
-
-const statusStyles = {
-  Available: "bg-green-100 text-green-700",
-  Rented: "bg-blue-100 text-blue-700",
-  Maintenance: "bg-orange-100 text-orange-700",
-};
+import adminAuthService from "../services/adminAuthService";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const VehicleListings = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  
   useEffect(() => {
-    try {
-      const vehicleData = JSON.parse(localStorage.getItem("allVehicles")) || [];
-      setVehicles(vehicleData);
-    } catch (err) {
-      console.error("Error loading vehicles from localStorage:", err);
-      setError("Failed to load vehicle data.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    const fetchVehiclesFromUsers = async () => {
+      try {
+        const token = adminAuthService.getToken();
+        const res = await fetch(`${API_BASE_URL}/admin/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-    
-  const availableVehicles = vehicles.filter((v) => v.status === "Available");
+        if (!res.ok) throw new Error("Failed to fetch users");
+
+        const data = await res.json();
+        console.log("Fetched users:", data);
+
+        const users = data || [];
+
+        users.forEach((user, index) => {
+          console.log(`User ${index} data:`, user);
+        });
+
+        const allVehicles = [];
+
+        users.forEach((user) => {
+          if (user.vehicle) {
+            allVehicles.push({
+              ...user.vehicle,
+              ownerName: user.name,
+              ownerEmail: user.email,
+            });
+          }
+        });
+
+        console.log("Extracted vehicles:", allVehicles);
+        setVehicles(allVehicles);
+      } catch (err) {
+        console.error("Error fetching vehicles:", err);
+        setError("Failed to load vehicle data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVehiclesFromUsers();
+  }, []);
 
   return (
     <div className="px-8 py-6">
@@ -208,9 +231,6 @@ const VehicleListings = () => {
               className="px-4 py-2 border rounded w-60 text-sm shadow-sm"
             />
             <select className="px-4 py-2 border rounded text-sm shadow-sm">
-              <option>Available</option>
-            </select>
-            <select className="px-4 py-2 border rounded text-sm shadow-sm">
               <option>All Types</option>
               <option>SUV</option>
               <option>Hatchback</option>
@@ -223,43 +243,48 @@ const VehicleListings = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
-            {availableVehicles.map((v, i) => (
+            {vehicles.map((v, i) => (
               <div
                 key={i}
                 className="bg-white border border-gray-200 rounded-lg shadow p-4 flex flex-col justify-between text-black transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl"
               >
                 <div className="flex justify-between items-center text-sm text-gray-400 mb-2">
-                  <span>{v.id}</span>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${statusStyles[v.status]}`}
-                  >
-                    {v.status}
+                  <span>{v.registration || "N/A"}</span>
+                  <span className="text-green-700 font-medium text-xs px-2 py-1 bg-green-100 rounded-full">
+                    {v.type || "N/A"}
                   </span>
                 </div>
-                <h2 className="font-bold text-lg text-gray-800 mb-1">{v.name}</h2>
+
+                <h2 className="font-bold text-lg text-gray-800 mb-1">
+                  {v.make} {v.model}
+                </h2>
+
                 <p className="text-sm text-gray-600 mb-1">
-                  <FaCalendarAlt className="inline mr-1 text-green-600" /> {v.year}{" "}
-                  {v.type}
+                  <FaCalendarAlt className="inline mr-1 text-green-600" /> Year:{" "}
+                  {v.year || "N/A"}
                 </p>
+
                 <p className="text-sm text-gray-600 mb-1">
-                  <FaMapMarkerAlt className="inline mr-1 text-green-600" /> {v.location}
+                  <FaMapMarkerAlt className="inline mr-1 text-green-600" /> Fuel:{" "}
+                  {v.fuel || "N/A"}
                 </p>
+
                 <p className="text-sm text-gray-600 mb-1">
-                  <FaTachometerAlt className="inline mr-1 text-green-600" /> {v.km} km
+                  <FaTachometerAlt className="inline mr-1 text-green-600" /> Color:{" "}
+                  {v.color || "N/A"}
                 </p>
-                <p className="text-md font-semibold text-green-700 mb-2">
-                  <FaRupeeSign className="inline mr-1" /> {v.price}/day
+
+                <p className="text-sm text-gray-500 mt-2 italic">
+                  Owner: {v.ownerName} ({v.ownerEmail})
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {v.features.map((f, j) => (
-                    <span
-                      key={j}
-                      className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                    >
-                      {f}
-                    </span>
-                  ))}
-                </div>
+
+                {v.vehicleImage && (
+                  <img
+                    src={v.vehicleImage}
+                    alt={`${v.make} ${v.model}`}
+                    className="mt-3 rounded-md w-full h-32 object-cover border"
+                  />
+                )}
               </div>
             ))}
           </div>

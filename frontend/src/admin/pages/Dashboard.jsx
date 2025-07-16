@@ -14,7 +14,6 @@ import {
 import { Grid, Typography, Box, CircularProgress } from "@mui/material";
 import adminAuthService from "../services/adminAuthService";
 import DashboardCard from "../components/DashboardCard";
-import AnalyticsSection from "../components/AnalyticsSection";
 import GeographicInsights from "../components/GeographicInsights";
 import { useNavigate } from "react-router-dom";
 import StatusAndPeakHours from "../components/StatusAndPeakHours";
@@ -111,6 +110,9 @@ const Dashboard = () => {
 
     fetchData();
   }, []);
+  useEffect(() => {
+  console.log("Rides data:", rides);
+}, [rides]);
 
   if (loading) {
     return (

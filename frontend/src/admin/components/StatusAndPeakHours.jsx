@@ -69,8 +69,7 @@ const StatusAndPeakHours = () => {
       
       const takenRides = allRides.filter(
         (ride) =>
-          (Array.isArray(ride.acceptor) && ride.acceptor.length > 0) ||
-          ride.acceptor?._id
+          ride.creator || (Array.isArray(ride.acceptor) && ride.acceptor.length > 0) || ride.acceptor?._id
       );
 
       

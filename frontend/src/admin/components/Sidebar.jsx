@@ -195,9 +195,9 @@ const Sidebar = ({ collapsed }) => {
         </div>
 
         {/* Core Operations */}
-        {!collapsed && (
+        {/* {!collapsed && (
           <div className="mt-3 px-4 text-xs text-gray-400">Core Operations</div>
-        )}
+        )} */}
         <nav className="mt-1 space-y-0.5">
           <Link to="/admin/dashboard" className={linkClass("/admin/dashboard")}>
             <FaTachometerAlt className="text-sm" />
@@ -216,6 +216,10 @@ const Sidebar = ({ collapsed }) => {
             <FaTachometerAlt className="text-sm" />
             {!collapsed && <span>Bookings</span>}
           </Link>
+          <Link to="#" className={linkClass("#")}>
+            <FaUsers className="text-sm" />
+            {!collapsed && <span>Customer Support</span>}
+          </Link>
           {/* <Link to="#" className={linkClass("#")}>
             <FaUsers className="text-sm" />
             {!collapsed && <span>Payments & Refunds</span>}
@@ -223,7 +227,7 @@ const Sidebar = ({ collapsed }) => {
         </nav>
 
         {/* Growth & Engagement */}
-        {!collapsed && (
+        {/* {!collapsed && (
           <div className="mt-4 px-4 text-xs text-gray-400">Growth & Engagement</div>
         )}
         <nav className="mt-1 space-y-0.5">
@@ -239,13 +243,13 @@ const Sidebar = ({ collapsed }) => {
             <FaBell className="text-sm" />
             {!collapsed && <span>Notifications</span>}
           </Link>
-        </nav>
+        </nav> */}
 
         {/* Setup & Customization */}
-        {!collapsed && (
+        {/* {!collapsed && (
           <div className="mt-4 px-4 text-xs text-gray-400">Setup & Customization</div>
         )}
-        <nav className="mt-1 space-y-0.5">
+        <nav className="mt-1 space-y-0.5"> */}
           {/* <Link to="#" className={linkClass("#")}>
             <FaCogs className="text-sm" />
             {!collapsed && <span>Site Configuration</span>}
@@ -254,21 +258,21 @@ const Sidebar = ({ collapsed }) => {
             <FaSearch className="text-sm" />
             {!collapsed && <span>SEO & Meta Settings</span>}
           </Link> */}
-          <Link to="#" className={linkClass("#")}>
+          {/* <Link to="#" className={linkClass("#")}>
             <FaShieldAlt className="text-sm" />
             {!collapsed && <span>Access Logs</span>}
-          </Link>
-        </nav>
+          </Link> */}
+        {/* </nav> */}
       </div>
 
       {/* Bottom Section */}
       <div className="px-4 py-3 border-t pt-4">
-        <ul className="space-y-1">
+        {/* <ul className="space-y-1">
           <li className="flex items-center gap-3 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded-md cursor-pointer">
             <FaCog className="text-sm" />
             {!collapsed && <span>Settings</span>}
           </li>
-        </ul>
+        </ul> */}
 
         <ul className="space-y-1 mt-0">
           <li>
