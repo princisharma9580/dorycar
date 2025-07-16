@@ -42,7 +42,7 @@ router.post("/create", auth, async (req, res) => {
       "fuel",
     ];
 
-    console.log("required fields",user.vehicle)
+    console.log("required fields", user.vehicle);
 
     requiredVehicleFields.forEach((field) => {
       if (!vehicle[field]) {
@@ -77,7 +77,7 @@ router.post("/create", auth, async (req, res) => {
       upiId,
       qrImageUrl,
       departureTime, // ✅ include
-      arrivalTime,   // ✅ include
+      arrivalTime, // ✅ include
     });
 
     await ride.save();
@@ -131,7 +131,14 @@ router.get("/", auth, async (req, res) => {
     }
 
     filter.status = {
-      $in: ["waiting", "pending", "accepted", "started", "completed", "cancelled"],
+      $in: [
+        "waiting",
+        "pending",
+        "accepted",
+        "started",
+        "completed",
+        "cancelled",
+      ],
     };
 
     const rides = await Ride.find(filter)
@@ -223,15 +230,21 @@ router.post("/:rideId/interest", auth, async (req, res) => {
       });
     }
 
-    ride.interestedUsers.push({ 
+    ride.interestedUsers.push({
       user: req.userId,
       status: "interested",
     });
 
     await ride.save();
     const updatedRide = await Ride.findById(ride._id)
-      .populate("creator", "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings")
-      .populate("acceptor", "name profileImage phone gender emergencyContact address")
+      .populate(
+        "creator",
+        "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings"
+      )
+      .populate(
+        "acceptor",
+        "name profileImage phone gender emergencyContact address"
+      )
       .populate("interestedUsers.user", "name");
 
     req.app.get("io").emit("ride-updated", updatedRide);
@@ -316,7 +329,9 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
 
     // Check if the requester is the ride creator
     if (ride.creator.toString() !== req.userId)
-      return res.status(403).json({ message: "Only ride creator can accept users" });
+      return res
+        .status(403)
+        .json({ message: "Only ride creator can accept users" });
 
     // Check if seats are available
     if (ride.seats <= 0) {
@@ -329,7 +344,9 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
     );
 
     if (!interest)
-      return res.status(404).json({ message: "User has not expressed interest" });
+      return res
+        .status(404)
+        .json({ message: "User has not expressed interest" });
 
     if (interest.status === "accepted") {
       return res.status(400).json({ message: "User already accepted" });
@@ -351,7 +368,10 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
         "creator",
         "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings"
       )
-      .populate("acceptor", "name profileImage phone gender emergencyContact address")
+      .populate(
+        "acceptor",
+        "name profileImage phone gender emergencyContact address"
+      )
       .populate("interestedUsers.user", "name");
 
     req.app.get("io").emit("ride-updated", updatedRide);
@@ -365,11 +385,11 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
 
     res.json(updatedRide);
   } catch (error) {
-    res.status(500).json({ message: "Error accepting ride", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error accepting ride", error: error.message });
   }
 });
-
-
 
 router.put("/:rideId/start", auth, async (req, res) => {
   try {
@@ -434,7 +454,10 @@ router.put("/:rideId/start", auth, async (req, res) => {
     req.app.get("io").emit("ride-updated", ride);
 
     const updatedRide = await Ride.findById(ride._id)
-      .populate("creator", "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings")
+      .populate(
+        "creator",
+        "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings"
+      )
       .populate("acceptor", "name")
       .populate("interestedUsers.user", "name");
 
@@ -507,7 +530,7 @@ router.put("/:rideId/start", auth, async (req, res) => {
 //       populatedRide.messages[populatedRide.messages.length - 1];
 //     console.log("emitting events");
 //     req.app.get("io").emit("ride-updated", populatedRide);
-    
+
 //     req.app.get("io").to(`ride_${ride._id}`).emit("new_message", {
 //       rideId: ride._id,
 //       message: latestMessage,
@@ -755,9 +778,18 @@ router.put("/:rideId/complete", auth, async (req, res) => {
     await ride.save();
 
     const updatedRide = await Ride.findById(ride._id)
-      .populate("creator", "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings")
-      .populate("acceptor", "name profileImage phone gender emergencyContact address")
-      .populate("interestedUsers.user", "name profileImage phone gender emergencyContact address");
+      .populate(
+        "creator",
+        "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings"
+      )
+      .populate(
+        "acceptor",
+        "name profileImage phone gender emergencyContact address"
+      )
+      .populate(
+        "interestedUsers.user",
+        "name profileImage phone gender emergencyContact address"
+      );
 
     req.app.get("io").emit("ride-updated", updatedRide);
 
@@ -970,7 +1002,8 @@ router.put("/:rideId/cancel", auth, async (req, res) => {
       // If creator cancels ride, cancel entire ride
       ride.status = "cancelled";
       ride.cancelledAt = new Date();
-      ride.cancellationReason = req.body.cancellationReason || "No reason provided";
+      ride.cancellationReason =
+        req.body.cancellationReason || "No reason provided";
 
       // Set all interested users status to cancelled except rejected
       ride.interestedUsers = ride.interestedUsers.map((interest) => {
@@ -982,13 +1015,17 @@ router.put("/:rideId/cancel", auth, async (req, res) => {
     } else {
       // Individual user cancellation
       // Only update if user is accepted or interested
-      if (userInterest.status === "accepted" || userInterest.status === "interested") {
+      if (
+        userInterest.status === "accepted" ||
+        userInterest.status === "interested"
+      ) {
         // Increment seats only if previously accepted
         if (userInterest.status === "accepted") {
           ride.seats = Math.min(ride.seats + 1, ride.totalSeats || 10);
         }
-        userInterest.status = "cancelled"; 
-        userInterest.cancellationReason = req.body.cancellationReason || "No reason provided";
+        userInterest.status = "cancelled";
+        userInterest.cancellationReason =
+          req.body.cancellationReason || "No reason provided";
       } else {
         return res.status(400).json({ message: "You cannot cancel this ride" });
       }
@@ -1002,8 +1039,8 @@ router.put("/:rideId/cancel", auth, async (req, res) => {
       .populate("interestedUsers.user", "name");
 
     // Determine if there are any accepted or started users to decide on notifications
-    const hasAcceptedOrStartedUsers = ride.interestedUsers.some(
-      (i) => ["accepted", "started"].includes(i.status)
+    const hasAcceptedOrStartedUsers = ride.interestedUsers.some((i) =>
+      ["accepted", "started"].includes(i.status)
     );
 
     if (hasAcceptedOrStartedUsers) {
@@ -1025,7 +1062,11 @@ router.put("/:rideId/cancel", auth, async (req, res) => {
             .get("io")
             .to(interest.user._id.toString())
             .emit("ride-notification", {
-              message: `Ride from ${ride.origin} to ${ride.destination} was cancelled by ${isCreator ? "Creator" : "Rider"}. Reason: ${ride.cancellationReason}`,
+              message: `Ride from ${ride.origin} to ${
+                ride.destination
+              } was cancelled by ${isCreator ? "Creator" : "Rider"}. Reason: ${
+                ride.cancellationReason
+              }`,
               type: "cancelled",
             });
         }
@@ -1044,6 +1085,5 @@ router.put("/:rideId/cancel", auth, async (req, res) => {
     });
   }
 });
-
 
 module.exports = router;
