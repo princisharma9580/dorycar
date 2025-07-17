@@ -230,6 +230,36 @@ const Profile = () => {
       setFormData((prev) => ({ ...prev, [key]: file }));
     }
   };
+   
+const [activeTab, setActiveTab] = useState("profile");
+const profileRef = useRef(null);
+const vehicleRef = useRef(null);
+const documentRef = useRef(null);
+
+const scrollToSection = (ref, tabName) => {
+  setActiveTab(tabName);
+  if (ref.current) {
+    ref.current.scrollIntoView({
+      behavior: "smooth",
+      inline: "start",
+      block: "nearest",
+    });
+  }
+};
+
+const tabButtonStyle = (tab) => ({
+  fontWeight: "bold",
+  fontSize: "1.1rem",
+  color: "#047857",
+  borderBottom: activeTab === tab ? "3px solid #047857" : "none",
+  transition: "border 0.3s",
+  "&:hover": {
+    borderBottom: "2px solid #047857",
+  },
+});
+
+
+
 
   const handleSave = async () => {
     const bucket = import.meta.env.VITE_AWS_BUCKET;
@@ -540,7 +570,7 @@ const Profile = () => {
                 gutterBottom
                 sx={{ color: "#047857", transition: "color 0.3s" }}
               >
-                {editMode ? "Edit Your Profile" : "Profile Details"}
+                {editMode ? "Edit Your Profile" : user.name}
               </Typography>
 
               {user.averageRating > 0 && (
@@ -558,274 +588,435 @@ const Profile = () => {
 
               {/* Form or Read View */}
               <Collapse in={editMode}>
-                <Box>
-                  {[
-                    { name: "name", label: "Name" },
-                    { name: "email", label: "Email" },
-                    { name: "phone", label: "Phone" },
-                    { name: "dob", label: "DOB" },
-                    { name: "emergencyContact", label: "Emergency Contact" },
-                    { name: "address", label: "Address" },
-                  ].map((field) => (
-                    <TextField
-                      key={field.name}
-                      fullWidth
-                      name={field.name}
-                      label={field.label}
-                      value={formData[field.name]}
-                      onChange={handleChange}
-                      sx={{ mb: 2 }}
-                    />
-                  ))}
+                   {/* Tab Buttons (edit mode) */}
+                   <Box sx={{ display: "flex", justifyContent: "center", gap: 4, mb: 3 }}>
+                      <Button sx={tabButtonStyle("profile")} onClick={() => scrollToSection(profileRef, "profile")}>Profile Info</Button>
+                      <Button sx={tabButtonStyle("vehicle")} onClick={() => scrollToSection(vehicleRef, "vehicle")}>Vehicle Info</Button>
+                      <Button sx={tabButtonStyle("documents")} onClick={() => scrollToSection(documentRef, "documents")}>Documents</Button>
+                    </Box>
 
-                  {/* Gender */}
-                  <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>Gender</InputLabel>
-                    <Select
-                      name="gender"
-                      value={formData.gender}
-                      onChange={handleChange}
-                      label="Gender"
-                    >
-                      {genders.map((g) => (
-                        <MenuItem key={g} value={g}>
-                          {g}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
 
-                  {/* Vehicle Info */}
-                  <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-                    Vehicle Info (For Ride Creators)
-                  </Typography>
-                  {[
-                    ["vehicle", "type", "Vehicle Type", vehicleTypes],
-                    ["vehicle", "make", "Make", carMakers],
-                    ["vehicle", "fuel", "Fuel Type", fuelTypes],
-                  ].map(([section, field, label, options]) => (
-                    <FormControl fullWidth sx={{ mb: 2 }} key={field}>
-                      <InputLabel>{label}</InputLabel>
-                      <Select
-                        value={formData[section][field]}
-                        onChange={(e) =>
-                          handleNestedChange(section, field, e.target.value)
-                        }
+                      <Box
+                        sx={{
+                          display: "flex",
+                          overflowX: "auto",
+                          gap: 3,
+                          scrollSnapType: "x mandatory",
+                          px: 1,
+                          pb: 2,
+                        }}
                       >
-                        {options.map((opt) => (
-                          <MenuItem key={opt} value={opt}>
-                            {opt}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  ))}
-
-                  {["model", "color", "year", "registration"].map((field) => (
-                    <TextField
-                      key={field}
-                      fullWidth
-                      label={field.charAt(0).toUpperCase() + field.slice(1)}
-                      value={formData.vehicle[field]}
-                      onChange={(e) =>
-                        handleNestedChange("vehicle", field, e.target.value)
-                      }
-                      sx={{ mb: 2 }}
-                    />
-                  ))}
-
-                  {/* Uploads */}
-                  <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>
-                    Upload Documents
-                  </Typography>
-                  {[
-                    ["vehicleImage", "Vehicle Image"],
-                    ["rcDocument", "RC Document"],
-                    ["idProof", "ID Proof"],
-                    ["license", "License"],
-                  ].map(([field, label]) => (
-                    <Button
-                      key={field}
-                      component="label"
-                      variant="outlined"
-                      fullWidth
-                      sx={{
-                        mb: 2,
-                        color: "#059669",
-                        borderColor: "#059669",
-                        "&:hover": {
-                          borderColor: "#047857",
-                          backgroundColor: "#ecfdf5",
-                        },
-                      }}
-                    >
-                      {formData[field] instanceof File
-                        ? formData[field].name
-                        : getFileNameFromUrl(formData[field]) ||
-                          `Upload ${label}`}
-                      <input
-                        type="file"
-                        hidden
-                        onChange={(e) => handleFileUpload(e, field)}
-                      />
-                    </Button>
-                  ))}
-
-                  {/* Buttons */}
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      mt: 3,
-                    }}
-                  >
-                    <Button
-                      variant="contained"
-                      onClick={handleSave}
-                      sx={{
-                        backgroundColor: "#059669",
-                        "&:hover": {
-                          backgroundColor: "#047857",
-                        },
-                      }}
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => setEditMode(false)}
-                    >
-                      Cancel
-                    </Button>
-                  </Box>
-                </Box>
-              </Collapse>
-
-              <Collapse in={!editMode}>
-                <Box>
-                  {[
-                    ["Name", user.name],
-                    ["Email", user.email],
-                    ["Phone", user.phone],
-                    ["Gender", user.gender],
-                    ["DOB", formData.dob],
-                    ["Emergency Contact", formData.emergencyContact],
-                    ["Address", formData.address],
-                  ].map(
-                    ([label, value]) =>
-                      value && (
-                        <Typography key={label} sx={{ mb: 1 }}>
-                          <strong>{label}:</strong> {value}
-                        </Typography>
-                      )
-                  )}
-
-                  {formData.vehicle?.type && (
-                    <>
-                      <Divider sx={{ my: 2 }} />
-                      <Typography variant="h6" sx={{ mb: 1 }}>
-                        Vehicle Details
-                      </Typography>
-                      {[
-                        ["Type", formData.vehicle.type],
-                        ["Make", formData.vehicle.make],
-                        ["Model", formData.vehicle.model],
-                        ["Color", formData.vehicle.color],
-                        ["Year", formData.vehicle.year],
-                        ["Registration", formData.vehicle.registration],
-                        ["Fuel", formData.vehicle.fuel],
-                      ].map(
-                        ([label, value]) =>
-                          value && (
-                            <Typography key={label} sx={{ mb: 1 }}>
-                              <strong>{label}:</strong> {value}
-                            </Typography>
-                          )
-                      )}
-                    </>
-                  )}
-
-                  {["idProof", "license", "rcDocument", "vehicleImage"].map(
-                    (docKey) =>
-                      formData[docKey] && (
-                        <Box
-                          key={docKey}
+                        {/* Profile Info Form */}
+                        <Paper   ref={profileRef}
                           sx={{
-                            width: "100%",
-                            mb: 2,
-                            position: "relative",
-                            overflow: "hidden",
-                            borderRadius: 2,
-                            border: "1px solid #e5e7eb",
-                            p: 1,
-                            cursor: "pointer",
-                            "&:hover .doc-title": {
-                              opacity: 1,
-                              transform: "translateY(0)",
-                            },
-                            "&:hover img": {
-                              transform: "scale(1.05)",
+                            flex: "0 0 100%",
+                            p: 3,
+                            scrollSnapAlign: "start",
+                            borderRadius: 3,
+                            boxShadow: 4,
+                            background: "#f0fdf4",
+                            minWidth: 300,
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>
+                            Profile Information
+                          </Typography>
+                          {[
+                            { name: "name", label: "Name" },
+                            { name: "email", label: "Email" },
+                            { name: "phone", label: "Phone" },
+                            { name: "dob", label: "DOB" },
+                            { name: "emergencyContact", label: "Emergency Contact" },
+                            { name: "address", label: "Address" },
+                          ].map((field) => (
+                            <TextField
+                              key={field.name}
+                              fullWidth
+                              name={field.name}
+                              label={field.label}
+                              value={formData[field.name]}
+                              onChange={handleChange}
+                              sx={{ mb: 2 }}
+                            />
+                          ))}
+
+                          {/* Gender */}
+                          <FormControl fullWidth sx={{ mb: 2 }}>
+                            <InputLabel>Gender</InputLabel>
+                            <Select
+                              name="gender"
+                              value={formData.gender}
+                              onChange={handleChange}
+                              label="Gender"
+                            >
+                              {genders.map((g) => (
+                                <MenuItem key={g} value={g}>
+                                  {g}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Paper>
+
+                        {/* Vehicle Info Form */}
+                        <Paper   ref={vehicleRef}
+                          sx={{
+                            flex: "0 0 100%",
+                            p: 3,
+                            scrollSnapAlign: "start",
+                            borderRadius: 3,
+                            boxShadow: 4,
+                            background: "#ecfdf5",
+                            minWidth: 300,
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ mb: 2, color: "#065f46" }}>
+                            Vehicle Information
+                          </Typography>
+
+                          {[
+                            ["vehicle", "type", "Vehicle Type", vehicleTypes],
+                            ["vehicle", "make", "Make", carMakers],
+                            ["vehicle", "fuel", "Fuel Type", fuelTypes],
+                          ].map(([section, field, label, options]) => (
+                            <FormControl fullWidth sx={{ mb: 2 }} key={field}>
+                              <InputLabel>{label}</InputLabel>
+                              <Select
+                                value={formData[section][field]}
+                                onChange={(e) =>
+                                  handleNestedChange(section, field, e.target.value)
+                                }
+                              >
+                                {options.map((opt) => (
+                                  <MenuItem key={opt} value={opt}>
+                                    {opt}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          ))}
+
+                          {["model", "color", "year", "registration"].map((field) => (
+                            <TextField
+                              key={field}
+                              fullWidth
+                              label={field.charAt(0).toUpperCase() + field.slice(1)}
+                              value={formData.vehicle[field]}
+                              onChange={(e) =>
+                                handleNestedChange("vehicle", field, e.target.value)
+                              }
+                              sx={{ mb: 2 }}
+                            />
+                          ))}
+                        </Paper>
+
+                        {/* Documents Uploads */}
+                        <Paper  ref={documentRef}
+                          sx={{
+                            flex: "0 0 100%",
+                            p: 3,
+                            scrollSnapAlign: "start",
+                            borderRadius: 3,
+                            boxShadow: 4,
+                            background: "#e0f2f1",
+                            minWidth: 300,
+                          }}
+                        >
+                          <Typography variant="h6" sx={{ mb: 2, color: "#004d40" }}>
+                            Upload Documents
+                          </Typography>
+                          {[
+                            ["vehicleImage", "Vehicle Image"],
+                            ["rcDocument", "RC Document"],
+                            ["idProof", "ID Proof"],
+                            ["license", "License"],
+                          ].map(([field, label]) => (
+                            <Button
+                              key={field}
+                              component="label"
+                              variant="outlined"
+                              fullWidth
+                              sx={{
+                                mb: 2,
+                                color: "#059669",
+                                borderColor: "#059669",
+                                "&:hover": {
+                                  borderColor: "#047857",
+                                  backgroundColor: "#ecfdf5",
+                                },
+                              }}
+                            >
+                              {formData[field] instanceof File
+                                ? formData[field].name
+                                : getFileNameFromUrl(formData[field]) || `Upload ${label}`}
+                              <input
+                                type="file"
+                                hidden
+                                onChange={(e) => handleFileUpload(e, field)}
+                              />
+                            </Button>
+                          ))}
+                        </Paper>
+                      </Box>
+
+                      {/* Buttons Below the Scroll Section */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mt: 3,
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          onClick={handleSave}
+                          sx={{
+                            backgroundColor: "#059669",
+                            "&:hover": {
+                              backgroundColor: "#047857",
                             },
                           }}
-                          onClick={() =>
-                            handleOpenModal(formData[docKey], docKey)
-                          }
                         >
-                          {/* Image */}
-                          <img
-                            src={formData[docKey]}
-                            alt={docKey}
-                            style={{
-                              width: "100%",
-                              height: 200,
-                              objectFit: "contain",
-                              transition: "transform 0.3s ease",
-                            }}
-                          />
+                          Save
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={() => setEditMode(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </Box>
+                    </Collapse>
 
-                          {/* Animated title */}
-                          <Box
-                            className="doc-title"
-                            sx={{
-                              position: "absolute",
-                              bottom: 8,
-                              left: 8,
-                              right: 8,
-                              backgroundColor: "rgba(0,0,0,0.6)",
-                              color: "white",
-                              borderRadius: 1,
-                              px: 1,
-                              py: 0.5,
-                              opacity: 0,
-                              transform: "translateY(10px)",
-                              transition: "all 0.3s ease",
-                              fontSize: 14,
-                            }}
-                          >
-                            {docKey.replace(/([A-Z])/g, " $1").trim()}{" "}
-                            {/* prettify key */}
-                          </Box>
-                        </Box>
-                      )
-                  )}
 
-                  <Button
-                    fullWidth
-                    variant="contained"
-                    sx={{
-                      mt: 4,
-                      backgroundColor: "#059669",
-                      "&:hover": {
-                        backgroundColor: "#047857",
-                      },
-                    }}
-                    onClick={() => setEditMode(true)}
-                  >
-                    Edit Profile
-                  </Button>
-                </Box>
-              </Collapse>
+
+
+{/* Tab Buttons (replacing scrollbar) */}
+{!editMode && (
+  <Box
+    sx={{
+      display: "flex",
+      justifyContent: "center",
+      gap: 4,
+      mb: 3,
+    }}
+  >
+    <Button
+      onClick={() => scrollToSection(profileRef)}
+      sx={{
+        fontWeight: "bold",
+        fontSize: "1.05rem",
+        color: "#047857",
+        borderBottom: "2px solid transparent",
+        "&:hover": { borderBottom: "2px solid #047857" },
+      }}
+    >
+      Profile Info
+    </Button>
+    <Button
+      onClick={() => scrollToSection(vehicleRef)}
+      sx={{
+        fontWeight: "bold",
+        fontSize: "1.05rem",
+        color: "#047857",
+        borderBottom: "2px solid transparent",
+        "&:hover": { borderBottom: "2px solid #047857" },
+      }}
+    >
+      Vehicle Info
+    </Button>
+    <Button
+      onClick={() => scrollToSection(documentRef)}
+      sx={{
+        fontWeight: "bold",
+        fontSize: "1.05rem",
+        color: "#047857",
+        borderBottom: "2px solid transparent",
+        "&:hover": { borderBottom: "2px solid #047857" },
+      }}
+    >
+      Documents
+    </Button>
+  </Box>
+)}
+
+
+
+{/*Non editable section */}
+
+             <Collapse in={!editMode}>
+  <Box
+    sx={{
+      display: "flex",
+      overflowX: "auto",
+      gap: 3,
+      scrollSnapType: "x mandatory",
+      px: 1,
+      pb: 2,
+    }}
+  >
+    {/* Profile Info Card */}
+    <Paper ref={profileRef}
+      sx={{
+        flex: "0 0 100%",
+        p: 3,
+        scrollSnapAlign: "start",
+        borderRadius: 3,
+        boxShadow: 4,
+        background: "#f0fdf4",
+        minWidth: 300,
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>
+        Profile Information
+      </Typography>
+      {[
+        ["Name", user.name],
+        ["Email", user.email],
+        ["Phone", user.phone],
+        ["Gender", user.gender],
+        ["DOB", formData.dob],
+        ["Emergency Contact", formData.emergencyContact],
+        ["Address", formData.address],
+      ].map(
+        ([label, value]) =>
+          value && (
+            <Typography key={label} sx={{ mb: 1 }}>
+              <strong>{label}:</strong> {value}
+            </Typography>
+          )
+      )}
+    </Paper>
+
+    {/* Vehicle Info Card */}
+    {formData.vehicle?.type && (
+      <Paper  ref={vehicleRef}
+        sx={{
+          flex: "0 0 100%",
+          p: 3,
+          scrollSnapAlign: "start",
+          borderRadius: 3,
+          boxShadow: 4,
+          background: "#ecfdf5",
+          minWidth: 300,
+        }}
+      >
+        <Typography variant="h6" sx={{ mb: 2, color: "#065f46" }}>
+          Vehicle Information
+        </Typography>
+        {[
+          ["Type", formData.vehicle.type],
+          ["Make", formData.vehicle.make],
+          ["Model", formData.vehicle.model],
+          ["Color", formData.vehicle.color],
+          ["Year", formData.vehicle.year],
+          ["Registration", formData.vehicle.registration],
+          ["Fuel", formData.vehicle.fuel],
+        ].map(
+          ([label, value]) =>
+            value && (
+              <Typography key={label} sx={{ mb: 1 }}>
+                <strong>{label}:</strong> {value}
+              </Typography>
+            )
+        )}
+      </Paper>
+    )}
+
+    {/* Documents Card */}
+    <Paper  ref={documentRef}
+      sx={{
+        flex: "0 0 100%",
+        p: 3,
+        scrollSnapAlign: "start",
+        borderRadius: 3,
+        boxShadow: 4,
+        background: "#e0f2f1",
+        minWidth: 300,
+      }}
+    >
+      <Typography variant="h6" sx={{ mb: 2, color: "#004d40" }}>
+        Uploaded Documents
+      </Typography>
+      {["idProof", "license", "rcDocument", "vehicleImage"].map(
+        (docKey) =>
+          formData[docKey] && (
+            <Box
+              key={docKey}
+              sx={{
+                width: "100%",
+                mb: 2,
+                position: "relative",
+                overflow: "hidden",
+                borderRadius: 2,
+                border: "1px solid #e5e7eb",
+                p: 1,
+                cursor: "pointer",
+                "&:hover .doc-title": {
+                  opacity: 1,
+                  transform: "translateY(0)",
+                },
+                "&:hover img": {
+                  transform: "scale(1.05)",
+                },
+              }}
+              onClick={() => handleOpenModal(formData[docKey], docKey)}
+            >
+              <img
+                src={formData[docKey]}
+                alt={docKey}
+                style={{
+                  width: "100%",
+                  height: 150,
+                  objectFit: "contain",
+                  transition: "transform 0.3s ease",
+                }}
+              />
+              <Box
+                className="doc-title"
+                sx={{
+                  position: "absolute",
+                  bottom: 8,
+                  left: 8,
+                  right: 8,
+                  backgroundColor: "rgba(0,0,0,0.6)",
+                  color: "white",
+                  borderRadius: 1,
+                  px: 1,
+                  py: 0.5,
+                  opacity: 0,
+                  transform: "translateY(10px)",
+                  transition: "all 0.3s ease",
+                  fontSize: 14,
+                }}
+              >
+                {docKey.replace(/([A-Z])/g, " $1").trim()}
+              </Box>
+            </Box>
+          )
+      )}
+    </Paper>
+  </Box>
+
+  <Box sx={{ mt: 3 }}>
+    <Button
+      fullWidth
+      variant="contained"
+      sx={{
+        backgroundColor: "#059669",
+        "&:hover": { backgroundColor: "#047857" },
+      }}
+      onClick={() => setEditMode(true)}
+    >
+      Edit Profile
+    </Button>
+  </Box>
+</Collapse>
+
+
+
+
             </Paper>
           </Grow>
         </Box>
