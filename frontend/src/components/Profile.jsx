@@ -235,10 +235,20 @@ const [activeTab, setActiveTab] = useState("profile");
 const profileRef = useRef(null);
 const vehicleRef = useRef(null);
 const documentRef = useRef(null);
+const editScrollContainerRef = useRef(null);
+
+
 
 const scrollToSection = (ref, tabName) => {
   setActiveTab(tabName);
-  if (ref.current) {
+  if (editMode && editScrollContainerRef.current && ref.current) {
+    const container = editScrollContainerRef.current;
+    const card = ref.current;
+    container.scrollTo({
+      left: card.offsetLeft - container.offsetLeft,
+      behavior: "smooth",
+    });
+  } else if (!editMode && ref.current) {
     ref.current.scrollIntoView({
       behavior: "smooth",
       inline: "start",
@@ -246,6 +256,7 @@ const scrollToSection = (ref, tabName) => {
     });
   }
 };
+
 
 const tabButtonStyle = (tab) => ({
   fontWeight: "bold",
@@ -597,6 +608,7 @@ const tabButtonStyle = (tab) => ({
 
 
                       <Box
+                        ref={editScrollContainerRef}
                         sx={{
                           display: "flex",
                           overflowX: "auto",
@@ -606,6 +618,7 @@ const tabButtonStyle = (tab) => ({
                           pb: 2,
                         }}
                       >
+
                         {/* Profile Info Form */}
                         <Paper   ref={profileRef}
                           sx={{
