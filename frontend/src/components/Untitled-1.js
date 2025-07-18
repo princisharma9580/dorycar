@@ -440,25 +440,25 @@
 //             pt: 10,
 //             pb: 6,
 //             minHeight: "100vh",
-//             display: "flex",
-//             justifyContent: "center",
-//             alignItems: "center",
+//             width: "100%",
 //             background: "linear-gradient(to bottom right, #f0fdf4, #d1fae5)",
 //             transition: "all 0.5s ease-in-out",
 //           }}
 //         >
+
 //           <Grow in timeout={1000}>
 //             <Paper
 //               elevation={6}
 //               sx={{
-//                 p: 5,
-//                 width: "100%",
-//                 maxWidth: 700,
+//                 p: { xs: 2, sm: 3, md: 4 },
+//                 width: "90%",
+//                 mx: "auto",
 //                 borderRadius: 4,
 //                 backgroundColor: "#ffffff",
 //                 boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
 //               }}
 //             >
+
 //               <Box
 //                 sx={{
 //                   display: "flex",
