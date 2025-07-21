@@ -284,6 +284,7 @@ const Users = () => {
     fetchData();
   }, []);
 
+<<<<<<< HEAD
   // Filter + Search + Pagination logic
   const filteredUsers = users.filter((user) => {
     const matchesSearch = user.name
@@ -293,6 +294,19 @@ const Users = () => {
 
     if (rideFilter === "0 Rides") return matchesSearch && rideCount === 0;
     if (rideFilter === "1+ Rides") return matchesSearch && rideCount > 0;
+=======
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.email?.toLowerCase().includes(search.toLowerCase()) ||
+      user.phone?.toLowerCase().includes(search.toLowerCase());
+
+    const rideCount = rideCounts[user._id] ?? 0;
+
+    if (rideFilter === "0 Rides") return matchesSearch && rideCount === 0;
+    if (rideFilter === "1+ Rides") return matchesSearch && rideCount > 0;
+
+>>>>>>> 0b9a4c1c4fede507a6073fb41682fb72ecf30e76
     return matchesSearch;
   });
 
