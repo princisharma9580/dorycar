@@ -186,16 +186,14 @@ const Dashboard = ({ currentUser }) => {
     // };
 
     const handleRideUpdated = (updatedRide) => {
-      console.log("Socket ride-updated event:", updatedRide);
+      console.log("🚀 Received updated ride via socket:", updatedRide._id, updatedRide.status);
 
       const isUserInvolved =
-        updatedRide.creator?._id === user._id ||
-        updatedRide.creator === user._id ||
-        updatedRide.acceptor?._id === user._id ||
-        updatedRide.acceptor === user._id ||
-        updatedRide.interestedUsers.some(
-          (i) => i.user?._id === user._id || i.user === user._id
-        );
+  (updatedRide.creator?._id || updatedRide.creator) === user._id ||
+  (updatedRide.acceptor?._id || updatedRide.acceptor) === user._id ||
+  updatedRide.interestedUsers.some(
+    (i) => (i.user?._id || i.user) === user._id
+  );
 
       if (!isUserInvolved) return;
 
@@ -486,42 +484,52 @@ const Dashboard = ({ currentUser }) => {
       if (interestStatus === "interested" || interestStatus === "pending")
         return "w-1/4 bg-yellow-400";
       if (interestStatus === "accepted") {
-        if (rideStatus === "pending") return "w-1/2 bg-green-400";
-        if (rideStatus === "started") return "w-3/4 bg-green-600";
-        if (rideStatus === "completed") return "w-full bg-green-700";
-        return "w-1/2 bg-green-400";
-      }
+  if (rideStatus === "pending" || rideStatus === "accepted") return "w-1/2 bg-green-500";
+  if (rideStatus === "started") return "w-3/4 bg-green-600";
+  if (rideStatus === "completed") return "w-full bg-green-700";
+}
+
       return "w-0";
     };
 
-    const progressBarClass = isCreator
-      ? (() => {
-          switch (rideStatus) {
-            case "pending":
-              return "w-1/4 bg-green-500";
-            case "accepted":
-              return "w-1/2 bg-green-500";
-            case "started":
-              return "w-3/4 bg-green-500";
-            case "completed":
-              return "w-full bg-green-500";
-            case "cancelled":
-              return "w-[50%] bg-red-400";
-            default:
-              return "w-0";
-          }
-        })()
-      : getProgressBarClass(userInterest?.status, rideStatus);
+const progressBarClass = isCreator
+  ? (() => {
+      const anyUserAccepted = ride?.interestedUsers?.some(
+        (i) => i.status === "accepted"
+      );
 
-    const getUserDisplayStatus = (interestStatus, rideStatus) => {
-      if (interestStatus === "rejected") return "Rejected";
-      if (interestStatus === "interested" || interestStatus === "pending")
-        return "Pending";
-      if (interestStatus === "accepted")
-        return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
-      if (interestStatus === "cancelled") return "Cancelled";
-      return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
-    };
+      switch (true) {
+        case anyUserAccepted && rideStatus === "pending":
+        case rideStatus === "accepted":
+          return "w-1/2 bg-green-500";
+        case rideStatus === "started":
+          return "w-3/4 bg-green-500";
+        case rideStatus === "completed":
+          return "w-full bg-green-500";
+        case rideStatus === "cancelled":
+          return "w-[50%] bg-red-400";
+        default:
+          return "w-1/4 bg-green-500"; // pending
+      }
+    })()
+  : getProgressBarClass(userInterest?.status, rideStatus);
+
+
+const getUserDisplayStatus = (interestStatus, rideStatus) => {
+  if (interestStatus === "rejected") return "Rejected";
+  if (interestStatus === "interested" || interestStatus === "pending") return "Pending";
+
+  if (interestStatus === "accepted") {
+    // ✅ override global ride status if user is accepted
+    if (["pending", "accepted"].includes(rideStatus)) return "Accepted";
+    return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
+  }
+
+  if (interestStatus === "cancelled") return "Cancelled";
+
+  return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
+};
+console.log("ride status", rideStatus)
 
     return (
       <Card
@@ -726,11 +734,14 @@ const Dashboard = ({ currentUser }) => {
 
                   {/* Status text based on user's interest status */}
                   <p className="text-sm font-semibold text-gray-700 mb-3">
-                    Status:{" "}
-                    <span className="capitalize">
-                      {getUserDisplayStatus(userInterest?.status, ride.status)}
-                    </span>
-                  </p>
+  Status:{" "}
+  <span className="capitalize">
+    {isCreator
+      ? ride.status.charAt(0).toUpperCase() + ride.status.slice(1)
+      : getUserDisplayStatus(userInterest?.status, ride.status)}
+  </span>
+</p>
+
 
                   {!isCreator &&
                     ride.interestedUsers?.some(

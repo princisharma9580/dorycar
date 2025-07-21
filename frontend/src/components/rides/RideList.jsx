@@ -425,10 +425,6 @@ const RideList = ({ currentUser}) => {
                                       Raise Ticket
                                     </button>
                                   )}
-
-
-
-
                               </div>
                             </div>
                           </div>
