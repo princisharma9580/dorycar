@@ -1,159 +1,176 @@
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const messageSchema = new Schema({
   sender: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: "User",
+    required: true,
   },
   content: {
     type: String,
-    required: true
+    required: true,
   },
   timestamp: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  readBy: [{
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
-    readAt: { type: Date, default: Date.now }
-  }]
+  readBy: [
+    {
+      user: { type: Schema.Types.ObjectId, ref: "User" },
+      readAt: { type: Date, default: Date.now },
+    },
+  ],
 });
 
-const ridePreferenceSchema = new Schema({
-  music: { type: Boolean, default: false },
-  ac: { type: Boolean, default: false},
-  luggage: {type: Boolean, default: false},
-  // womenOnly: {type: Boolean, default: false},
-  smoking: {type: Boolean, default: false},
-  bagMax: {type: Boolean, default: false},
-  pet:{type: Boolean, default: false}
-
-}, { _id: false });
+const ridePreferenceSchema = new Schema(
+  {
+    music: { type: Boolean, default: false },
+    ac: { type: Boolean, default: false },
+    luggage: { type: Boolean, default: false },
+    // womenOnly: {type: Boolean, default: false},
+    smoking: { type: Boolean, default: false },
+    bagMax: { type: Boolean, default: false },
+    pet: { type: Boolean, default: false },
+  },
+  { _id: false }
+);
 
 const rideSchema = new Schema({
   creator: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: "User",
+    required: true,
   },
   origin: {
     type: String,
-    required: true
+    required: true,
   },
   destination: {
     type: String,
-    required: true
+    required: true,
   },
   date: {
     type: Date,
-    required: true
+    required: true,
   },
   departureTime: {
-  type: Date, // or Date if you want time with full date
-  required: true
-},
-arrivalTime: {
-  type: Date,
-  required: true
-},
+    type: Date, // or Date if you want time with full date
+    required: true,
+  },
+  arrivalTime: {
+    type: Date,
+    required: true,
+  },
   seats: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   price: {
     type: Number,
     required: true,
-    min: 0
+    min: 0,
   },
   status: {
     type: String,
-    enum: ['waiting', 'pending', 'accepted', 'started' ,'completed', 'cancelled'],
-    default: 'pending'
+    enum: [
+      "waiting",
+      "pending",
+      "accepted",
+      "started",
+      "completed",
+      "cancelled",
+    ],
+    default: "pending",
   },
 
-  interestedUsers: [{
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User'
-    },
-    status: {
-      type: String,
-      enum: ['waiting', 'interested', 'accepted', 'rejected', 'started' ,'completed', 'cancelled'],
-      default: 'interested'
-    },
+  interestedUsers: [
+    {
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      status: {
+        type: String,
+        enum: [
+          "waiting",
+          "interested",
+          "accepted",
+          "rejected",
+          "started",
+          "completed",
+          "cancelled",
+        ],
+        default: "interested",
+      },
 
-    timestamp: {
-      type: Date,
-      default: Date.now
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
     },
-
-
-  }],
+  ],
   acceptor: {
     type: Schema.Types.ObjectId,
-    ref: 'User'
+    ref: "User",
   },
   messages: [messageSchema],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
 
   // Optional additional fields
   vehicleDetails: {
-    type: String
+    type: String,
   },
   startedAt: {
-    type: Date
+    type: Date,
   },
   completedAt: {
-    type: Date
+    type: Date,
   },
   cancelledAt: {
-    type: Date
+    type: Date,
   },
   cancellationReason: {
-    type: String
+    type: String,
   },
   paymentMethods: [String],
-upiId: { type: String },
-qrImageUrl: { type: String },
+  upiId: { type: String },
+  qrImageUrl: { type: String },
 
   preferredCommunication: {
     type: String,
-    enum: ['Chat', 'Call', 'Both'],
-    default: undefined
+    enum: ["Chat", "Call", "Both"],
+    default: undefined,
   },
   ridePreference: {
     type: ridePreferenceSchema,
-    default: () => ({})
+    default: () => ({}),
   },
 
   notifications: [
-  {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    message: String,
-    createdAt: { type: Date, default: Date.now }
-  }
-],
-
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      message: String,
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
 
   verified: {
     id: Boolean,
     phone: Boolean,
     license: Boolean,
-    emergencyContact: Boolean
+    emergencyContact: Boolean,
   },
 
   fareSplitShown: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
-const Ride = mongoose.model('Ride', rideSchema);
+const Ride = mongoose.model("Ride", rideSchema);
 module.exports = Ride;

@@ -328,67 +328,61 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
     const ride = await Ride.findById(req.params.rideId);
     if (!ride) return res.status(404).json({ message: "Ride not found" });
 
-    // Check if the requester is the ride creator
     if (ride.creator.toString() !== req.userId)
-      return res
-        .status(403)
-        .json({ message: "Only ride creator can accept users" });
+      return res.status(403).json({ message: "Only ride creator can accept users" });
 
-    // Check if seats are available
-    if (ride.seats <= 0) {
+    if (ride.seats <= 0)
       return res.status(400).json({ message: "No seats available" });
-    }
 
-    // Find the interested user to accept
     const interest = ride.interestedUsers.find(
       (i) => i.user.toString() === req.params.userId
     );
 
     if (!interest)
-      return res
-        .status(404)
-        .json({ message: "User has not expressed interest" });
+      return res.status(404).json({ message: "User has not expressed interest" });
 
-    if (interest.status === "accepted") {
+    if (interest.status === "accepted")
       return res.status(400).json({ message: "User already accepted" });
-    }
 
-    // Accept the user and decrement seats
+    // ✅ Accept the user
     interest.status = "accepted";
     ride.seats = Math.max(ride.seats - 1, 0);
-
-    // IMPORTANT: Do not set ride.status = "accepted" here
-    // because the ride status is global for the whole ride, not per user.
-    // Only update ride.acceptor if you want to track the last accepted user.
     ride.acceptor = req.params.userId;
+
+    // ✅ If no one was accepted before, update ride.status
+    const anyAccepted = ride.interestedUsers.some(i => i.status === "accepted");
+    if (!anyAccepted) {
+      ride.status = "accepted";
+    }
+
+    // ✅ Ensure mongoose tracks changes
+    ride.markModified("interestedUsers");
+    ride.markModified("status");
 
     await ride.save();
 
     const updatedRide = await Ride.findById(ride._id)
-      .populate(
-        "creator",
-        "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings"
-      )
-      .populate(
-        "acceptor",
-        "name profileImage phone gender emergencyContact address"
-      )
+      .populate("creator", "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings")
+      .populate("acceptor", "name profileImage phone gender emergencyContact address")
       .populate("interestedUsers.user", "name");
 
-    req.app.get("io").emit("ride-updated", updatedRide);
+    // ✅ Emit update to ride creator and all interested users
+    const io = req.app.get("io");
+    io.to(ride.creator.toString()).emit("ride-updated", updatedRide);
+    ride.interestedUsers.forEach((u) =>
+      io.to(u.user.toString()).emit("ride-updated", updatedRide)
+    );
 
-    req.app
-      .get("io")
-      .to(req.params.userId)
-      .emit("ride-notification", {
-        message: `You’ve been accepted for the ride from ${ride.origin} to ${ride.destination}`,
-      });
+    // ✅ Notify accepted user
+    io.to(req.params.userId).emit("ride-notification", {
+      message: `You’ve been accepted for the ride from ${ride.origin} to ${ride.destination}`,
+      type: "accepted",
+    });
 
     res.json(updatedRide);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error accepting ride", error: error.message });
+    console.error("Error accepting user for ride:", error);
+    res.status(500).json({ message: "Error accepting ride", error: error.message });
   }
 });
 
@@ -483,68 +477,6 @@ router.put("/:rideId/start", auth, async (req, res) => {
       .json({ message: "Error starting ride", error: error.message });
   }
 });
-
-// router.post("/:rideId/chat", auth, async (req, res) => {
-//   try {
-//     const ride = await Ride.findById(req.params.rideId);
-//     if (!ride) return res.status(404).json({ message: "Ride not found" });
-
-//     const isCreator = ride.creator.toString() === req.userId;
-//     const isAcceptor = ride.acceptor?.toString() === req.userId;
-//     const isInterested = ride.interestedUsers.some(
-//       (u) => u.user.toString() === req.userId
-//     );
-
-//     if (!isCreator && !isAcceptor && !isInterested) {
-//       return res.status(403).json({
-//         message:
-//           "Only the ride creator, accepted rider, and interested users can chat",
-//       });
-//     }
-
-//     if (ride.status === "cancelled") {
-//       return res
-//         .status(403)
-//         .json({ message: "Chat is disabled for cancelled rides" });
-//     }
-
-//     const content =
-//       typeof req.body.content === "string" ? req.body.content.trim() : "";
-//     if (!content)
-//       return res.status(400).json({ message: "Message content is required" });
-
-//     const newMessage = {
-//       sender: req.userId,
-//       content,
-//       timestamp: new Date(),
-//       readBy: [{ user: req.userId }],
-//     };
-
-//     ride.messages.push(newMessage);
-//     await ride.save();
-
-//     const populatedRide = await Ride.findById(ride._id)
-//       .populate("messages.sender", "name profileImage")
-//       .populate("messages.readBy.user", "name");
-
-//     const latestMessage =
-//       populatedRide.messages[populatedRide.messages.length - 1];
-//     console.log("emitting events");
-//     req.app.get("io").emit("ride-updated", populatedRide);
-
-//     req.app.get("io").to(`ride_${ride._id}`).emit("new_message", {
-//       rideId: ride._id,
-//       message: latestMessage,
-//     });
-
-//     res.json(latestMessage);
-//   } catch (error) {
-//     console.error("Error sending message:", error);
-//     res
-//       .status(500)
-//       .json({ message: "Error sending message", error: error.message });
-//   }
-// });
 
 router.post("/:rideId/chat", auth, async (req, res) => {
   try {
@@ -669,15 +601,15 @@ router.get("/search", async (req, res) => {
     const { origin, destination, date } = req.query;
 
     const filter = {
-      status: { $in: ["pending", "accepted", "started"] },
+      status: { $in: ["pending", "accepted"] }, // ✅ exclude started/completed rides
     };
 
     if (origin) {
-      filter.origin = { $regex: new RegExp(origin, "i") };
+      filter.origin = { $regex: `^${origin}$`, $options: "i" }; // ✅ exact match
     }
 
     if (destination) {
-      filter.destination = { $regex: new RegExp(destination, "i") };
+      filter.destination = { $regex: `^${destination}$`, $options: "i" }; // ✅ exact match
     }
 
     if (date) {
@@ -863,107 +795,6 @@ router.post("/:rideId/review", auth, async (req, res) => {
   }
 });
 
-// router.put("/:rideId/cancel", auth, async (req, res) => {
-//   try {
-//     const ride = await Ride.findById(req.params.rideId);
-//     if (!ride) {
-//       return res.status(404).json({ message: "Ride not found" });
-//     }
-
-//     const isCreator = ride.creator.toString() === req.userId;
-
-//     const userInterest = ride.interestedUsers.find(
-//       (u) => u.user.toString() === req.userId
-//     );
-//     const userStatus = userInterest?.status;
-
-//     const isAcceptedRider =
-//       userStatus === "interested" ||
-//       userStatus === "accepted" ||
-//       userStatus === "started";
-
-//     if (!isCreator && !isAcceptedRider) {
-//       return res.status(403).json({
-//         message: "Only ride creator or accepted riders can cancel the ride",
-//       });
-//     }
-
-//     // Prevent cancellation if ride has already started or completed
-//     if (
-//       ride.status === "started" ||
-//       ride.status === "completed" ||
-//       userStatus === "started" ||
-//       userStatus === "completed"
-//     ) {
-//       return res.status(400).json({
-//         message:
-//           "This ride has already started or completed and cannot be cancelled",
-//       });
-//     }
-
-//     if (ride.status === "cancelled") {
-//       return res.status(400).json({
-//         message: "This ride is already cancelled",
-//       });
-//     }
-
-//     ride.status = "cancelled";
-//     ride.cancelledAt = new Date();
-//     ride.cancellationReason =
-//       req.body.cancellationReason || "No reason provided";
-//     const cancelledBy = isCreator ? "Creator" : "Rider";
-
-//     // Update all interested users' status (except already rejected ones)
-//     ride.interestedUsers = ride.interestedUsers.map((interest) => {
-//       if (interest.status !== "rejected") {
-//         interest.status = "cancelled";
-//       }
-//       return interest;
-//     });
-
-//     await ride.save();
-
-//     const updatedRide = await Ride.findById(ride._id)
-//       .populate("creator", "name")
-//       .populate("interestedUsers.user", "name");
-
-//     // Send notification to creator if cancelled by rider
-//     if (!isCreator) {
-//       req.app
-//         .get("io")
-//         .to(ride.creator.toString())
-//         .emit("ride-notification", {
-//           message: `A rider has cancelled their participation in your ride from ${ride.origin} to ${ride.destination}. Reason: ${ride.cancellationReason}`,
-//           type: "cancelled",
-//         });
-//     }
-
-//     // Notify all other participants
-//     updatedRide.interestedUsers.forEach((interest) => {
-//       if (interest.user._id.toString() !== req.userId) {
-//         req.app
-//           .get("io")
-//           .to(interest.user._id.toString())
-//           .emit("ride-notification", {
-//             message: `Ride from ${ride.origin} to ${ride.destination} was cancelled by ${cancelledBy}. Reason: ${ride.cancellationReason}`,
-//             type: "cancelled",
-//           });
-//       }
-//     });
-
-//     // Emit ride update globally
-//     req.app.get("io").emit("ride-updated", updatedRide);
-
-//     res.json(updatedRide);
-//   } catch (error) {
-//     console.error("Error cancelling ride:", error);
-//     res.status(500).json({
-//       message: "Error cancelling ride",
-//       error: error.message,
-//     });
-//   }
-// });
-
 router.put("/:rideId/cancel", auth, async (req, res) => {
   try {
     const ride = await Ride.findById(req.params.rideId);
@@ -1100,7 +931,9 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
     }
 
     if (ride.status !== "completed") {
-      return res.status(400).json({ message: "Ticket can only be raised after ride completion." });
+      return res
+        .status(400)
+        .json({ message: "Ticket can only be raised after ride completion." });
     }
 
     const isInvolved =
@@ -1109,7 +942,11 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       ride.interestedUsers.some((iu) => iu.user.toString() === userId);
 
     if (!isInvolved) {
-      return res.status(403).json({ message: "You are not authorized to raise a ticket for this ride." });
+      return res
+        .status(403)
+        .json({
+          message: "You are not authorized to raise a ticket for this ride.",
+        });
     }
 
     const newTicket = new Ticket({
@@ -1142,12 +979,15 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       });
     }
 
-    res.status(201).json({ message: "Ticket raised successfully", ticket: newTicket });
+    res
+      .status(201)
+      .json({ message: "Ticket raised successfully", ticket: newTicket });
   } catch (error) {
     console.error("Error raising ticket:", error);
-    res.status(500).json({ message: "Failed to raise ticket", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to raise ticket", error: error.message });
   }
 });
-
 
 module.exports = router;
