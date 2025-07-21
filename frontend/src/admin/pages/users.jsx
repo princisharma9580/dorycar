@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import adminAuthService from "../services/adminAuthService";
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const ITEMS_PER_PAGE = 12;
 
 const Users = () => {
@@ -63,27 +63,18 @@ const Users = () => {
     fetchData();
   }, []);
 
-      const fetchedUsers = usersRes.data;
-      const allRides = ridesRes.data || [];
-console.log("users data: ",usersRes)
-      localStorage.setItem("allRides", JSON.stringify(allRides));
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.email?.toLowerCase().includes(search.toLowerCase()) ||
+      user.phone?.toLowerCase().includes(search.toLowerCase());
 
-      
-      const counts = {};
+    const rideCount = rideCounts[user._id] ?? 0;
 
-fetchedUsers.forEach((user) => {
-  const userRides = allRides.filter((ride) => {
-    const isAcceptor =
-      (Array.isArray(ride.acceptor) &&
-        ride.acceptor.some((r) => r._id === user._id)) ||
-      ride.acceptor?._id === user._id;
+    if (rideFilter === "0 Rides") return matchesSearch && rideCount === 0;
+    if (rideFilter === "1+ Rides") return matchesSearch && rideCount > 0;
 
-    const isCreator = ride.creator?._id === user._id;
-
-    const isValidStatus =
-      ride.status === "completed" || ride.status === "started";
-
-    return (isAcceptor || isCreator) && isValidStatus;
+    return matchesSearch;
   });
 
   const sortedUsers = filteredUsers.sort((a, b) =>
@@ -182,37 +173,35 @@ fetchedUsers.forEach((user) => {
       </div>
 
       {/* Pagination */}
-      
-<div className="flex justify-center items-center gap-6 mt-8">
-  <button
-    disabled={currentPage === 1}
-    onClick={() => setCurrentPage((prev) => prev - 1)}
-    className={`px-4 py-1 rounded ${
-      currentPage === 1
-        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-    }`}
-  >
-    Previous
-  </button>
+      <div className="flex justify-center items-center gap-6 mt-8">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          className={`px-4 py-1 rounded ${
+            currentPage === 1
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+          }`}
+        >
+          Previous
+        </button>
 
-  <span className="text-sm text-gray-700">
-    Page {currentPage} of {totalPages}
-  </span>
+        <span className="text-sm text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
 
-  <button
-    disabled={currentPage === totalPages}
-    onClick={() => setCurrentPage((prev) => prev + 1)}
-    className={`px-4 py-1 rounded ${
-      currentPage === totalPages
-        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-    }`}
-  >
-    Next
-  </button>
-</div>
-
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          className={`px-4 py-1 rounded ${
+            currentPage === totalPages
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

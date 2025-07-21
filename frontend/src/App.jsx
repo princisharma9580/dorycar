@@ -103,6 +103,10 @@ import FindRides from "./components/pages/FindRides";
 import Community from "./components/pages/Community";
 import PopularRoutes from "./components/pages/PopularRoutes";
 import AdminRoutes from "./admin/adminRoutes";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Cookies from "./pages/Cookies";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import About from "./pages/About";
 
 function App() {
   useRideNotifications();
@@ -147,6 +151,10 @@ function App() {
                 <Route path='/how-it-works' element={<HowItWorks />} />
                 <Route path='/find-rides' element={<FindRides />} />
                 <Route path='/community' element={<Community />} />
+                <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+                <Route path='/cookies' element={<Cookies />} />
+                <Route path='/terms-conditions' element={<TermsAndConditions />} />
+                <Route path='/about-us' element={<About />} />
                 <Route
                   path="/offer-ride"
                   element={
