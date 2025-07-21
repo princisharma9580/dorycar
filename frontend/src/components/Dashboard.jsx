@@ -1394,10 +1394,10 @@ console.log("ride status", rideStatus)
               return;
             }
             try {
-              await api.post(`/${ride._id}/ticket`, {
-                reason: ticketReason,
+              await api.post(`/rides/${ride._id}/ticket`, {
+                issue: ticketReason,
                 description: ticketDescription,
-              });
+              }); 
 
               toast.success("Ticket raised successfully!");
               setOpenTicketModal(false);

@@ -94,7 +94,7 @@ const rideService = {
     return res.data;
   },
   raiseTicket: async (rideId) => {
-  const res = await api.post(`/${rideId}/ticket`);
+  const res = await api.post(`/rides/${rideId}/ticket`);
   return res.data;
 },
 
