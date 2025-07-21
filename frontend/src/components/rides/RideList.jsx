@@ -11,6 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import rideService from "../../services/rideService";
+import adminAuthService from "../../admin/services/adminAuthService";
 import RideDetailsModal from "./RideDetailsModal";
 import RideChat from "./RideChat";
 
@@ -395,35 +396,36 @@ const RideList = ({ currentUser}) => {
                                   </svg>
                                   Contact
                                 </button>
-                                {ride.status?.toLowerCase() === "completed" && currentUser?._id !== ride.creator?._id && (
-                                  <button
-                                    onClick={async () => {
-                                      try {
-                                        const token = userAuthService.getToken(); 
-                                        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${ride._id}/ticket`, {
-                                          method: "POST",
-                                          headers: {
-                                            "Content-Type": "application/json",
-                                            Authorization: `Bearer ${token}`,
-                                          },
-                                        });
+                                {ride.status?.toLowerCase() === "completed" && (
+                                    <button
+                                      onClick={async () => {
+                                        try {
+                                          const token = adminAuthService.getToken();
+                                          const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/${ride._id}/ticket`, {
+                                            method: "POST",
+                                            headers: {
+                                              "Content-Type": "application/json",
+                                              Authorization: `Bearer ${token}`,
+                                            },
+                                          });
 
-                                        if (!res.ok) {
-                                          const errorData = await res.json();
-                                          throw new Error(errorData.message || "Failed to raise ticket");
+                                          if (!res.ok) {
+                                            const errorData = await res.json();
+                                            throw new Error(errorData.message || "Failed to raise ticket");
+                                          }
+
+                                          toast.success("Ticket raised successfully!");
+                                        } catch (error) {
+                                          console.error("Error raising ticket:", error);
+                                          toast.error("Failed to raise ticket.");
                                         }
+                                      }}
+                                      className="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-md px-3 py-2 w-full mt-2"
+                                    >
+                                      Raise Ticket
+                                    </button>
+                                  )}
 
-                                        toast.success("Ticket raised successfully!");
-                                      } catch (error) {
-                                        console.error("Error raising ticket:", error);
-                                        toast.error("Failed to raise ticket.");
-                                      }
-                                    }}
-                                    className="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-md px-3 py-2 w-full mt-2"
-                                  >
-                                     Raise Ticket
-                                  </button>
-                                )}
 
 
 
