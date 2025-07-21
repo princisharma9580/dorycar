@@ -134,8 +134,36 @@ const CustomerSupport = () => {
             </button>
           </div>
         </div>
+        {/* Ticket 4 */}
+      <div className="bg-white border rounded-lg shadow p-4">
+        <div className="flex justify-between items-center mb-1 text-sm">
+          <span className="font-medium">SUP004</span>
+          <div className="flex gap-2">
+            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-semibold">
+              Open
+            </span>
+            <span className="text-red-600 text-sm font-semibold">High Priority</span>
+          </div>
+        </div>
+        <p className="font-medium text-gray-800 mb-1">Payment failed but amount deducted</p>
+        <div className="text-sm text-gray-500 flex flex-wrap items-center gap-4">
+          <span className="flex items-center gap-1">
+            <FaUser /> Sneha Gupta
+          </span>
+          <span>Created: 20 Jan 2024</span>
+          <span>Category: Payment Issue</span>
+        </div>
+        <p className="text-xs text-gray-400 mt-2">Last updated: 20 Jan 2024</p>
+        <div className="flex justify-end mt-2">
+          <button className="border text-sm px-4 py-1 rounded hover:bg-gray-100">
+            View Details
+          </button>
+        </div>
+      </div>
+
       </div>
     </div>
+    
   );
 };
 

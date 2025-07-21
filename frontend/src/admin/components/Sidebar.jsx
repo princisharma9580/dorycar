@@ -216,7 +216,7 @@ const Sidebar = ({ collapsed }) => {
             <FaTachometerAlt className="text-sm" />
             {!collapsed && <span>Bookings</span>}
           </Link>
-          <Link to="#" className={linkClass("/admin/support")}>
+          <Link to="/admin/customersupport" className={linkClass("/admin/customersupport")}>
             <FaUsers className="text-sm" />
             {!collapsed && <span>Customer Support</span>}
           </Link>
