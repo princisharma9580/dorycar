@@ -63,16 +63,27 @@ const Users = () => {
     fetchData();
   }, []);
 
-  const filteredUsers = users.filter((user) => {
-    const query = search.toLowerCase();
-    const matchName = user.name?.toLowerCase().includes(query);
-    const matchEmail = user.email?.toLowerCase().includes(query);
-    const rides = rideCounts[user._id] ?? 0;
-    const rideMatch =
-      rideFilter === "All Rides" ||
-      (rideFilter === "0 Rides" && rides === 0) ||
-      (rideFilter === "1+ Rides" && rides > 0);
-    return (matchName || matchEmail) && rideMatch;
+      const fetchedUsers = usersRes.data;
+      const allRides = ridesRes.data || [];
+console.log("users data: ",usersRes)
+      localStorage.setItem("allRides", JSON.stringify(allRides));
+
+      
+      const counts = {};
+
+fetchedUsers.forEach((user) => {
+  const userRides = allRides.filter((ride) => {
+    const isAcceptor =
+      (Array.isArray(ride.acceptor) &&
+        ride.acceptor.some((r) => r._id === user._id)) ||
+      ride.acceptor?._id === user._id;
+
+    const isCreator = ride.creator?._id === user._id;
+
+    const isValidStatus =
+      ride.status === "completed" || ride.status === "started";
+
+    return (isAcceptor || isCreator) && isValidStatus;
   });
 
   const sortedUsers = filteredUsers.sort((a, b) =>

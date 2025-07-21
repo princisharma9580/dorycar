@@ -332,7 +332,7 @@ const Dashboard = () => {
               onClick: () => navigate("/admin/Dashboard"),
             },
           ].map((card, index) => (
-            <Grid key={index} item xs={12} sm={6} md={4} lg={3}>
+            <Grid key={index} item xs={12} sm={6} md={4} lg={2.4}>
               <DashboardCard {...card} />
             </Grid>
           ))}
