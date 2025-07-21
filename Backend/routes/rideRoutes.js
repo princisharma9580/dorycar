@@ -930,11 +930,12 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       return res.status(404).json({ message: "Ride not found" });
     }
 
-    if (ride.status !== "completed") {
-      return res
-        .status(400)
-        .json({ message: "Ticket can only be raised after ride completion." });
-    }
+    // Check if the ride status is valid for ticket raising
+if (!["started", "completed"].includes(ride.status)) {
+  return res
+    .status(400)
+    .json({ message: "Ticket can only be raised after the ride has started or completed." });
+}
 
     const isInvolved =
       ride.creator.toString() === userId ||
@@ -942,11 +943,9 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       ride.interestedUsers.some((iu) => iu.user.toString() === userId);
 
     if (!isInvolved) {
-      return res
-        .status(403)
-        .json({
-          message: "You are not authorized to raise a ticket for this ride.",
-        });
+      return res.status(403).json({
+        message: "You are not authorized to raise a ticket for this ride.",
+      });
     }
 
     const newTicket = new Ticket({
@@ -979,9 +978,10 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       });
     }
 
-    res
-      .status(201)
-      .json({ message: "Ticket raised successfully", ticket: newTicket });
+    res.status(201).json({
+      message: "Ticket raised successfully",
+      ticket: newTicket,
+    });
   } catch (error) {
     console.error("Error raising ticket:", error);
     res
@@ -989,5 +989,6 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       .json({ message: "Failed to raise ticket", error: error.message });
   }
 });
+
 
 module.exports = router;
