@@ -1383,12 +1383,10 @@ const Dashboard = ({ currentUser }) => {
               return;
             }
             try {
-              await api.post(`/ticket/${ride._id}/ticket`, {
+              await api.post(`/${ride._id}/ticket`, {
                 reason: ticketReason,
                 description: ticketDescription,
               });
-
-              console.log("Posting ticket to:", `/${ride._id}/ticket`);
 
               toast.success("Ticket raised successfully!");
               setOpenTicketModal(false);
