@@ -433,6 +433,17 @@ const Dashboard = ({ currentUser }) => {
     const hours = Math.floor(diffMin / 60);
     const minutes = diffMin % 60;
     const durationText = `${hours}h ${minutes}m`;
+    const [openTicketModal, setOpenTicketModal] = useState(false);
+    const [ticketReason, setTicketReason] = useState("");
+    const [ticketDescription, setTicketDescription] = useState("");
+    const issueOptions = [
+      "Driver was late",
+      "Route deviation",
+      "Vehicle was not clean",
+      "Misbehavior",
+      "Other",
+    ];
+
 
     const alreadyReviewed = ride.creator?.ratings?.some(
       (review) =>
@@ -1105,6 +1116,19 @@ const Dashboard = ({ currentUser }) => {
                       </Tooltip>
                     )}
 
+                    {!isRejected && ["started", "completed"].includes(ride.status) && (
+                      <Tooltip title="Raise an issue about this ride">
+                        <button
+                          onClick={() => setOpenTicketModal(true)}
+                          className="items-center rounded-md text-sm font-medium px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white"
+                        >
+                          Raise Ticket
+                        </button>
+                      </Tooltip>
+                    )}
+
+
+
                     {!isRejected &&
                       ride.status !== "completed" &&
                       ride.status !== "cancelled" &&
@@ -1301,10 +1325,94 @@ const Dashboard = ({ currentUser }) => {
             </div>
           </div>
         </CardContent>
+        <Modal
+  open={openTicketModal}
+  onClose={() => setOpenTicketModal(false)}
+  closeAfterTransition
+>
+  <Fade in={openTicketModal}>
+    <Box
+      sx={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 400,
+        bgcolor: "background.paper",
+        borderRadius: 3,
+        boxShadow: 24,
+        p: 4,
+      }}
+    >
+      <Typography variant="h6" mb={2}>
+        Raise Ticket
+      </Typography>
+
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <InputLabel>Issue Type</InputLabel>
+        <Select
+          value={ticketReason}
+          onChange={(e) => setTicketReason(e.target.value)}
+          label="Issue Type"
+        >
+          {issueOptions.map((option, i) => (
+            <MenuItem key={i} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <TextField
+        fullWidth
+        multiline
+        rows={3}
+        label="Describe the issue (optional)"
+        value={ticketDescription}
+        onChange={(e) => setTicketDescription(e.target.value)}
+      />
+
+      <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
+        <Button onClick={() => setOpenTicketModal(false)}>Cancel</Button>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={async () => {
+            if (!ticketReason) {
+              toast.error("Please select an issue type.");
+              return;
+            }
+            try {
+              await api.post(`/ticket/${ride._id}/ticket`, {
+                reason: ticketReason,
+                description: ticketDescription,
+              });
+
+              console.log("Posting ticket to:", `/${ride._id}/ticket`);
+
+              toast.success("Ticket raised successfully!");
+              setOpenTicketModal(false);
+              setTicketReason("");
+              setTicketDescription("");
+            } catch (error) {
+              console.error("Error raising ticket:", error);
+              toast.error(
+                error?.response?.data?.message || "Failed to raise ticket"
+              );
+            }
+          }}
+        >
+          Submit
+        </Button>
+      </Box>
+    </Box>
+  </Fade>
+</Modal>
+
       </Card>
     );
   };
-
+  
   return (
     <Container
       maxWidth="lg"
