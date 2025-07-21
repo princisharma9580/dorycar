@@ -3,6 +3,7 @@ const router = express.Router();
 const Ride = require("../models/Ride");
 const auth = require("../middleware/auth");
 const User = require("../models/User");
+const Ticket = require("../models/Ticket");
 
 router.post("/create", auth, async (req, res) => {
   console.log("Received request data:", req.body, "User:", req.userId);
@@ -1085,5 +1086,68 @@ router.put("/:rideId/cancel", auth, async (req, res) => {
     });
   }
 });
+
+// Raise ticket
+router.post("/:rideId/ticket", auth, async (req, res) => {
+  try {
+    const { rideId } = req.params;
+    const { issue, againstUser } = req.body;
+    const userId = req.userId;
+
+    const ride = await Ride.findById(rideId);
+    if (!ride) {
+      return res.status(404).json({ message: "Ride not found" });
+    }
+
+    if (ride.status !== "completed") {
+      return res.status(400).json({ message: "Ticket can only be raised after ride completion." });
+    }
+
+    const isInvolved =
+      ride.creator.toString() === userId ||
+      ride.acceptor?.toString() === userId ||
+      ride.interestedUsers.some((iu) => iu.user.toString() === userId);
+
+    if (!isInvolved) {
+      return res.status(403).json({ message: "You are not authorized to raise a ticket for this ride." });
+    }
+
+    const newTicket = new Ticket({
+      ride: rideId,
+      raisedBy: userId,
+      againstUser,
+      issue,
+    });
+
+    await newTicket.save();
+
+    const io = req.app.get("io");
+
+    // ✅ Emit notification to admins
+    const admins = await User.find({ isAdmin: true }).select("_id");
+    admins.forEach((admin) => {
+      io.to(admin._id.toString()).emit("ticket-notification", {
+        message: `New ticket raised by user ${userId} for ride ${rideId}`,
+        type: "new-ticket",
+        ticket: newTicket,
+      });
+    });
+
+    // ✅ Emit notification to the againstUser (if any)
+    if (againstUser) {
+      io.to(againstUser.toString()).emit("ticket-notification", {
+        message: `A ticket has been raised against you for ride ${rideId}.`,
+        type: "ticket-raised",
+        ticket: newTicket,
+      });
+    }
+
+    res.status(201).json({ message: "Ticket raised successfully", ticket: newTicket });
+  } catch (error) {
+    console.error("Error raising ticket:", error);
+    res.status(500).json({ message: "Failed to raise ticket", error: error.message });
+  }
+});
+
 
 module.exports = router;

@@ -7,7 +7,9 @@ const {
   getDrivers,
   getUsers,
   getRideStats,
-  getUserStats
+  getUserStats,
+  getTickets,
+  updateTicketStatus,
 } = require("../controller/adminController");
 
 router.get("/ride-stats", adminAuth, getRideStats);
@@ -15,6 +17,8 @@ router.get("/user-stats", adminAuth, getUserStats);
 router.get("/rides", adminAuth, getRides); 
 router.get("/drivers", adminAuth, getDrivers);
 router.get("/users", adminAuth, getUsers);
+router.get("/ticket", adminAuth, getTickets);
+router.get("/ticket/:ticketId/status", adminAuth, updateTicketStatus);
 
 router.post("/login", (req, res) => {
 

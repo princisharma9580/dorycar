@@ -1,6 +1,8 @@
 const jwt = require("jsonwebtoken");
 const Ride = require("../models/Ride");
 const User = require("../models/User");
+const Ticket = require("../models/Ticket");
+
 
 exports.getRideStats = async (req, res) => {
   try {
@@ -136,7 +138,6 @@ exports.getUsers = async (req, res) => {
       profileImage: user.profileImage,
       rides: rideMap[user._id.toString()] || 0,
 
-      // Vehicle details
       vehicle: {
         type: user.vehicle?.type || "",
         make: user.vehicle?.make || "",
@@ -160,3 +161,84 @@ exports.getUsers = async (req, res) => {
       .json({ message: "Failed to fetch users", error: err.message });
   }
 };
+
+// controllers/ticketController.js
+
+exports.getTickets = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user?.isAdmin) {
+      return res.status(403).json({ message: "Access denied: Admins only." });
+    }
+
+    const { status, fromDate, toDate } = req.query;
+    const filter = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    if (fromDate || toDate) {
+      filter.createdAt = {};
+      if (fromDate) {
+        filter.createdAt.$gte = new Date(fromDate);
+      }
+      if (toDate) {
+        filter.createdAt.$lte = new Date(toDate);
+      }
+    }
+
+    const tickets = await Ticket.find(filter)
+      .populate("ride", "origin destination date status")
+      .populate("raisedBy", "name email")
+      .populate("againstUser", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json({ tickets });
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    res.status(500).json({ message: "Error fetching tickets", error: error.message });
+  }
+};
+
+
+// controllers/ticketController.js
+exports.updateTicketStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+    if (!user?.isAdmin) {
+      return res.status(403).json({ message: "Access denied: Admins only." });
+    }
+
+    const { ticketId } = req.params;
+    const { status } = req.body;
+
+    if (!["resolved", "closed"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    const ticket = await Ticket.findById(ticketId);
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    ticket.status = status;
+    if (status === "resolved") {
+      ticket.resolvedAt = new Date();
+    }
+
+    await ticket.save();
+
+    // Emit socket notification
+    req.app.get("io").to(ticket.raisedBy.toString()).emit("ticket-notification", {
+      message: `Your ticket regarding ride ${ticket.ride} has been marked as ${status}.`,
+      type: "ticket-status-update",
+    });
+
+    res.json({ message: `Ticket marked as ${status}`, ticket });
+  } catch (error) {
+    console.error("Error updating ticket:", error);
+    res.status(500).json({ message: "Error updating ticket status", error: error.message });
+  }
+};
+

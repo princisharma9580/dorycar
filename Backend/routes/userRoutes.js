@@ -168,4 +168,19 @@ router.put("/:userId", auth, async (req, res) => {
   }
 });
 
+// Get tickets raised by the logged-in user
+router.get("/my-tickets", auth, async (req, res) => {
+  try {
+    const tickets = await Ticket.find({ raisedBy: req.userId })
+      .populate("ride", "origin destination date status")
+      .populate("againstUser", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json({ tickets });
+  } catch (error) {
+    console.error("Error fetching user tickets:", error);
+    res.status(500).json({ message: "Failed to fetch your tickets", error: error.message });
+  }
+});
+
 module.exports = router;
