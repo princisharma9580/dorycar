@@ -136,6 +136,7 @@ const RideList = ({ currentUser}) => {
         <Grid container spacing={2}>
           {paginatedRides.length > 0 &&
             paginatedRides.map((ride) => {
+              console.log("Ride ID:", ride._id, "| Status:", ride.status);
               const departure = new Date(ride.departureTime);
               const arrival = new Date(ride.arrivalTime);
               const diffMs = arrival - departure;
@@ -143,7 +144,6 @@ const RideList = ({ currentUser}) => {
               const hours = Math.floor(diffMin / 60);
               const minutes = diffMin % 60;
               const durationText = `${hours}h ${minutes}m`;
-
               return (
                 <Grid
                   item
@@ -377,6 +377,7 @@ const RideList = ({ currentUser}) => {
                                   onClick={() => handleChatClick(ride)}
                                   className="inline-flex items-center justify-center gap-2 whitespace-normal text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 w-full mt-2"
                                 >
+
                                   <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="24"
@@ -393,6 +394,26 @@ const RideList = ({ currentUser}) => {
                                   </svg>
                                   Contact
                                 </button>
+                                {ride.status?.toLowerCase() === "completed" && (
+                                  <button
+                                    onClick={async () => {
+                                      try {
+                                        await rideService.raiseTicket(ride._id);
+                                        toast.success("Ticket raised successfully!");
+                                      } catch (error) {
+                                        console.error("Error raising ticket:", error);
+                                        toast.error("Failed to raise ticket.");
+                                      }
+                                    }}
+                                    className="inline-flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white text-sm font-medium rounded-md px-3 py-2 w-full mt-2"
+                                  >
+                                    🛠 Raise Ticket
+                                  </button>
+                                )}
+
+                                
+
+
                               </div>
                             </div>
                           </div>

@@ -93,5 +93,10 @@ const rideService = {
 
     return res.data;
   },
+  raiseTicket: async (rideId) => {
+  const res = await api.post(`/${rideId}/ticket`);
+  return res.data;
+},
+
 };
 export default rideService;
