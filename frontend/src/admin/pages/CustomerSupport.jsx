@@ -192,8 +192,10 @@
 
 import React, { useEffect, useState } from "react";
 import { FaClock, FaCheckCircle, FaExclamationCircle, FaUser } from "react-icons/fa";
-import api from "../services/api";
 import { toast } from "react-toastify";
+import adminAuthService from "../services/adminAuthService";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const CustomerSupport = () => {
   const [tickets, setTickets] = useState([]);
@@ -205,8 +207,17 @@ const CustomerSupport = () => {
 
   const fetchTickets = async () => {
     try {
-      const res = await api.get("/ticket"); 
-      setTickets(res.data);
+      const token = adminAuthService.getToken();
+      if (!token) throw new Error("No token found");
+
+      const res = await fetch(`${API_BASE_URL}/admin/ticket`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch tickets");
+
+      const data = await res.json();
+      setTickets(data);
     } catch (error) {
       console.error("Error fetching tickets:", error);
       toast.error("Failed to load support tickets");
@@ -217,8 +228,17 @@ const CustomerSupport = () => {
 
   const fetchTicketStatus = async (ticketId) => {
     try {
-      const res = await api.get(`/ticket/${ticketId}/status`); 
-      toast.info(`Ticket status: ${res.data.status}`);
+      const token = adminAuthService.getToken();
+      if (!token) throw new Error("No token found");
+
+      const res = await fetch(`${API_BASE_URL}/admin/ticket/${ticketId}/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch ticket status");
+
+      const data = await res.json();
+      toast.info(`Ticket status: ${data.status}`);
     } catch (error) {
       console.error("Error fetching ticket status:", error);
       toast.error("Failed to fetch ticket status");
@@ -227,11 +247,9 @@ const CustomerSupport = () => {
 
   return (
     <div className="px-8 py-6">
-      {/* Page Title */}
       <h1 className="text-2xl font-bold text-gray-800 mb-1">Customer Support</h1>
       <p className="text-gray-500 mb-6">Manage customer queries and support tickets</p>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white border rounded-lg shadow p-4 flex items-center justify-between">
           <div>
@@ -269,7 +287,6 @@ const CustomerSupport = () => {
         </div>
       </div>
 
-      {/* Tickets Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Recent Support Tickets</h2>
         <button className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700 text-sm">
@@ -277,7 +294,6 @@ const CustomerSupport = () => {
         </button>
       </div>
 
-      {/* Ticket List */}
       <div className="space-y-4">
         {loading ? (
           <p>Loading tickets...</p>
