@@ -28,7 +28,12 @@ import {
   Stack,
 } from "@mui/material";
 import { Skeleton, Pagination } from "@mui/material";
-
+import {
+  List,
+  ListItem,
+  ListItemText,
+  CircularProgress
+} from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { toast } from "react-toastify";
@@ -156,6 +161,11 @@ const Dashboard = ({ currentUser }) => {
   const [ratingValue, setRatingValue] = useState(0);
   const [comment, setComment] = useState("");
   const [selectedRide, setSelectedRide] = useState(null);
+  const [openMyTickets, setOpenMyTickets] = useState(false);
+  const [userTickets, setUserTickets] = useState([]);
+  const [loadingTickets, setLoadingTickets] = useState(false);
+
+  
 
   useEffect(() => {
     fetchUserRides();
@@ -418,6 +428,42 @@ const Dashboard = ({ currentUser }) => {
       toast.error(`Failed to ${action} ride`);
     }
   };
+//   const fetchUserTickets = async () => {
+//   try {
+//     const token = localStorage.getItem("token"); 
+//     if (!token) throw new Error("No token found");
+
+//     const res = await fetch(
+//       `${import.meta.env.VITE_API_BASE_URL}/users/my-tickets`,
+//       {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       }
+//     );
+
+//     if (!res.ok) throw new Error("Failed to fetch tickets");
+
+//     const data = await res.json();
+//     setUserTickets(data || []);
+//   } catch (error) {
+//     console.error("Error fetching tickets:", error);
+//     toast.error("Failed to load support tickets");
+//   } finally {
+//     setLoadingTickets(false);
+//   }
+// };
+
+
+// useEffect(() => {
+//   if (openMyTickets) {
+//     setLoadingTickets(true);
+//     fetchUserTickets();
+//   }
+// }, [openMyTickets]);
+
+
+
   const RideCard = ({ ride }) => {
     const [isUpdated, setIsUpdated] = useState(false);
     const [openDetails, setOpenDetails] = useState(false);
@@ -1137,7 +1183,16 @@ console.log("ride status", rideStatus)
                         </button>
                       </Tooltip>
                     )}
-
+                    {/* {!isRejected && ["started", "completed"].includes(ride.status) && (
+                      <Tooltip title="View your raised tickets">
+                        <button
+                          onClick={() => setOpenMyTickets(true)}
+                          className="items-center rounded-md text-sm font-medium px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                          My Tickets
+                        </button>
+                      </Tooltip>
+                    )} */}
 
 
                     {!isRejected &&
@@ -1426,6 +1481,87 @@ console.log("ride status", rideStatus)
     </Box>
   </Fade>
 </Modal>
+{/* <Modal
+  open={openMyTickets}
+  onClose={() => setOpenMyTickets(false)}
+  closeAfterTransition
+>
+  <Fade in={openMyTickets}>
+    <Box
+      sx={{
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 500,
+        bgcolor: "background.paper",
+        borderRadius: 2,
+        boxShadow: 24,
+        p: 4,
+        maxHeight: "80vh",
+        overflowY: "auto",
+      }}
+    >
+      <Typography variant="h6" fontWeight="bold" gutterBottom>
+        My Tickets
+      </Typography>
+
+      {loadingTickets ? (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="100px"
+        >
+          <CircularProgress />
+        </Box>
+      ) : userTickets.length === 0 ? (
+        <Typography
+          variant="body1"
+          color="text.secondary"
+          textAlign="center"
+        >
+          You haven't raised any tickets yet.
+        </Typography>
+      ) : (
+        <Stack spacing={2}>
+          {userTickets.map((ticket, index) => (
+            <Box
+              key={index}
+              sx={{
+                border: "1px solid #ddd",
+                borderRadius: 2,
+                p: 2,
+                backgroundColor: "#f9f9f9",
+              }}
+            >
+              <Typography variant="subtitle1" fontWeight="bold">
+                Issue:
+              </Typography>
+              <Typography variant="body2" gutterBottom>
+                {ticket.issue || "N/A"}
+              </Typography>
+              <Typography variant="subtitle2">
+                Category: {ticket.category || "N/A"}
+              </Typography>
+              <Typography variant="subtitle2">
+                Status: {ticket.status || "Pending"}
+              </Typography>
+            </Box>
+          ))}
+        </Stack>
+      )}
+
+      <Box mt={3} display="flex" justifyContent="flex-end">
+        <Button onClick={() => setOpenMyTickets(false)} variant="outlined">
+          Close
+        </Button>
+      </Box>
+    </Box>
+  </Fade>
+</Modal> */}
+
+
 
       </Card>
     );
