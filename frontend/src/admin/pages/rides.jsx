@@ -155,15 +155,34 @@ const Rides = () => {
                 </div>
 
                 {/* Passenger */}
-                <div className="text-base font-semibold text-gray-800 flex items-center gap-2">
-                  <FaUser className="text-green-600" />
-                  Passenger:{" "}
-                  {Array.isArray(ride.acceptor)
-                    ? ride.acceptor
-                        .map((p) => p.name)
-                        .filter(Boolean)
-                        .join(", ")
-                    : ride.acceptor?.name || "N/A"}
+                <div className="text-base font-semibold text-gray-800">
+                  <div className="flex items-center gap-2 mb-1">
+                    <FaUser className="text-green-600" />
+                    <span>Passenger:</span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 ml-2">
+                    {ride.interestedUsers
+                      ?.filter(
+                        (u) =>
+                          u.status !== "cancelled" && u.status !== "rejected"
+                      )
+                      .map((u, idx) =>
+                        u.user?.name ? (
+                          <span
+                            key={idx}
+                            className=" text-green-800 text-sm px-3 shadow-sm "
+                          >
+                            {u.user.name}
+                          </span>
+                        ) : null
+                      )}
+                    {ride.interestedUsers?.filter(
+                      (u) => u.status !== "cancelled" && u.status !== "rejected"
+                    ).length === 0 && (
+                      <span className="text-gray-500 text-sm italic">N/A</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* who offered the ride */}
@@ -182,49 +201,116 @@ const Rides = () => {
               </div>
             ))}
           </div>
-{selectedRide && (
-  <div className={`fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ${isModalOpen ? '' : 'hidden'}`}>
-    <div className="bg-white rounded-lg p-6 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Ride Details</h2>
-      <ul className="space-y-2 text-gray-700 text-sm">
-        <li><strong>ID:</strong> {selectedRide._id}</li>
-        <li><strong>Status:</strong> {selectedRide.status}</li>
-        <li><strong>Passenger:</strong> {selectedRide.acceptor?.name || "N/A"}</li>
-        <li><strong>Offered by:</strong> {selectedRide.creator?.name || "N/A"} ({selectedRide.creator?.email})</li>
-        <li><strong>From:</strong> {selectedRide.origin}</li>
-        <li><strong>To:</strong> {selectedRide.destination}</li>
-        <li><strong>Departure:</strong> {new Date(selectedRide.departureTime).toLocaleString()}</li>
-        <li><strong>Arrival:</strong> {new Date(selectedRide.arrivalTime).toLocaleString()}</li>
-        <li><strong>Ride Date:</strong> {new Date(selectedRide.date).toLocaleString()}</li>
-        <li><strong>Price:</strong> ₹{selectedRide.price}</li>
-        <li><strong>Payment Methods:</strong> {selectedRide.paymentMethods?.join(", ") || "N/A"}</li>
-        <li><strong>Preferred Communication:</strong> {selectedRide.preferredCommunication}</li>
-        <li><strong>Ride Preferences:</strong>
-          <ul className="pl-4 list-disc">
-            {Object.entries(selectedRide.ridePreference || {}).map(([key, value]) => (
-              <li key={key}>{key}: {value ? "Yes" : "No"}</li>
-            ))}
-          </ul>
-        </li>
-        <li><strong>Interested Users:</strong>
-          <ul className="pl-4 list-disc">
-            {(selectedRide.interestedUsers || []).map((u, idx) => (
-              <li key={idx}>{u.user?.name || "N/A"} - {u.status}</li>
-            ))}
-          </ul>
-        </li>
-      </ul>
-      <div className="flex justify-end mt-6">
-        <button
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          onClick={() => setIsModalOpen(false)}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          {selectedRide && (
+            <div
+              className={`fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ${
+                isModalOpen ? "" : "hidden"
+              }`}
+            >
+              <div className="bg-white rounded-lg p-6 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                  Ride Details
+                </h2>
+                <ul className="space-y-2 text-gray-700 text-sm">
+                  <li>
+                    <strong>ID:</strong> {selectedRide._id}
+                  </li>
+                  <li>
+                    <strong>Status:</strong> {selectedRide.status}
+                  </li>
+                  <li>
+                    <strong>Passengers:</strong>
+                    <ul className="pl-4 list-disc">
+                      {(selectedRide.interestedUsers || [])
+                        .filter(
+                          (u) =>
+                            u.status !== "cancelled" && u.status !== "rejected"
+                        )
+                        .map((u, idx) => (
+                          <li key={idx} className="text-sm text-gray-800">
+                            {u.user?.name || "N/A"}{" "}
+                            <span className="text-xs text-gray-500">
+                              ({u.status})
+                            </span>
+                          </li>
+                        ))}
+                      {selectedRide.interestedUsers?.filter(
+                        (u) =>
+                          u.status !== "cancelled" && u.status !== "rejected"
+                      ).length === 0 && (
+                        <li className="text-sm text-gray-500">N/A</li>
+                      )}
+                    </ul>
+                  </li>
+
+                  <li>
+                    <strong>Offered by:</strong>{" "}
+                    {selectedRide.creator?.name || "N/A"} (
+                    {selectedRide.creator?.email})
+                  </li>
+                  <li>
+                    <strong>From:</strong> {selectedRide.origin}
+                  </li>
+                  <li>
+                    <strong>To:</strong> {selectedRide.destination}
+                  </li>
+                  <li>
+                    <strong>Departure:</strong>{" "}
+                    {new Date(selectedRide.departureTime).toLocaleString()}
+                  </li>
+                  <li>
+                    <strong>Arrival:</strong>{" "}
+                    {new Date(selectedRide.arrivalTime).toLocaleString()}
+                  </li>
+                  <li>
+                    <strong>Ride Date:</strong>{" "}
+                    {new Date(selectedRide.date).toLocaleString()}
+                  </li>
+                  <li>
+                    <strong>Price:</strong> ₹{selectedRide.price}
+                  </li>
+                  <li>
+                    <strong>Payment Methods:</strong>{" "}
+                    {selectedRide.paymentMethods?.join(", ") || "N/A"}
+                  </li>
+                  <li>
+                    <strong>Preferred Communication:</strong>{" "}
+                    {selectedRide.preferredCommunication}
+                  </li>
+                  <li>
+                    <strong>Ride Preferences:</strong>
+                    <ul className="pl-4 list-disc">
+                      {Object.entries(selectedRide.ridePreference || {}).map(
+                        ([key, value]) => (
+                          <li key={key}>
+                            {key}: {value ? "Yes" : "No"}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </li>
+                  <li>
+                    <strong>Interested Users:</strong>
+                    <ul className="pl-4 list-disc">
+                      {(selectedRide.interestedUsers || []).map((u, idx) => (
+                        <li key={idx}>
+                          {u.user?.name || "N/A"} - {u.status}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                </ul>
+                <div className="flex justify-end mt-6">
+                  <button
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Pagination */}
           <div className="flex justify-center items-center gap-4 mt-6 text-green-700">
