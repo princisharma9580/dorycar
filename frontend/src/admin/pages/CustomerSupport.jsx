@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { FaClock, FaCheckCircle, FaExclamationCircle, FaUser } from "react-icons/fa";
+import {
+  FaClock,
+  FaCheckCircle,
+  FaUser,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 import adminAuthService from "../services/adminAuthService";
 
@@ -10,7 +14,8 @@ const CustomerSupport = () => {
   const [loading, setLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [nextStatus, setNextStatus] = useState("");
 
   useEffect(() => {
     fetchTickets();
@@ -26,7 +31,7 @@ const CustomerSupport = () => {
       });
 
       if (!res.ok) throw new Error("Failed to fetch tickets");
- 
+
       const data = await res.json();
       setTickets(data);
     } catch (error) {
@@ -37,65 +42,183 @@ const CustomerSupport = () => {
     }
   };
 
-const updateTicketStatus = async (ticketId, newStatus) => {
-  try {
-    const token = adminAuthService.getToken();
-    if (!token) throw new Error("No token found");
+  const updateTicketStatus = async (ticketId, newStatus) => {
+    try {
+      const token = adminAuthService.getToken();
+      if (!token) throw new Error("No token found");
 
-    const res = await fetch(`${API_BASE_URL}/admin/ticket/${ticketId}/status`, {
-      method: "PUT", // or PATCH
-      headers: {
-        "Content-Type": "application/json", // ✅ required
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ status: newStatus }), // ✅ required
-    });
+      const res = await fetch(
+        `${API_BASE_URL}/admin/ticket/${ticketId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
 
-    const data = await res.json();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update status");
 
-    if (!res.ok) throw new Error(data.message || "Failed to update ticket status");
+      toast.success(`Status updated to ${data.ticket.status}`);
 
-    toast.success(`Status updated to ${data.ticket.status}`);
-  } catch (error) {
-    console.error("Error updating ticket status:", error);
-    toast.error(error.message || "Failed to update status");
-  }
-};
+      // Update in modal UI
+      setSelectedTicket((prev) => ({
+        ...prev,
+        status: data.ticket.status,
+      }));
 
-const fetchTicketDetails = async (ticketId) => {
-  try {
-    const token = adminAuthService.getToken();
-    const res = await fetch(`${API_BASE_URL}/admin/ticket/${ticketId}/details`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      fetchTickets();
+    } catch (error) {
+      console.error("Status update failed:", error);
+      toast.error(error.message || "Status update error");
+    }
+  };
 
-    if (!res.ok) throw new Error("Failed to fetch ticket details");
+  const fetchTicketDetails = async (ticketId) => {
+    try {
+      const token = adminAuthService.getToken();
+      const res = await fetch(
+        `${API_BASE_URL}/admin/ticket/${ticketId}/details`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const data = await res.json();
-    setSelectedTicket(data); //  Set ticket data
-    setIsModalOpen(true);    //  Open modal
-    console.log("Ticket Details:", data);
-    toast.info(`Ticket issue: ${data.issue}`);
-  } catch (error) {
-    console.error("Error fetching ticket details:", error);
-    toast.error("Unable to load ticket details");
-  }
-};
+      if (!res.ok) throw new Error("Failed to fetch ticket details");
 
+      const data = await res.json();
+      setSelectedTicket(data); //  Set ticket data
+      setIsModalOpen(true); //  Open modal
+      console.log("Ticket Details:", data);
+      toast.info(`Ticket issue: ${data.issue}`);
+    } catch (error) {
+      console.error("Error fetching ticket details:", error);
+      toast.error("Unable to load ticket details");
+    }
+  };
+
+  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+  // Conditional available statuses
+  const getAvailableStatusOptions = (currentStatus) => {
+    switch (currentStatus) {
+      case "open":
+        return ["open", "pending", "in-progress", "resolved", "closed"];
+      case "pending":
+        return ["pending", "in-progress", "resolved"];
+      case "in-progress":
+        return ["in-progress", "resolved"];
+      case "resolved":
+        return ["resolved", "closed"];
+      case "closed":
+        return ["closed"]; // Cannot change once closed
+      default:
+        return ["open", "pending", "in-progress", "resolved", "closed"];
+    }
+  };
+
+  const getStatusColor = (status) => {
+    const s = status.toLowerCase();
+    switch (s) {
+      case "open":
+        return "text-blue-600";
+      case "in-progress":
+        return "text-yellow-600";
+      case "resolved":
+        return "text-green-600";
+      case "pending":
+        return "text-purple-600";
+      case "rejected":
+      case "closed":
+        return "text-red-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const getStatusBadgeColor = (status) => {
+    const s = status.toLowerCase();
+    switch (s) {
+      case "open":
+        return "bg-blue-100 text-blue-700";
+      case "in-progress":
+        return "bg-yellow-100 text-yellow-700";
+      case "resolved":
+        return "bg-green-100 text-green-700";
+      case "pending":
+        return "bg-purple-100 text-purple-700";
+      case "closed":
+      case "rejected":
+        return "bg-red-100 text-red-700";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
+
+  const handleStatusChange = (status) => {
+    setNextStatus(status);
+    setIsConfirmModalOpen(true);
+  };
+
+  const confirmStatusChange = async () => {
+    if (!selectedTicket || !nextStatus) return;
+
+    try {
+      const token = adminAuthService.getToken();
+      if (!token) throw new Error("No token found");
+
+      const res = await fetch(
+        `${API_BASE_URL}/admin/ticket/${selectedTicket._id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: nextStatus }),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update status");
+
+      // Update modal state
+      setSelectedTicket((prev) => ({
+        ...prev,
+        status: data.ticket.status,
+      }));
+
+      // Update main ticket list
+      fetchTickets();
+      toast.success(`Status updated to ${data.ticket.status}`);
+    } catch (error) {
+      console.error("Status update failed:", error);
+      toast.error(error.message || "Status update error");
+    } finally {
+      setIsConfirmModalOpen(false);
+    }
+  };
 
   return (
     <div className="px-8 py-6">
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">Customer Support</h1>
-      <p className="text-gray-500 mb-6">Manage customer queries and support tickets</p>
+      <h1 className="text-2xl font-bold text-gray-800 mb-1">
+        Customer Support
+      </h1>
+      <p className="text-gray-500 mb-6">
+        Manage customer queries and support tickets
+      </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white border rounded-lg shadow p-4 flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500">Open Tickets</p>
             <p className="text-2xl font-bold text-gray-800">
-              {tickets.filter(t => t.status?.toLowerCase() === "open").length}
+              {tickets.filter((t) => t.status?.toLowerCase() === "open").length}
             </p>
           </div>
           <span className="text-blue-500 text-xl">📨</span>
@@ -111,24 +234,20 @@ const fetchTicketDetails = async (ticketId) => {
           <div>
             <p className="text-sm text-gray-500">Resolved Today</p>
             <p className="text-2xl font-bold text-gray-800">
-              {tickets.filter(t => t.status?.toLowerCase() === "resolved").length}
+              {
+                tickets.filter((t) => t.status?.toLowerCase() === "resolved")
+                  .length
+              }
             </p>
           </div>
           <FaCheckCircle className="text-green-500 text-xl" />
         </div>
-        {/* <div className="bg-white border rounded-lg shadow p-4 flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-500">Urgent Issues</p>
-            <p className="text-2xl font-bold text-gray-800">
-              {tickets.filter(t => t.priority === "High").length}
-            </p>
-          </div>
-          <FaExclamationCircle className="text-red-500 text-xl" />
-        </div> */}
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">Recent Support Tickets</h2>
+        <h2 className="text-lg font-semibold text-gray-800">
+          Recent Support Tickets
+        </h2>
       </div>
 
       <div className="space-y-4">
@@ -138,33 +257,21 @@ const fetchTicketDetails = async (ticketId) => {
           <p>No support tickets found.</p>
         ) : (
           tickets.map((ticket) => (
-            <div key={ticket._id} className="bg-white border rounded-lg shadow p-4">
+            <div
+              key={ticket._id}
+              className="bg-white border rounded-lg shadow p-4"
+            >
               <div className="flex justify-between items-center mb-1 text-sm">
-                <span className="font-medium">{ticket.ticketNumber || ticket._id}</span>
-                <div className="flex gap-2">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      ticket.status === "Resolved"
-                        ? "bg-green-100 text-green-700"
-                        : ticket.status === "In Progress"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
-                  >
-                    {ticket.status}
-                  </span>
-                  {/* <span
-                    className={`text-sm font-semibold ${
-                      ticket.priority === "High"
-                        ? "text-red-600"
-                        : ticket.priority === "Medium"
-                        ? "text-yellow-600"
-                        : "text-green-600"
-                    }`}
-                  >
-                    {ticket.priority} Priority
-                  </span> */}
-                </div>
+                <span className="font-medium">
+                  {ticket.ticketNumber || ticket._id}
+                </span>
+                <span
+                  className={`inline-block px-2 py-0.5 text-xs font-medium rounded-full ${getStatusBadgeColor(
+                    ticket.status
+                  )}`}
+                >
+                  {capitalize(ticket.status)}
+                </span>
               </div>
               <p className="font-medium text-gray-800 mb-1">{ticket.issue}</p>
               <div className="text-sm text-gray-500 flex flex-wrap items-center gap-4">
@@ -172,16 +279,20 @@ const fetchTicketDetails = async (ticketId) => {
                   <FaUser /> {ticket.raisedBy?.name || "N/A"}
                 </span>
                 <span>
-                  Created: {new Date(ticket.createdAt).toLocaleDateString("en-GB")}
+                  Created:{" "}
+                  {new Date(ticket.createdAt).toLocaleDateString("en-GB")}
                 </span>
                 <span>Category: {ticket.category || "General"}</span>
               </div>
               <p className="text-xs text-gray-400 mt-2">
-                Last updated: {new Date(ticket.createdAt).toLocaleDateString("en-GB")}
+                Last updated:{" "}
+                {new Date(ticket.createdAt).toLocaleDateString("en-GB")}
               </p>
               <div className="flex justify-end mt-2 gap-2">
-                <button className="border text-sm px-4 py-1 rounded hover:bg-gray-100"
-                onClick={() => fetchTicketDetails(ticket._id)}>
+                <button
+                  className="border text-sm px-4 py-1 rounded hover:bg-gray-100"
+                  onClick={() => fetchTicketDetails(ticket._id)}
+                >
                   View Details
                 </button>
               </div>
@@ -189,34 +300,113 @@ const fetchTicketDetails = async (ticketId) => {
           ))
         )}
         {selectedTicket && (
-  <div className={`fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ${isModalOpen ? '' : 'hidden'}`}>
-    <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg">
-      <h2 className="text-xl font-bold mb-4 text-gray-800">Ticket Details</h2>
-      <ul className="text-sm text-gray-700 space-y-2">
-        <li><strong>Ticket ID:</strong> {selectedTicket._id}</li>
-        <li><strong>Issue:</strong> {selectedTicket.issue}</li>
-        <li><strong>Status:</strong> {selectedTicket.status}</li>
-        <li><strong>Created At:</strong> {new Date(selectedTicket.createdAt).toLocaleString()}</li>
-        <li><strong>Raised By:</strong> {selectedTicket.raisedBy?.name || "N/A"}</li>
-        <li><strong>Email:</strong> {selectedTicket.raisedBy?.email || "N/A"}</li>
-        <li><strong>Phone:</strong> {selectedTicket.raisedBy?.phone || "N/A"}</li>
-        <li><strong>Ride Origin:</strong> {selectedTicket.ride?.origin || "N/A"}</li>
-        <li><strong>Ride Destination:</strong> {selectedTicket.ride?.destination || "N/A"}</li>
-        <li><strong>Ride Date:</strong> {new Date(selectedTicket.ride?.date).toLocaleDateString()}</li>
-        <li><strong>Ride Status:</strong> {selectedTicket.ride?.status || "N/A"}</li>
-      </ul>
-      <div className="flex justify-end mt-6">
-        <button
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-          onClick={() => setIsModalOpen(false)}
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+          <div
+            className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm transition-opacity duration-300 ${
+              isModalOpen ? "" : "hidden"
+            }`}
+          >
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-xl transform transition-all scale-100">
+              <h2 className="text-2xl font-semibold mb-5 text-gray-800 border-b pb-2">
+                🎫 Ticket Details
+              </h2>
+              <div className="grid grid-cols-1 gap-3 text-sm text-gray-700">
+                <p>
+                  <strong>🆔 Ticket ID:</strong> {selectedTicket._id}
+                </p>
+                <p>
+                  <strong>📄 Issue:</strong> {selectedTicket.issue}
+                </p>
+                <div>
+                  <strong>📌 Status:</strong>
+                  <select
+                    value={selectedTicket.status}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className={`mt-1 w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 transition ${getStatusColor(
+                      selectedTicket.status
+                    )} focus:ring-blue-400 focus:border-blue-400`}
+                  >
+                    {getAvailableStatusOptions(selectedTicket.status).map(
+                      (status) => (
+                        <option key={status} value={status}>
+                          {capitalize(status)}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
 
+                <p>
+                  <strong>📅 Created At:</strong>{" "}
+                  {new Date(selectedTicket.createdAt).toLocaleString()}
+                </p>
+                <p>
+                  <strong>🙋‍♂️ Raised By:</strong>{" "}
+                  {selectedTicket.raisedBy?.name || "N/A"}
+                </p>
+                <p>
+                  <strong>📧 Email:</strong>{" "}
+                  {selectedTicket.raisedBy?.email || "N/A"}
+                </p>
+                <p>
+                  <strong>📞 Phone:</strong>{" "}
+                  {selectedTicket.raisedBy?.phone || "N/A"}
+                </p>
+                <p>
+                  <strong>📍 Origin:</strong>{" "}
+                  {selectedTicket.ride?.origin || "N/A"}
+                </p>
+                <p>
+                  <strong>🎯 Destination:</strong>{" "}
+                  {selectedTicket.ride?.destination || "N/A"}
+                </p>
+                <p>
+                  <strong>🗓️ Ride Date:</strong>{" "}
+                  {new Date(selectedTicket.ride?.date).toLocaleDateString()}
+                </p>
+                <p>
+                  <strong>🚗 Ride Status:</strong>{" "}
+                  {selectedTicket.ride?.status || "N/A"}
+                </p>
+              </div>
+
+              <div className="flex justify-end mt-6">
+                <button
+                  className="px-5 py-2 text-white bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 rounded-lg shadow-md hover:shadow-lg transition duration-200"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  ✖ Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {isConfirmModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl text-center">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Confirm Status Change
+              </h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to change the status to{" "}
+                <span className="font-bold">{nextStatus}</span>?
+              </p>
+              <div className="flex justify-center gap-4">
+                <button
+                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                  onClick={() => setIsConfirmModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  onClick={confirmStatusChange}
+                >
+                  Yes, Update
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
