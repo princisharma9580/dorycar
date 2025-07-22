@@ -26,7 +26,8 @@ const RideDetailsModal = ({
   const isCreator = selectedRide.creator?._id === currentUser?.user?._id;
 
   const filteredInterestedUsers = useMemo(() => {
-    if (!selectedRide?.interestedUsers || !selectedRide?.creator?._id) return [];
+    if (!selectedRide?.interestedUsers || !selectedRide?.creator?._id)
+      return [];
     return selectedRide?.interestedUsers.filter(
       (entry) => entry?.user?._id !== selectedRide?.creator?._id
     );
@@ -154,20 +155,24 @@ const RideDetailsModal = ({
               <strong>Car:</strong> {selectedRide.creator.vehicle.make || "N/A"}
             </Typography>
             <Typography sx={valueStyles}>
-              <strong>Model:</strong> {selectedRide.creator.vehicle.model || "N/A"}
+              <strong>Model:</strong>{" "}
+              {selectedRide.creator.vehicle.model || "N/A"}
             </Typography>
             <Typography sx={valueStyles}>
-              <strong>Color:</strong> {selectedRide.creator.vehicle.color || "N/A"}
+              <strong>Color:</strong>{" "}
+              {selectedRide.creator.vehicle.color || "N/A"}
             </Typography>
             <Typography sx={valueStyles}>
               <strong>Registration:</strong>{" "}
               {selectedRide.creator.vehicle.registration || "N/A"}
             </Typography>
             <Typography sx={valueStyles}>
-              <strong>Year:</strong> {selectedRide.creator.vehicle.year || "N/A"}
+              <strong>Year:</strong>{" "}
+              {selectedRide.creator.vehicle.year || "N/A"}
             </Typography>
             <Typography sx={valueStyles}>
-              <strong>Fuel Type:</strong> {selectedRide.creator.vehicle.fuel || "N/A"}
+              <strong>Fuel Type:</strong>{" "}
+              {selectedRide.creator.vehicle.fuel || "N/A"}
             </Typography>
           </>
         ) : (
@@ -238,12 +243,30 @@ const RideDetailsModal = ({
           Preferences
         </Typography>
         <Box component="ul" sx={{ mb: 0, pl: 3 }}>
-          <li><strong>AC:</strong> {selectedRide.ridePreference?.ac ? "Yes" : "No"}</li>
-          <li><strong>Smoking Allowed:</strong> {selectedRide.ridePreference?.smoking ? "Yes" : "No"}</li>
-          <li><strong>Music Allowed:</strong> {selectedRide.ridePreference?.music ? "Yes" : "No"}</li>
-          <li><strong>Extra Luggage Allowed:</strong> {selectedRide.ridePreference?.luggage ? "Yes" : "No"}</li>
-          <li><strong>Pet Friendly:</strong> {selectedRide.ridePreference?.pet ? "Yes" : "No"}</li>
-          <li><strong>2 Bags Max:</strong> {selectedRide.ridePreference?.bagMax ? "Yes" : "No"}</li>
+          <li>
+            <strong>AC:</strong>{" "}
+            {selectedRide.ridePreference?.ac ? "Yes" : "No"}
+          </li>
+          <li>
+            <strong>Smoking Allowed:</strong>{" "}
+            {selectedRide.ridePreference?.smoking ? "Yes" : "No"}
+          </li>
+          <li>
+            <strong>Music Allowed:</strong>{" "}
+            {selectedRide.ridePreference?.music ? "Yes" : "No"}
+          </li>
+          <li>
+            <strong>Extra Luggage Allowed:</strong>{" "}
+            {selectedRide.ridePreference?.luggage ? "Yes" : "No"}
+          </li>
+          <li>
+            <strong>Pet Friendly:</strong>{" "}
+            {selectedRide.ridePreference?.pet ? "Yes" : "No"}
+          </li>
+          <li>
+            <strong>2 Bags Max:</strong>{" "}
+            {selectedRide.ridePreference?.bagMax ? "Yes" : "No"}
+          </li>
         </Box>
       </Box>
     </>
@@ -291,20 +314,37 @@ const RideDetailsModal = ({
                 >
                   {entry?.user?.name}
                 </Typography>
-                <Typography gutterBottom sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}>
+                <Typography
+                  gutterBottom
+                  sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+                >
                   <strong>Gender:</strong> {entry?.user?.gender}
                 </Typography>
-                <Typography gutterBottom sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}>
+                <Typography
+                  gutterBottom
+                  sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+                >
                   <strong>Contact:</strong> {entry?.user?.phone}
                 </Typography>
-                <Typography gutterBottom sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}>
-                  <strong>Emergency Contact:</strong> {entry?.user?.emergencyContact}
+                <Typography
+                  gutterBottom
+                  sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+                >
+                  <strong>Emergency Contact:</strong>{" "}
+                  {entry?.user?.emergencyContact}
                 </Typography>
-                <Typography gutterBottom sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}>
+                <Typography
+                  gutterBottom
+                  sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+                >
                   <strong>Address:</strong> {entry?.user?.address}
                 </Typography>
-                <Typography gutterBottom sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}>
-                  <strong>ID Proof:</strong> {entry?.user?.idProof ? "Uploaded" : "Not Uploaded"}
+                <Typography
+                  gutterBottom
+                  sx={{ fontSize: { xs: "0.85rem", sm: "1rem" } }}
+                >
+                  <strong>ID Proof:</strong>{" "}
+                  {entry?.user?.idProof ? "Uploaded" : "Not Uploaded"}
                 </Typography>
               </Box>
             </Box>
@@ -349,7 +389,10 @@ const RideDetailsModal = ({
           maxHeight: "calc(100vh - 160px)",
           overflowY: "auto",
           "&::-webkit-scrollbar": { width: 8 },
-          "&::-webkit-scrollbar-thumb": { backgroundColor: "#2ca985", borderRadius: 4 },
+          "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "#2ca985",
+            borderRadius: 4,
+          },
           "&::-webkit-scrollbar-track": { backgroundColor: "#daf4e7" },
         }}
       >
@@ -357,88 +400,95 @@ const RideDetailsModal = ({
       </DialogContent>
 
       <DialogActions
-  sx={{
-    p: { xs: 2, sm: 3 },
-    justifyContent: { xs: "center", sm: "space-between" }, // Center on small screens, spaced on larger
-    flexWrap: "wrap",
-    gap: 2,
-    backgroundColor: "#d4f1e0",
-    borderRadius: "0 0 12px 12px",
-    boxShadow: "inset 0 1px 0 0 #a3d8b7",
-  }}
->
-  {!isCreator &&
-    !["completed", "cancelled", "started", "accepted", "waiting"].includes(
-      selectedRide?.status
-    ) && (
-      <Button
-        onClick={onBook}
-        variant="contained"
         sx={{
-          backgroundColor: "#2ca985",
-          fontWeight: 700,
-          textTransform: "none",
-          boxShadow: "0 5px 12px rgba(44,169,133,0.5)",
-          "&:hover": {
-            backgroundColor: "#1f9d55",
-            boxShadow: "0 8px 20px rgba(31,157,85,0.7)",
-          },
-          minWidth: 120,
-          flexGrow: { xs: 1, sm: 0 }, // Grow full width on mobile
+          p: { xs: 2, sm: 3 },
+          justifyContent: { xs: "center", sm: "space-between" }, // Center on small screens, spaced on larger
+          flexWrap: "wrap",
+          gap: 2,
+          backgroundColor: "#d4f1e0",
+          borderRadius: "0 0 12px 12px",
+          boxShadow: "inset 0 1px 0 0 #a3d8b7",
         }}
       >
-        Book
-      </Button>
-    )}
+        {!isCreator &&
+          ![
+            "completed",
+            "cancelled",
+            "started",
+            "accepted",
+            "waiting",
+          ].includes(selectedRide?.status) && (
+            <Button
+              onClick={onBook}
+              variant="contained"
+              sx={{
+                backgroundColor: "#2ca985",
+                fontWeight: 700,
+                textTransform: "none",
+                boxShadow: "0 5px 12px rgba(44,169,133,0.5)",
+                "&:hover": {
+                  backgroundColor: "#1f9d55",
+                  boxShadow: "0 8px 20px rgba(31,157,85,0.7)",
+                },
+                minWidth: 120,
+                flexGrow: { xs: 1, sm: 0 }, // Grow full width on mobile
+              }}
+            >
+              Book
+            </Button>
+          )}
 
-  <Box
-    sx={{
-      display: "flex",
-      gap: 1.5,
-      flexWrap: "wrap",
-      justifyContent: isCreator ? "center" : "flex-end",
-      flexGrow: isCreator ? 1 : 0,
-      width: { xs: "100%", sm: "auto" },
-    }}
-  >
-    {["Chat", "Map", "Share", "Close"].map((label, idx) => {
-      const handlers = {
-        Chat: onChat,
-        Map: onMap,
-        Share: onShare,
-        Close: onClose,
-      };
-      const disabled = ["completed", "cancelled"].includes(selectedRide?.status);
-      const isClose = label === "Close";
-      return (
-        <Button
-          key={label}
-          onClick={handlers[label]}
-          variant={isClose ? "contained" : "outlined"}
-          color={isClose ? "error" : "primary"}
-          startIcon={label === "Chat" ? <MessageIcon /> : null}
-          disabled={["Chat", "Map"].includes(label) && disabled}
+        <Box
           sx={{
-            borderColor: "#2ca985",
-            color: isClose ? undefined : "#2ca985",
-            fontWeight: 700,
-            textTransform: "none",
-            minWidth: 90,
-            flexGrow: { xs: 1, sm: 0 }, // grow full width on mobile
-            "&:hover": {
-              borderColor: "#1f9d55",
-              backgroundColor: isClose ? undefined : "#e6f4ea",
-              boxShadow: isClose ? undefined : "0 4px 12px rgba(44,169,133,0.3)",
-            },
+            display: "flex",
+            gap: 1.5,
+            flexWrap: "wrap",
+            justifyContent: isCreator ? "center" : "flex-end",
+            flexGrow: isCreator ? 1 : 0,
+            width: { xs: "100%", sm: "auto" },
           }}
         >
-          {label}
-        </Button>
-      );
-    })}
-  </Box>
-</DialogActions>
-
+          {["Chat", "Map", "Share", "Close"].map((label, idx) => {
+            const handlers = {
+              Chat: onChat,
+              Map: onMap,
+              Share: onShare,
+              Close: onClose,
+            };
+            const disabled = ["completed", "cancelled"].includes(
+              selectedRide?.status
+            );
+            const isClose = label === "Close";
+            return (
+              <Button
+                key={label}
+                onClick={handlers[label]}
+                variant={isClose ? "contained" : "outlined"}
+                color={isClose ? "error" : "primary"}
+                startIcon={label === "Chat" ? <MessageIcon /> : null}
+                disabled={["Chat", "Map"].includes(label) && disabled}
+                sx={{
+                  borderColor: "#2ca985",
+                  color: isClose ? undefined : "#2ca985",
+                  fontWeight: 700,
+                  textTransform: "none",
+                  minWidth: 90,
+                  flexGrow: { xs: 1, sm: 0 }, // grow full width on mobile
+                  "&:hover": {
+                    borderColor: "#1f9d55",
+                    backgroundColor: isClose ? undefined : "#e6f4ea",
+                    boxShadow: isClose
+                      ? undefined
+                      : "0 4px 12px rgba(44,169,133,0.3)",
+                  },
+                }}
+              >
+                {label}
+              </Button>
+            );
+          })}
+        </Box>
+      </DialogActions>
     </Dialog>
   );
 };

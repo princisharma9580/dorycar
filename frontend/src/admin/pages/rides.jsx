@@ -10,12 +10,7 @@ import {
   InputLabel,
   TextField,
 } from "@mui/material";
-import {
-  FaUser,
-  FaUserTie,
-  FaMapMarkerAlt,
-  FaRupeeSign,
-} from "react-icons/fa";
+import { FaUser, FaUserTie, FaMapMarkerAlt, FaRupeeSign } from "react-icons/fa";
 
 const Rides = () => {
   const [loading, setLoading] = useState(true);
@@ -23,6 +18,9 @@ const Rides = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRide, setSelectedRide] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const ridesPerPage = 10;
 
   useEffect(() => {
@@ -91,7 +89,11 @@ const Rides = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <FormControl variant="outlined" size="small" className="min-w-[150px]">
+          <FormControl
+            variant="outlined"
+            size="small"
+            className="min-w-[150px]"
+          >
             <InputLabel id="status-filter-label">All Status</InputLabel>
             <Select
               labelId="status-filter-label"
@@ -123,7 +125,11 @@ const Rides = () => {
             {paginatedRides.map((ride, i) => (
               <div
                 key={i}
-                className={`rounded-xl border p-4 shadow-sm transition hover:shadow-lg ${
+                onClick={() => {
+                  setSelectedRide(ride);
+                  setIsModalOpen(true);
+                }}
+                className={`cursor-pointer rounded-xl border p-4 shadow-sm transition hover:shadow-lg ${
                   ride.status === "completed"
                     ? "bg-green-50 border-green-200"
                     : ride.status === "cancelled"
@@ -153,7 +159,10 @@ const Rides = () => {
                   <FaUser className="text-green-600" />
                   Passenger:{" "}
                   {Array.isArray(ride.acceptor)
-                    ? ride.acceptor.map((p) => p.name).filter(Boolean).join(", ")
+                    ? ride.acceptor
+                        .map((p) => p.name)
+                        .filter(Boolean)
+                        .join(", ")
                     : ride.acceptor?.name || "N/A"}
                 </div>
 
@@ -173,6 +182,49 @@ const Rides = () => {
               </div>
             ))}
           </div>
+{selectedRide && (
+  <div className={`fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40 ${isModalOpen ? '' : 'hidden'}`}>
+    <div className="bg-white rounded-lg p-6 w-full max-w-2xl shadow-xl max-h-[90vh] overflow-y-auto">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Ride Details</h2>
+      <ul className="space-y-2 text-gray-700 text-sm">
+        <li><strong>ID:</strong> {selectedRide._id}</li>
+        <li><strong>Status:</strong> {selectedRide.status}</li>
+        <li><strong>Passenger:</strong> {selectedRide.acceptor?.name || "N/A"}</li>
+        <li><strong>Offered by:</strong> {selectedRide.creator?.name || "N/A"} ({selectedRide.creator?.email})</li>
+        <li><strong>From:</strong> {selectedRide.origin}</li>
+        <li><strong>To:</strong> {selectedRide.destination}</li>
+        <li><strong>Departure:</strong> {new Date(selectedRide.departureTime).toLocaleString()}</li>
+        <li><strong>Arrival:</strong> {new Date(selectedRide.arrivalTime).toLocaleString()}</li>
+        <li><strong>Ride Date:</strong> {new Date(selectedRide.date).toLocaleString()}</li>
+        <li><strong>Price:</strong> ₹{selectedRide.price}</li>
+        <li><strong>Payment Methods:</strong> {selectedRide.paymentMethods?.join(", ") || "N/A"}</li>
+        <li><strong>Preferred Communication:</strong> {selectedRide.preferredCommunication}</li>
+        <li><strong>Ride Preferences:</strong>
+          <ul className="pl-4 list-disc">
+            {Object.entries(selectedRide.ridePreference || {}).map(([key, value]) => (
+              <li key={key}>{key}: {value ? "Yes" : "No"}</li>
+            ))}
+          </ul>
+        </li>
+        <li><strong>Interested Users:</strong>
+          <ul className="pl-4 list-disc">
+            {(selectedRide.interestedUsers || []).map((u, idx) => (
+              <li key={idx}>{u.user?.name || "N/A"} - {u.status}</li>
+            ))}
+          </ul>
+        </li>
+      </ul>
+      <div className="flex justify-end mt-6">
+        <button
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          onClick={() => setIsModalOpen(false)}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
           {/* Pagination */}
           <div className="flex justify-center items-center gap-4 mt-6 text-green-700">
