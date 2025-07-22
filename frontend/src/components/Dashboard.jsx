@@ -1378,9 +1378,11 @@ console.log("ride status", rideStatus)
         fullWidth
         multiline
         rows={3}
-        label="Describe the issue (optional)"
+        label="Describe the issue"
         value={ticketDescription}
         onChange={(e) => setTicketDescription(e.target.value)}
+        required={ticketReason === "Other"} 
+        error={ticketReason === "Other" && ticketDescription.trim() === ""}
       />
 
       <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
@@ -1389,27 +1391,34 @@ console.log("ride status", rideStatus)
           variant="contained"
           color="error"
           onClick={async () => {
-            if (!ticketReason) {
-              toast.error("Please select an issue type.");
-              return;
-            }
-            try {
-              await api.post(`/rides/${ride._id}/ticket`, {
-                issue: ticketReason,
-                description: ticketDescription,
-              }); 
+                if (!ticketReason) {
+                  toast.error("Please select an issue type.");
+                  return;
+                }
 
-              toast.success("Ticket raised successfully!");
-              setOpenTicketModal(false);
-              setTicketReason("");
-              setTicketDescription("");
-            } catch (error) {
-              console.error("Error raising ticket:", error);
-              toast.error(
-                error?.response?.data?.message || "Failed to raise ticket"
-              );
-            }
-          }}
+                if (ticketReason === "Other" && ticketDescription.trim() === "") {
+                  toast.error("Please describe the issue when 'Other' is selected.");
+                  return;
+                }
+
+                try {
+                  await api.post(`/rides/${ride._id}/ticket`, {
+                    issue: ticketReason === "Other" ? ticketDescription.trim() : ticketReason,
+                    category: ticketReason,
+                  });
+
+
+                  toast.success("Ticket raised successfully!");
+                  setOpenTicketModal(false);
+                  setTicketReason("");
+                  setTicketDescription("");
+                } catch (error) {
+                  console.error("Error raising ticket:", error);
+                  toast.error(
+                    error?.response?.data?.message || "Failed to raise ticket"
+                  );
+                }
+              }}
         >
           Submit
         </Button>
