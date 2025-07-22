@@ -116,7 +116,7 @@ const Profile = () => {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
-  const fetchUserTickets = async () => {
+const fetchUserTickets = async () => {
   try {
     setLoadingTickets(true);
     const token = localStorage.getItem("token");
@@ -129,7 +129,7 @@ const Profile = () => {
     if (!res.ok) throw new Error("Failed to fetch tickets");
 
     const data = await res.json();
-    setMyTickets(data);
+    setMyTickets(data.tickets || []);  
   } catch (error) {
     console.error("Error fetching tickets:", error);
     setMyTickets([]);
@@ -137,6 +137,7 @@ const Profile = () => {
     setLoadingTickets(false);
   }
 };
+
 
   const extractKeyFromUrl = (url) => {
     if (!url) return "";
