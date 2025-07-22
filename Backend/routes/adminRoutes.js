@@ -1,4 +1,3 @@
-
 const express = require("express");
 const router = express.Router();
 const adminAuth = require("../middleware/adminAuth");
@@ -15,14 +14,13 @@ const {
 
 router.get("/ride-stats", adminAuth, getRideStats);
 router.get("/user-stats", adminAuth, getUserStats);
-router.get("/rides", adminAuth, getRides); 
+router.get("/rides", adminAuth, getRides);
 router.get("/drivers", adminAuth, getDrivers);
 router.get("/users", adminAuth, getUsers);
 router.get("/ticket", adminAuth, getTickets);
 router.put("/ticket/:ticketId/status", adminAuth, updateTicketStatus);
 router.get("/ticket/:ticketId/details", adminAuth, getTicketById);
 router.post("/login", (req, res) => {
-
   const { email, password } = req.body;
 
   if (

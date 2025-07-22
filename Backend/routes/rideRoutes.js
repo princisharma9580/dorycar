@@ -329,7 +329,9 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
     if (!ride) return res.status(404).json({ message: "Ride not found" });
 
     if (ride.creator.toString() !== req.userId)
-      return res.status(403).json({ message: "Only ride creator can accept users" });
+      return res
+        .status(403)
+        .json({ message: "Only ride creator can accept users" });
 
     if (ride.seats <= 0)
       return res.status(400).json({ message: "No seats available" });
@@ -339,7 +341,9 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
     );
 
     if (!interest)
-      return res.status(404).json({ message: "User has not expressed interest" });
+      return res
+        .status(404)
+        .json({ message: "User has not expressed interest" });
 
     if (interest.status === "accepted")
       return res.status(400).json({ message: "User already accepted" });
@@ -350,7 +354,9 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
     ride.acceptor = req.params.userId;
 
     // ✅ If no one was accepted before, update ride.status
-    const anyAccepted = ride.interestedUsers.some(i => i.status === "accepted");
+    const anyAccepted = ride.interestedUsers.some(
+      (i) => i.status === "accepted"
+    );
     if (!anyAccepted) {
       ride.status = "accepted";
     }
@@ -362,8 +368,14 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
     await ride.save();
 
     const updatedRide = await Ride.findById(ride._id)
-      .populate("creator", "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings")
-      .populate("acceptor", "name profileImage phone gender emergencyContact address")
+      .populate(
+        "creator",
+        "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings"
+      )
+      .populate(
+        "acceptor",
+        "name profileImage phone gender emergencyContact address"
+      )
       .populate("interestedUsers.user", "name");
 
     // ✅ Emit update to ride creator and all interested users
@@ -382,7 +394,9 @@ router.post("/:rideId/accept/:userId", auth, async (req, res) => {
     res.json(updatedRide);
   } catch (error) {
     console.error("Error accepting user for ride:", error);
-    res.status(500).json({ message: "Error accepting ride", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error accepting ride", error: error.message });
   }
 });
 
@@ -601,15 +615,16 @@ router.get("/search", async (req, res) => {
     const { origin, destination, date } = req.query;
 
     const filter = {
-      status: { $in: ["pending", "accepted"] }, // ✅ exclude started/completed rides
+      status: { $in: ["pending", "accepted"] },
+      departureTime: { $gte: new Date() }, // ✅ Filter out past rides
     };
 
     if (origin) {
-      filter.origin = { $regex: `^${origin}$`, $options: "i" }; // ✅ exact match
+      filter.origin = { $regex: `^${origin}$`, $options: "i" };
     }
 
     if (destination) {
-      filter.destination = { $regex: `^${destination}$`, $options: "i" }; // ✅ exact match
+      filter.destination = { $regex: `^${destination}$`, $options: "i" };
     }
 
     if (date) {
@@ -648,6 +663,7 @@ router.get("/search", async (req, res) => {
       .json({ message: "Error fetching searched rides", error: error.message });
   }
 });
+
 
 // Get user's rides (created, accepted, and interested)
 router.get("/my-rides", auth, async (req, res) => {
@@ -931,11 +947,14 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
     }
 
     // Check if the ride status is valid for ticket raising
-if (!["started", "completed"].includes(ride.status)) {
-  return res
-    .status(400)
-    .json({ message: "Ticket can only be raised after the ride has started or completed." });
-}
+    if (!["started", "completed"].includes(ride.status)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Ticket can only be raised after the ride has started or completed.",
+        });
+    }
 
     const isInvolved =
       ride.creator.toString() === userId ||
@@ -989,6 +1008,5 @@ if (!["started", "completed"].includes(ride.status)) {
       .json({ message: "Failed to raise ticket", error: error.message });
   }
 });
-
 
 module.exports = router;

@@ -3,7 +3,6 @@ const Ride = require("../models/Ride");
 const User = require("../models/User");
 const Ticket = require("../models/Ticket");
 
-
 exports.getRideStats = async (req, res) => {
   try {
     // Count total rides
@@ -273,6 +272,3 @@ exports.getTicketById = async (req, res) => {
     res.status(500).json({ message: "Error fetching ticket", error: error.message });
   }
 };
-
-
-

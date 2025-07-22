@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const auth = require("../middleware/auth");
+const Ticket = require("../models/Ticket");
 const aws = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid");
 
