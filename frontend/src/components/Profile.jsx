@@ -116,7 +116,7 @@ const Profile = () => {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
-const fetchUserTickets = async () => {
+  const fetchUserTickets = async () => {
   try {
     setLoadingTickets(true);
     const token = localStorage.getItem("token");
@@ -129,7 +129,7 @@ const fetchUserTickets = async () => {
     if (!res.ok) throw new Error("Failed to fetch tickets");
 
     const data = await res.json();
-    setMyTickets(data.tickets || []);  
+    setMyTickets(data.tickets || []);
   } catch (error) {
     console.error("Error fetching tickets:", error);
     setMyTickets([]);
@@ -137,7 +137,6 @@ const fetchUserTickets = async () => {
     setLoadingTickets(false);
   }
 };
-
 
   const extractKeyFromUrl = (url) => {
     if (!url) return "";
@@ -947,7 +946,8 @@ const tabButtonStyle = (tab) => ({
           </Grow>
         </Box>
       </Fade>
-{/* My Tickets Modal */}
+
+      {/* My Tickets Modal */}
 <Dialog
   open={openTicketModal}
   onClose={() => setOpenTicketModal(false)}
@@ -969,18 +969,38 @@ const tabButtonStyle = (tab) => ({
         <Box
           key={index}
           sx={{
-            mb: 2,
-            p: 2,
+            mb: 3,
+            p: 2.5,
             border: "1px solid #e0e0e0",
-            borderRadius: 2,
+            borderRadius: 3,
             backgroundColor: "#f9fafb",
+            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
           }}
         >
-          <Typography><strong>Issue:</strong> {ticket.issue}</Typography>
-          <Typography><strong>Status:</strong> {ticket.status}</Typography>
-          {ticket.rideId && (
-            <Typography><strong>Ride ID:</strong> {ticket.rideId}</Typography>
+          <Typography sx={{ mb: 1 }}><strong>Issue:</strong> {ticket.issue}</Typography>
+          <Typography sx={{ mb: 1 }}><strong>Status:</strong> {ticket.status}</Typography>
+
+          {ticket.ride && (
+            <>
+              <Divider sx={{ my: 1 }} />
+              <Typography
+                variant="subtitle2"
+                sx={{ mb: 1, fontWeight: "bold", color: "#047857" }}
+              >
+                Ride Details
+              </Typography>
+              <Typography><strong>Ride ID:</strong> {ticket.ride._id}</Typography>
+              <Typography><strong>Origin:</strong> {ticket.ride.origin}</Typography>
+              <Typography><strong>Destination:</strong> {ticket.ride.destination}</Typography>
+              <Typography>
+                <strong>Ride Date:</strong>{" "}
+                {new Date(ticket.ride.date).toLocaleString()}
+              </Typography>
+              <Typography><strong>Ride Status:</strong> {ticket.ride.status}</Typography>
+            </>
           )}
+
+          <Divider sx={{ my: 1 }} />
           <Typography variant="caption" sx={{ color: "gray" }}>
             Created: {new Date(ticket.createdAt).toLocaleString()}
           </Typography>
@@ -989,8 +1009,6 @@ const tabButtonStyle = (tab) => ({
     )}
   </DialogContent>
 </Dialog>
-
-
 
       <Footer />
       {/* Lightbox Modal */}
@@ -1011,6 +1029,5 @@ const tabButtonStyle = (tab) => ({
       </Dialog>
     </>
   );
-};
-
+}
 export default Profile;
