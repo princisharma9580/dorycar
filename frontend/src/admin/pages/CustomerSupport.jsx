@@ -215,7 +215,7 @@ const CustomerSupport = () => {
       });
 
       if (!res.ok) throw new Error("Failed to fetch tickets");
-
+ 
       const data = await res.json();
       setTickets(data);
     } catch (error) {
@@ -226,24 +226,51 @@ const CustomerSupport = () => {
     }
   };
 
-  const fetchTicketStatus = async (ticketId) => {
-    try {
-      const token = adminAuthService.getToken();
-      if (!token) throw new Error("No token found");
+const updateTicketStatus = async (ticketId, newStatus) => {
+  try {
+    const token = adminAuthService.getToken();
+    if (!token) throw new Error("No token found");
 
-      const res = await fetch(`${API_BASE_URL}/admin/ticket/${ticketId}/status`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const res = await fetch(`${API_BASE_URL}/admin/ticket/${ticketId}/status`, {
+      method: "PUT", // or PATCH
+      headers: {
+        "Content-Type": "application/json", // ✅ required
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status: newStatus }), // ✅ required
+    });
 
-      if (!res.ok) throw new Error("Failed to fetch ticket status");
+    const data = await res.json();
 
-      const data = await res.json();
-      toast.info(`Ticket status: ${data.status}`);
-    } catch (error) {
-      console.error("Error fetching ticket status:", error);
-      toast.error("Failed to fetch ticket status");
-    }
-  };
+    if (!res.ok) throw new Error(data.message || "Failed to update ticket status");
+
+    toast.success(`Status updated to ${data.ticket.status}`);
+  } catch (error) {
+    console.error("Error updating ticket status:", error);
+    toast.error(error.message || "Failed to update status");
+  }
+};
+
+const fetchTicketDetails = async (ticketId) => {
+  try {
+    const token = adminAuthService.getToken();
+    const res = await fetch(`${API_BASE_URL}/admin/ticket/${ticketId}/details`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch ticket details");
+
+    const data = await res.json();
+    console.log("Ticket Details:", data);
+    toast.info(`Ticket issue: ${data.issue}`);
+  } catch (error) {
+    console.error("Error fetching ticket details:", error);
+    toast.error("Unable to load ticket details");
+  }
+};
+
 
   return (
     <div className="px-8 py-6">
@@ -344,12 +371,14 @@ const CustomerSupport = () => {
               </p>
               <div className="flex justify-end mt-2 gap-2">
                 <button
-                  className="border text-sm px-4 py-1 rounded hover:bg-gray-100"
-                  onClick={() => fetchTicketStatus(ticket._id)}
-                >
-                  View Status
-                </button>
-                <button className="border text-sm px-4 py-1 rounded hover:bg-gray-100">
+  className="border text-sm px-4 py-1 rounded hover:bg-gray-100"
+  onClick={() => updateTicketStatus(ticket._id, ticket.status)}
+>
+  View Status
+</button>
+
+                <button className="border text-sm px-4 py-1 rounded hover:bg-gray-100"
+                onClick={() => fetchTicketDetails(ticket._id)}>
                   View Details
                 </button>
               </div>
