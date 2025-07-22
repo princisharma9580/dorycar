@@ -19,6 +19,7 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
   Grid,
 } from "@mui/material";
 import { PhotoCamera } from "@mui/icons-material";
@@ -117,26 +118,26 @@ const Profile = () => {
     setOpenModal(false);
   };
   const fetchUserTickets = async () => {
-  try {
-    setLoadingTickets(true);
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${API_BASE_URL}/users/my-tickets`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      setLoadingTickets(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_BASE_URL}/users/my-tickets`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    if (!res.ok) throw new Error("Failed to fetch tickets");
+      if (!res.ok) throw new Error("Failed to fetch tickets");
 
-    const data = await res.json();
-    setMyTickets(data.tickets || []);
-  } catch (error) {
-    console.error("Error fetching tickets:", error);
-    setMyTickets([]);
-  } finally {
-    setLoadingTickets(false);
-  }
-};
+      const data = await res.json();
+      setMyTickets(data.tickets || []);
+    } catch (error) {
+      console.error("Error fetching tickets:", error);
+      setMyTickets([]);
+    } finally {
+      setLoadingTickets(false);
+    }
+  };
 
   const extractKeyFromUrl = (url) => {
     if (!url) return "";
@@ -255,47 +256,41 @@ const Profile = () => {
       setFormData((prev) => ({ ...prev, [key]: file }));
     }
   };
-   
-const [activeTab, setActiveTab] = useState("profile");
-const profileRef = useRef(null);
-const vehicleRef = useRef(null);
-const documentRef = useRef(null);
-const editScrollContainerRef = useRef(null);
 
+  const [activeTab, setActiveTab] = useState("profile");
+  const profileRef = useRef(null);
+  const vehicleRef = useRef(null);
+  const documentRef = useRef(null);
+  const editScrollContainerRef = useRef(null);
 
+  const scrollToSection = (ref, tabName) => {
+    setActiveTab(tabName);
+    if (editMode && editScrollContainerRef.current && ref.current) {
+      const container = editScrollContainerRef.current;
+      const card = ref.current;
+      container.scrollTo({
+        left: card.offsetLeft - container.offsetLeft,
+        behavior: "smooth",
+      });
+    } else if (!editMode && ref.current) {
+      ref.current.scrollIntoView({
+        behavior: "smooth",
+        inline: "start",
+        block: "nearest",
+      });
+    }
+  };
 
-const scrollToSection = (ref, tabName) => {
-  setActiveTab(tabName);
-  if (editMode && editScrollContainerRef.current && ref.current) {
-    const container = editScrollContainerRef.current;
-    const card = ref.current;
-    container.scrollTo({
-      left: card.offsetLeft - container.offsetLeft,
-      behavior: "smooth",
-    });
-  } else if (!editMode && ref.current) {
-    ref.current.scrollIntoView({
-      behavior: "smooth",
-      inline: "start",
-      block: "nearest",
-    });
-  }
-};
-
-
-const tabButtonStyle = (tab) => ({
-  fontWeight: "bold",
-  fontSize: "1.1rem",
-  color: "#047857",
-  borderBottom: activeTab === tab ? "3px solid #047857" : "none",
-  transition: "border 0.3s",
-  "&:hover": {
-    borderBottom: "2px solid #047857",
-  },
-});
-
-
-
+  const tabButtonStyle = (tab) => ({
+    fontWeight: "bold",
+    fontSize: "1.1rem",
+    color: "#047857",
+    borderBottom: activeTab === tab ? "3px solid #047857" : "none",
+    transition: "border 0.3s",
+    "&:hover": {
+      borderBottom: "2px solid #047857",
+    },
+  });
 
   const handleSave = async () => {
     const bucket = import.meta.env.VITE_AWS_BUCKET;
@@ -470,8 +465,6 @@ const tabButtonStyle = (tab) => ({
             transition: "all 0.5s ease-in-out",
           }}
         >
-
-
           <Grow in timeout={1000}>
             <Paper
               elevation={6}
@@ -484,224 +477,367 @@ const tabButtonStyle = (tab) => ({
                 boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
               }}
             >
-
-              
-              
-
               {/* Form or Read View */}
-        
-<Collapse in={editMode}>
-  
 
-  <Grid container spacing={4} sx={{ px: { xs: 2, sm: 4, md: 6 }, mt: 2, mb: 4, alignItems: "stretch" }}>
-    {/* Left: Profile Avatar and Info */}
-    <Grid item xs={12} md={4}>
-      <Box
-        sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          position: "relative",
-        }}
-      >
-        {/* Avatar Container */}
-        <Box
-          sx={{
-            width: 120,
-            height: 120,
-            borderRadius: "50%",
-            overflow: "hidden",
-            position: "relative",
-            boxShadow: "0 0 12px #34d399",
-            zIndex: 1,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            "&:hover .avatar-img": {
-              transform: "scale(1.05)",
-            },
-            "&:hover .avatar-overlay": {
-              opacity: 1,
-            },
-          }}
-          onClick={() => handleOpenModal(profilePreview, "Profile Image")}
-        >
-          <Avatar
-            src={profilePreview}
-            alt={user.name}
-            className="avatar-img"
-            sx={{
-              width: "100%",
-              height: "100%",
-              transition: "transform 0.3s ease-in-out",
-            }}
-          />
-          <Box
-            className="avatar-overlay"
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              borderRadius: "50%",
-              backgroundColor: "rgba(0, 0, 0, 0.4)",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              color: "#fff",
-              opacity: 0,
-              transition: "opacity 0.3s ease-in-out",
-              zIndex: 2,
-            }}
-          >
-            <Typography variant="caption">View</Typography>
-          </Box>
-        </Box>
-
-        {/* Camera Icon */}
-        <IconButton
-  component="label"
-  sx={{
-    mt: 2,
-    bgcolor: "#f9fafb",
-    border: "2px solid #d1d5db",
-    boxShadow: 3,
-    p: 1.2,
-    zIndex: 3,
-    transition: "all 0.3s ease-in-out",
-    "&:hover": {
-      bgcolor: "#f3f4f6",
-      transform: "scale(1.05)",
-    },
-  }}
->
-  <PhotoCamera color="action" />
-  <input
-    type="file"
-    accept="image/*"
-    hidden
-    onChange={(e) => setSelectedFile(e.target.files[0])}
-  />
-</IconButton>
-
-
-        <Typography
-          variant="h6"
-          align="center"
-          fontWeight="bold"
-          sx={{ color: "#047857", mt: 6 }}
-        >
-          Edit Your Profile
-        </Typography>
-        {user.averageRating > 0 && (
-          <Typography align="center" sx={{ mt: 1, mb: 2 }}>
-            <strong>Your Rating:</strong>{" "}
-            <span style={{ color: "#fbbf24", fontSize: "1.2rem" }}>
-              {"★".repeat(Math.round(user.averageRating))}
-              {"☆".repeat(5 - Math.round(user.averageRating))} (
-              {user.averageRating.toFixed(1)})
-            </span>
-          </Typography>
-        )}
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          sx={{
-            backgroundColor: "#059669",
-            "&:hover": { backgroundColor: "#047857" },
-          }}
-        >
-          Save
-        </Button>
-        <Button
-          variant="outlined"
-          color="error"
-          onClick={() => setEditMode(false)}
-        >
-          Cancel
-        </Button>
-      </Box>
-
-      </Box>
-    </Grid>
-
-    {/* Right: Editable Cards */}
-    <Grid item xs={12} md={8}>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Paper ref={profileRef} sx={{ p: 3, borderRadius: 3, backgroundColor: "#d1fae5", height: "100%", boxShadow: "0px 4px 20px rgba(0,0,0,0.08)", transition: "transform 0.3s ease, box-shadow 0.3s ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0px 6px 25px rgba(0,0,0,0.15)" } }}>
-            <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>Profile Information</Typography>
-            {["name", "email", "phone", "dob", "emergencyContact", "address"].map((field) => (
-              <TextField
-                key={field}
-                fullWidth
-                name={field}
-                label={field.charAt(0).toUpperCase() + field.slice(1)}
-                value={formData[field]}
-                onChange={handleChange}
-                sx={{ mb: 2 }}
-              />
-            ))}
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel>Gender</InputLabel>
-              <Select name="gender" value={formData.gender} onChange={handleChange} label="Gender">
-                {genders.map((g) => <MenuItem key={g} value={g}>{g}</MenuItem>)}
-              </Select>
-            </FormControl>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <Paper ref={vehicleRef} sx={{ p: 3, borderRadius: 3, backgroundColor: "#d1fae5", height: "100%", boxShadow: "0px 4px 20px rgba(0,0,0,0.08)", transition: "transform 0.3s ease, box-shadow 0.3s ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0px 6px 25px rgba(0,0,0,0.15)" } }}>
-            <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>Vehicle Information</Typography>
-            {["type", "make", "fuel"].map((field) => (
-              <FormControl fullWidth sx={{ mb: 2 }} key={field}>
-                <InputLabel>{field.charAt(0).toUpperCase() + field.slice(1)}</InputLabel>
-                <Select
-                  value={formData.vehicle[field]}
-                  onChange={(e) => handleNestedChange("vehicle", field, e.target.value)}
-                  label={field.charAt(0).toUpperCase() + field.slice(1)}
+              <Collapse in={editMode}>
+                <Grid
+                  container
+                  spacing={4}
+                  sx={{
+                    px: { xs: 2, sm: 4, md: 6 },
+                    mt: 2,
+                    mb: 4,
+                    alignItems: "stretch",
+                  }}
                 >
-                  {(field === "type" ? vehicleTypes : field === "fuel" ? fuelTypes : carMakers).map((opt) => (
-                    <MenuItem key={opt} value={opt}>{opt}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            ))}
-            {["model", "color", "year", "registration"].map((field) => (
-              <TextField
-                key={field}
-                fullWidth
-                label={field.charAt(0).toUpperCase() + field.slice(1)}
-                value={formData.vehicle[field]}
-                onChange={(e) => handleNestedChange("vehicle", field, e.target.value)}
-                sx={{ mb: 2 }}
-              />
-            ))}
-          </Paper>
-        </Grid>
+                  {/* Left: Profile Avatar and Info */}
+                  <Grid item xs={12} md={4}>
+                    <Box
+                      sx={{
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        position: "relative",
+                      }}
+                    >
+                      {/* Avatar Container */}
+                      <Box
+                        sx={{
+                          width: 120,
+                          height: 120,
+                          borderRadius: "50%",
+                          overflow: "hidden",
+                          position: "relative",
+                          boxShadow: "0 0 12px #34d399",
+                          zIndex: 1,
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          "&:hover .avatar-img": {
+                            transform: "scale(1.05)",
+                          },
+                          "&:hover .avatar-overlay": {
+                            opacity: 1,
+                          },
+                        }}
+                        onClick={() =>
+                          handleOpenModal(profilePreview, "Profile Image")
+                        }
+                      >
+                        <Avatar
+                          src={profilePreview}
+                          alt={user.name}
+                          className="avatar-img"
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            transition: "transform 0.3s ease-in-out",
+                          }}
+                        />
+                        <Box
+                          className="avatar-overlay"
+                          sx={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                            backgroundColor: "rgba(0, 0, 0, 0.4)",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            color: "#fff",
+                            opacity: 0,
+                            transition: "opacity 0.3s ease-in-out",
+                            zIndex: 2,
+                          }}
+                        >
+                          <Typography variant="caption">View</Typography>
+                        </Box>
+                      </Box>
 
-        <Grid item xs={12}>
-          <Paper ref={documentRef} sx={{ p: 3, borderRadius: 3, backgroundColor: "#d1fae5", height: "100%", boxShadow: "0px 4px 20px rgba(0,0,0,0.08)", transition: "transform 0.3s ease, box-shadow 0.3s ease", "&:hover": { transform: "translateY(-4px)", boxShadow: "0px 6px 25px rgba(0,0,0,0.15)" } }}>
-            <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>Upload Documents</Typography>
-            {["vehicleImage", "rcDocument", "idProof", "license"].map((field) => (
-              <Button key={field} component="label" variant="outlined" fullWidth sx={{ mb: 2, color: "#059669", borderColor: "#059669", "&:hover": { borderColor: "#047857", backgroundColor: "#ecfdf5" } }}>
-                {formData[field] instanceof File ? formData[field].name : getFileNameFromUrl(formData[field]) || `Upload ${field}`}
-                <input type="file" hidden onChange={(e) => handleFileUpload(e, field)} />
-              </Button>
-            ))}
-          </Paper>
-        </Grid>
-      </Grid>
-    </Grid>
-  </Grid>
+                      {/* Camera Icon */}
+                      <IconButton
+                        component="label"
+                        sx={{
+                          mt: 2,
+                          bgcolor: "#f9fafb",
+                          border: "2px solid #d1d5db",
+                          boxShadow: 3,
+                          p: 1.2,
+                          zIndex: 3,
+                          transition: "all 0.3s ease-in-out",
+                          "&:hover": {
+                            bgcolor: "#f3f4f6",
+                            transform: "scale(1.05)",
+                          },
+                        }}
+                      >
+                        <PhotoCamera color="action" />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={(e) => setSelectedFile(e.target.files[0])}
+                        />
+                      </IconButton>
 
-  {/* <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
+                      <Typography
+                        variant="h6"
+                        align="center"
+                        fontWeight="bold"
+                        sx={{ color: "#047857", mt: 6 }}
+                      >
+                        Edit Your Profile
+                      </Typography>
+                      {user.averageRating > 0 && (
+                        <Typography align="center" sx={{ mt: 1, mb: 2 }}>
+                          <strong>Your Rating:</strong>{" "}
+                          <span
+                            style={{ color: "#fbbf24", fontSize: "1.2rem" }}
+                          >
+                            {"★".repeat(Math.round(user.averageRating))}
+                            {"☆".repeat(5 - Math.round(user.averageRating))} (
+                            {user.averageRating.toFixed(1)})
+                          </span>
+                        </Typography>
+                      )}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "center",
+                          gap: 2,
+                          mt: 2,
+                        }}
+                      >
+                        <Button
+                          variant="contained"
+                          onClick={handleSave}
+                          sx={{
+                            backgroundColor: "#059669",
+                            "&:hover": { backgroundColor: "#047857" },
+                          }}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={() => setEditMode(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Right: Editable Cards */}
+                  <Grid item xs={12} md={8}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} md={6}>
+                        <Paper
+                          ref={profileRef}
+                          sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            backgroundColor: "#d1fae5",
+                            height: "100%",
+                            boxShadow: "0px 4px 20px rgba(0,0,0,0.08)",
+                            transition:
+                              "transform 0.3s ease, box-shadow 0.3s ease",
+                            "&:hover": {
+                              transform: "translateY(-4px)",
+                              boxShadow: "0px 6px 25px rgba(0,0,0,0.15)",
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, color: "#047857" }}
+                          >
+                            Profile Information
+                          </Typography>
+                          {[
+                            "name",
+                            "email",
+                            "phone",
+                            "dob",
+                            "emergencyContact",
+                            "address",
+                          ].map((field) => (
+                            <TextField
+                              key={field}
+                              fullWidth
+                              name={field}
+                              label={
+                                field.charAt(0).toUpperCase() + field.slice(1)
+                              }
+                              value={formData[field]}
+                              onChange={handleChange}
+                              sx={{ mb: 2 }}
+                            />
+                          ))}
+                          <FormControl fullWidth sx={{ mb: 2 }}>
+                            <InputLabel>Gender</InputLabel>
+                            <Select
+                              name="gender"
+                              value={formData.gender}
+                              onChange={handleChange}
+                              label="Gender"
+                            >
+                              {genders.map((g) => (
+                                <MenuItem key={g} value={g}>
+                                  {g}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Paper>
+                      </Grid>
+
+                      <Grid item xs={12} md={6}>
+                        <Paper
+                          ref={vehicleRef}
+                          sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            backgroundColor: "#d1fae5",
+                            height: "100%",
+                            boxShadow: "0px 4px 20px rgba(0,0,0,0.08)",
+                            transition:
+                              "transform 0.3s ease, box-shadow 0.3s ease",
+                            "&:hover": {
+                              transform: "translateY(-4px)",
+                              boxShadow: "0px 6px 25px rgba(0,0,0,0.15)",
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, color: "#047857" }}
+                          >
+                            Vehicle Information
+                          </Typography>
+                          {["type", "make", "fuel"].map((field) => (
+                            <FormControl fullWidth sx={{ mb: 2 }} key={field}>
+                              <InputLabel>
+                                {field.charAt(0).toUpperCase() + field.slice(1)}
+                              </InputLabel>
+                              <Select
+                                value={formData.vehicle[field]}
+                                onChange={(e) =>
+                                  handleNestedChange(
+                                    "vehicle",
+                                    field,
+                                    e.target.value
+                                  )
+                                }
+                                label={
+                                  field.charAt(0).toUpperCase() + field.slice(1)
+                                }
+                              >
+                                {(field === "type"
+                                  ? vehicleTypes
+                                  : field === "fuel"
+                                  ? fuelTypes
+                                  : carMakers
+                                ).map((opt) => (
+                                  <MenuItem key={opt} value={opt}>
+                                    {opt}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+                          ))}
+                          {["model", "color", "year", "registration"].map(
+                            (field) => (
+                              <TextField
+                                key={field}
+                                fullWidth
+                                label={
+                                  field.charAt(0).toUpperCase() + field.slice(1)
+                                }
+                                value={formData.vehicle[field]}
+                                onChange={(e) =>
+                                  handleNestedChange(
+                                    "vehicle",
+                                    field,
+                                    e.target.value
+                                  )
+                                }
+                                sx={{ mb: 2 }}
+                              />
+                            )
+                          )}
+                        </Paper>
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <Paper
+                          ref={documentRef}
+                          sx={{
+                            p: 3,
+                            borderRadius: 3,
+                            backgroundColor: "#d1fae5",
+                            height: "100%",
+                            boxShadow: "0px 4px 20px rgba(0,0,0,0.08)",
+                            transition:
+                              "transform 0.3s ease, box-shadow 0.3s ease",
+                            "&:hover": {
+                              transform: "translateY(-4px)",
+                              boxShadow: "0px 6px 25px rgba(0,0,0,0.15)",
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="h6"
+                            sx={{ mb: 2, color: "#047857" }}
+                          >
+                            Upload Documents
+                          </Typography>
+                          {[
+                            "vehicleImage",
+                            "rcDocument",
+                            "idProof",
+                            "license",
+                          ].map((field) => (
+                            <Button
+                              key={field}
+                              component="label"
+                              variant="outlined"
+                              fullWidth
+                              sx={{
+                                mb: 2,
+                                color: "#059669",
+                                borderColor: "#059669",
+                                "&:hover": {
+                                  borderColor: "#047857",
+                                  backgroundColor: "#ecfdf5",
+                                },
+                              }}
+                            >
+                              {formData[field] instanceof File
+                                ? formData[field].name
+                                : getFileNameFromUrl(formData[field]) ||
+                                  `Upload ${field}`}
+                              <input
+                                type="file"
+                                hidden
+                                onChange={(e) => handleFileUpload(e, field)}
+                              />
+                            </Button>
+                          ))}
+                        </Paper>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+
+                {/* <Box sx={{ display: "flex", justifyContent: "space-between", mt: 3 }}>
     <Button variant="contained" onClick={handleSave} sx={{ backgroundColor: "#059669", "&:hover": { backgroundColor: "#047857" } }}>
       Save
     </Button>
@@ -709,306 +845,387 @@ const tabButtonStyle = (tab) => ({
       Cancel
     </Button>
   </Box> */}
-</Collapse>
+              </Collapse>
 
+              {/*Non editable section */}
 
-
-
-
-
-
-
-
-
-
-
-
-
-{/*Non editable section */}
-
-             <Collapse in={!editMode}>
-  <Grid
-  container
-  spacing={4}
-  sx={{
-    px: { xs: 2, sm: 4, md: 6 },
-    mt: 2,
-    mb: 4,
-    alignItems: "stretch",
-  }}
->
-
-    {/* Left: Profile Avatar and Name */}
-    <Grid container spacing={4} sx={{ px: 3, alignItems: "stretch", mb: 3 }}>
-  <Grid item xs={12} md={4}>
-    <Box
-      sx={{
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-      }}
-    >
-      <Avatar
-        src={profilePreview}
-        alt={user.name}
-        sx={{
-          width: 120,
-          height: 120,
-          mb: 2,
-          border: "4px solid #34d399",
-          boxShadow: "0 0 15px rgba(52, 211, 153, 0.6)",
-        }}
-      />
-      <Typography variant="h6" fontWeight="bold" sx={{ color: "#047857" }}>
-        {user.name}
-      </Typography>
-      <Typography sx={{ mt: 1, mb: 2 }}>
-        <strong>Your Rating:</strong>{" "}
-        <span style={{ color: "#fbbf24", fontSize: "1.2rem" }}>
-          {"★".repeat(Math.round(user.averageRating || 0))}
-          {"☆".repeat(5 - Math.round(user.averageRating || 0))} (
-          {(user.averageRating || 0).toFixed(1)})
-        </span>
-      </Typography>
-
-      {/* Edit Profile Button */}
-      {!editMode && (
-        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-  <Button
-    variant="contained"
-    onClick={() => setEditMode(true)}
-    sx={{
-      backgroundColor: "#059669",
-      "&:hover": { backgroundColor: "#047857" },
-    }}
-  >
-    Edit Profile
-  </Button>
-
-  <Button
-    variant="outlined"
-    onClick={() => {
-      setOpenTicketModal(true);
-      fetchUserTickets();
-    }}
-    sx={{
-      borderColor: "#059669",
-      color: "#059669",
-      "&:hover": {
-        borderColor: "#047857",
-        backgroundColor: "#ecfdf5",
-      },
-    }}
-  >
-    My Tickets
-  </Button>
-</Box>
-      )}
-    </Box>
-  </Grid>
-
-    {/* Right: Cards */}
-    <Grid item xs={12} md={8}>
-      <Grid container spacing={3}>
-        {/* Card 1: Personal Info */}
-        <Grid item xs={12} md={6}>
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              backgroundColor: "#d1fae5", // ✅ White cards
-              height: "100%",
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // ✅ Soft shadow
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.15)", // ✅ Hover effect
-              },
-            }}
-          >
-
-            <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>
-              Personal Information
-            </Typography>
-            <Typography><strong>Name:</strong> {user.name}</Typography>
-            <Typography><strong>Email:</strong> {user.email}</Typography>
-            <Typography><strong>Phone:</strong> {user.phone}</Typography>
-            <Typography><strong>Gender:</strong> {user.gender}</Typography>
-            <Typography><strong>DOB:</strong> {formData.dob}</Typography>
-            <Typography><strong>Emergency Contact:</strong> {formData.emergencyContact}</Typography>
-            <Typography><strong>Address:</strong> {formData.address}</Typography>
-          </Paper>
-        </Grid>
-
-        {/* Card 2: Vehicle Info */}
-        <Grid item xs={12} md={6}>
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              backgroundColor: "#d1fae5", // ✅ White cards
-              height: "100%",
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // ✅ Soft shadow
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.15)", // ✅ Hover effect
-              },
-            }}
-          >
-
-            <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>
-              Vehicle Information
-            </Typography>
-            {formData.vehicle?.type && (
-              <>
-                <Typography><strong>Type:</strong> {formData.vehicle.type}</Typography>
-                <Typography><strong>Make:</strong> {formData.vehicle.make}</Typography>
-                <Typography><strong>Model:</strong> {formData.vehicle.model}</Typography>
-                <Typography><strong>Color:</strong> {formData.vehicle.color}</Typography>
-                <Typography><strong>Year:</strong> {formData.vehicle.year}</Typography>
-                <Typography><strong>Registration:</strong> {formData.vehicle.registration}</Typography>
-                <Typography><strong>Fuel:</strong> {formData.vehicle.fuel}</Typography>
-              </>
-            )}
-          </Paper>
-        </Grid>
-
-        {/* Card 3: Documents */}
-        <Grid item xs={12}>
-          <Paper
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              backgroundColor: "#d1fae5", // ✅ White cards
-              height: "100%",
-              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // ✅ Soft shadow
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              "&:hover": {
-                transform: "translateY(-4px)",
-                boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.15)", // ✅ Hover effect
-              },
-            }}
-          >
-
-            <Typography variant="h6" sx={{ mb: 2, color: "#047857" }}>
-              Uploaded Documents
-            </Typography>
-            <Grid container spacing={2}>
-              {["idProof", "license", "rcDocument", "vehicleImage"].map((docKey) =>
-                formData[docKey] ? (
-                  <Grid item xs={6} sm={3} key={docKey}>
-                    <Box
-                      onClick={() => handleOpenModal(formData[docKey], docKey)}
-                      sx={{
-                        cursor: "pointer",
-                        borderRadius: 2,
-                        overflow: "hidden",
-                        boxShadow: 2,
-                        "&:hover img": { transform: "scale(1.05)" },
-                      }}
-                    >
-                      <img
-                        src={formData[docKey]}
-                        alt={docKey}
-                        style={{
-                          width: "100%",
-                          height: 120,
-                          objectFit: "cover",
-                          transition: "transform 0.3s ease",
+              <Collapse in={!editMode}>
+                <Grid
+                  container
+                  spacing={4}
+                  sx={{
+                    px: { xs: 2, sm: 4, md: 6 },
+                    mt: 2,
+                    mb: 4,
+                    alignItems: "stretch",
+                  }}
+                >
+                  {/* Left: Profile Avatar and Name */}
+                  <Grid
+                    container
+                    spacing={4}
+                    sx={{ px: 3, alignItems: "stretch", mb: 3 }}
+                  >
+                    <Grid item xs={12} md={4}>
+                      <Box
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          textAlign: "center",
                         }}
-                      />
-                      <Typography variant="caption" align="center" display="block" sx={{ mt: 1 }}>
-                        {docKey.replace(/([A-Z])/g, " $1").trim()}
-                      </Typography>
-                    </Box>
+                      >
+                        <Avatar
+                          src={profilePreview}
+                          alt={user.name}
+                          sx={{
+                            width: 120,
+                            height: 120,
+                            mb: 2,
+                            border: "4px solid #34d399",
+                            boxShadow: "0 0 15px rgba(52, 211, 153, 0.6)",
+                          }}
+                        />
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          sx={{ color: "#047857" }}
+                        >
+                          {user.name}
+                        </Typography>
+                        <Typography sx={{ mt: 1, mb: 2 }}>
+                          <strong>Your Rating:</strong>{" "}
+                          <span
+                            style={{ color: "#fbbf24", fontSize: "1.2rem" }}
+                          >
+                            {"★".repeat(Math.round(user.averageRating || 0))}
+                            {"☆".repeat(
+                              5 - Math.round(user.averageRating || 0)
+                            )}{" "}
+                            ({(user.averageRating || 0).toFixed(1)})
+                          </span>
+                        </Typography>
+
+                        {/* Edit Profile Button */}
+                        {!editMode && (
+                          <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+                            <Button
+                              variant="contained"
+                              onClick={() => setEditMode(true)}
+                              sx={{
+                                backgroundColor: "#059669",
+                                "&:hover": { backgroundColor: "#047857" },
+                              }}
+                            >
+                              Edit Profile
+                            </Button>
+
+                            <Button
+                              variant="outlined"
+                              onClick={() => {
+                                setOpenTicketModal(true);
+                                fetchUserTickets();
+                              }}
+                              sx={{
+                                borderColor: "#059669",
+                                color: "#059669",
+                                "&:hover": {
+                                  borderColor: "#047857",
+                                  backgroundColor: "#ecfdf5",
+                                },
+                              }}
+                            >
+                              My Tickets
+                            </Button>
+                          </Box>
+                        )}
+                      </Box>
+                    </Grid>
+
+                    {/* Right: Cards */}
+                    <Grid item xs={12} md={8}>
+                      <Grid container spacing={3}>
+                        {/* Card 1: Personal Info */}
+                        <Grid item xs={12} md={6}>
+                          <Paper
+                            sx={{
+                              p: 3,
+                              borderRadius: 3,
+                              backgroundColor: "#d1fae5", // ✅ White cards
+                              height: "100%",
+                              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // ✅ Soft shadow
+                              transition:
+                                "transform 0.3s ease, box-shadow 0.3s ease",
+                              "&:hover": {
+                                transform: "translateY(-4px)",
+                                boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.15)", // ✅ Hover effect
+                              },
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              sx={{ mb: 2, color: "#047857" }}
+                            >
+                              Personal Information
+                            </Typography>
+                            <Typography>
+                              <strong>Name:</strong> {user.name}
+                            </Typography>
+                            <Typography>
+                              <strong>Email:</strong> {user.email}
+                            </Typography>
+                            <Typography>
+                              <strong>Phone:</strong> {user.phone}
+                            </Typography>
+                            <Typography>
+                              <strong>Gender:</strong> {user.gender}
+                            </Typography>
+                            <Typography>
+                              <strong>DOB:</strong> {formData.dob}
+                            </Typography>
+                            <Typography>
+                              <strong>Emergency Contact:</strong>{" "}
+                              {formData.emergencyContact}
+                            </Typography>
+                            <Typography>
+                              <strong>Address:</strong> {formData.address}
+                            </Typography>
+                          </Paper>
+                        </Grid>
+
+                        {/* Card 2: Vehicle Info */}
+                        <Grid item xs={12} md={6}>
+                          <Paper
+                            sx={{
+                              p: 3,
+                              borderRadius: 3,
+                              backgroundColor: "#d1fae5", // ✅ White cards
+                              height: "100%",
+                              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // ✅ Soft shadow
+                              transition:
+                                "transform 0.3s ease, box-shadow 0.3s ease",
+                              "&:hover": {
+                                transform: "translateY(-4px)",
+                                boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.15)", // ✅ Hover effect
+                              },
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              sx={{ mb: 2, color: "#047857" }}
+                            >
+                              Vehicle Information
+                            </Typography>
+                            {formData.vehicle?.type && (
+                              <>
+                                <Typography>
+                                  <strong>Type:</strong> {formData.vehicle.type}
+                                </Typography>
+                                <Typography>
+                                  <strong>Make:</strong> {formData.vehicle.make}
+                                </Typography>
+                                <Typography>
+                                  <strong>Model:</strong>{" "}
+                                  {formData.vehicle.model}
+                                </Typography>
+                                <Typography>
+                                  <strong>Color:</strong>{" "}
+                                  {formData.vehicle.color}
+                                </Typography>
+                                <Typography>
+                                  <strong>Year:</strong> {formData.vehicle.year}
+                                </Typography>
+                                <Typography>
+                                  <strong>Registration:</strong>{" "}
+                                  {formData.vehicle.registration}
+                                </Typography>
+                                <Typography>
+                                  <strong>Fuel:</strong> {formData.vehicle.fuel}
+                                </Typography>
+                              </>
+                            )}
+                          </Paper>
+                        </Grid>
+
+                        {/* Card 3: Documents */}
+                        <Grid item xs={12}>
+                          <Paper
+                            sx={{
+                              p: 3,
+                              borderRadius: 3,
+                              backgroundColor: "#d1fae5", // ✅ White cards
+                              height: "100%",
+                              boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.08)", // ✅ Soft shadow
+                              transition:
+                                "transform 0.3s ease, box-shadow 0.3s ease",
+                              "&:hover": {
+                                transform: "translateY(-4px)",
+                                boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.15)", // ✅ Hover effect
+                              },
+                            }}
+                          >
+                            <Typography
+                              variant="h6"
+                              sx={{ mb: 2, color: "#047857" }}
+                            >
+                              Uploaded Documents
+                            </Typography>
+                            <Grid container spacing={2}>
+                              {[
+                                "idProof",
+                                "license",
+                                "rcDocument",
+                                "vehicleImage",
+                              ].map((docKey) =>
+                                formData[docKey] ? (
+                                  <Grid item xs={6} sm={3} key={docKey}>
+                                    <Box
+                                      onClick={() =>
+                                        handleOpenModal(
+                                          formData[docKey],
+                                          docKey
+                                        )
+                                      }
+                                      sx={{
+                                        cursor: "pointer",
+                                        borderRadius: 2,
+                                        overflow: "hidden",
+                                        boxShadow: 2,
+                                        "&:hover img": {
+                                          transform: "scale(1.05)",
+                                        },
+                                      }}
+                                    >
+                                      <img
+                                        src={formData[docKey]}
+                                        alt={docKey}
+                                        style={{
+                                          width: "100%",
+                                          height: 120,
+                                          objectFit: "cover",
+                                          transition: "transform 0.3s ease",
+                                        }}
+                                      />
+                                      <Typography
+                                        variant="caption"
+                                        align="center"
+                                        display="block"
+                                        sx={{ mt: 1 }}
+                                      >
+                                        {docKey
+                                          .replace(/([A-Z])/g, " $1")
+                                          .trim()}
+                                      </Typography>
+                                    </Box>
+                                  </Grid>
+                                ) : null
+                              )}
+                            </Grid>
+                          </Paper>
+                        </Grid>
+                      </Grid>
+                    </Grid>
                   </Grid>
-                ) : null
-              )}
-            </Grid>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Grid>
-  </Grid>
-  </Grid>
-
-</Collapse>
-
-
-
-
-
+                </Grid>
+              </Collapse>
             </Paper>
           </Grow>
         </Box>
       </Fade>
 
       {/* My Tickets Modal */}
-<Dialog
-  open={openTicketModal}
-  onClose={() => setOpenTicketModal(false)}
-  fullWidth
-  maxWidth="md"
->
-  <DialogTitle>My Tickets</DialogTitle>
-  <DialogContent>
-    {loadingTickets ? (
-      <Typography sx={{ textAlign: "center", py: 3 }}>
-        Loading tickets...
-      </Typography>
-    ) : myTickets.length === 0 ? (
-      <Typography sx={{ textAlign: "center", py: 3 }}>
-        No tickets found.
-      </Typography>
-    ) : (
-      myTickets.map((ticket, index) => (
-        <Box
-          key={index}
-          sx={{
-            mb: 3,
-            p: 2.5,
-            border: "1px solid #e0e0e0",
-            borderRadius: 3,
-            backgroundColor: "#f9fafb",
-            boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
-          }}
-        >
-          <Typography sx={{ mb: 1 }}><strong>Issue:</strong> {ticket.issue}</Typography>
-          <Typography sx={{ mb: 1 }}><strong>Status:</strong> {ticket.status}</Typography>
-
-          {ticket.ride && (
-            <>
-              <Divider sx={{ my: 1 }} />
-              <Typography
-                variant="subtitle2"
-                sx={{ mb: 1, fontWeight: "bold", color: "#047857" }}
+      <Dialog
+        open={openTicketModal}
+        onClose={() => setOpenTicketModal(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>My Tickets</DialogTitle>
+        <DialogContent>
+          {loadingTickets ? (
+            <Typography sx={{ textAlign: "center", py: 3 }}>
+              Loading tickets...
+            </Typography>
+          ) : myTickets.length === 0 ? (
+            <Typography sx={{ textAlign: "center", py: 3 }}>
+              No tickets found.
+            </Typography>
+          ) : (
+            myTickets.map((ticket, index) => (
+              <Box
+                key={index}
+                sx={{
+                  mb: 3,
+                  p: 2.5,
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 3,
+                  backgroundColor: "#f9fafb",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.05)",
+                }}
               >
-                Ride Details
-              </Typography>
-              <Typography><strong>Ride ID:</strong> {ticket.ride._id}</Typography>
-              <Typography><strong>Origin:</strong> {ticket.ride.origin}</Typography>
-              <Typography><strong>Destination:</strong> {ticket.ride.destination}</Typography>
-              <Typography>
-                <strong>Ride Date:</strong>{" "}
-                {new Date(ticket.ride.date).toLocaleString()}
-              </Typography>
-              <Typography><strong>Ride Status:</strong> {ticket.ride.status}</Typography>
-            </>
-          )}
+                <Typography sx={{ mb: 1 }}>
+                  <strong>Issue:</strong> {ticket.issue}
+                </Typography>
+                <Typography sx={{ mb: 1 }}>
+                  <strong>Status:</strong> {ticket.status}
+                </Typography>
 
-          <Divider sx={{ my: 1 }} />
-          <Typography variant="caption" sx={{ color: "gray" }}>
-            Created: {new Date(ticket.createdAt).toLocaleString()}
-          </Typography>
-        </Box>
-      ))
-    )}
-  </DialogContent>
-</Dialog>
+                {ticket.ride && (
+                  <>
+                    <Divider sx={{ my: 1 }} />
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ mb: 1, fontWeight: "bold", color: "#047857" }}
+                    >
+                      Ride Details
+                    </Typography>
+                    <Typography>
+                      <strong>Ride ID:</strong> {ticket.ride._id}
+                    </Typography>
+                    <Typography>
+                      <strong>Origin:</strong> {ticket.ride.origin}
+                    </Typography>
+                    <Typography>
+                      <strong>Destination:</strong> {ticket.ride.destination}
+                    </Typography>
+                    <Typography>
+                      <strong>Ride Date:</strong>{" "}
+                      {new Date(ticket.ride.date).toLocaleString()}
+                    </Typography>
+                    <Typography>
+                      <strong>Ride Status:</strong> {ticket.ride.status}
+                    </Typography>
+                  </>
+                )}
+
+                <Divider sx={{ my: 1 }} />
+                <Typography variant="caption" sx={{ color: "gray" }}>
+                  Created: {new Date(ticket.createdAt).toLocaleString()}
+                </Typography>
+              </Box>
+            ))
+          )}
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "flex-end", pr: 3, pb: 2 }}>
+          <Button
+            onClick={() => setOpenTicketModal(false)}
+            variant="contained"
+            sx={{
+              textTransform: "uppercase",
+              backgroundColor: " #047857",
+              color: "#e0f2f1",
+              fontWeight: 600,
+              "&:hover": {
+                backgroundColor: "#035f53",
+              },
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Footer />
       {/* Lightbox Modal */}
@@ -1029,5 +1246,5 @@ const tabButtonStyle = (tab) => ({
       </Dialog>
     </>
   );
-}
+};
 export default Profile;
