@@ -126,7 +126,6 @@ exports.getUsers = async (req, res) => {
       rideMap[entry._id.toString()] = entry.rideCount;
     });
 
-    // Attach ride counts and profile data to each user
     const usersWithProfile = users.map((user) => ({
       _id: user._id,
       name: user.name,
@@ -162,15 +161,11 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-// controllers/ticketController.js
-
 exports.getTickets = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-    if (!user?.isAdmin) {
-      return res.status(403).json({ message: "Access denied: Admins only." });
-    }
+    
 
+    // Proceed to fetch tickets
     const { status, fromDate, toDate } = req.query;
     const filter = {};
 
@@ -180,12 +175,8 @@ exports.getTickets = async (req, res) => {
 
     if (fromDate || toDate) {
       filter.createdAt = {};
-      if (fromDate) {
-        filter.createdAt.$gte = new Date(fromDate);
-      }
-      if (toDate) {
-        filter.createdAt.$lte = new Date(toDate);
-      }
+      if (fromDate) filter.createdAt.$gte = new Date(fromDate);
+      if (toDate) filter.createdAt.$lte = new Date(toDate);
     }
 
     const tickets = await Ticket.find(filter)
@@ -194,26 +185,37 @@ exports.getTickets = async (req, res) => {
       .populate("againstUser", "name email")
       .sort({ createdAt: -1 });
 
-    res.json({ tickets });
+    const formattedTickets = tickets.map((ticket) => ({
+      _id: ticket._id,
+      issue: ticket.issue,
+      status: ticket.status,
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
+      raisedBy: ticket.raisedBy,
+      againstUser: ticket.againstUser,
+      ride: ticket.ride,
+    }));
+
+    res.json(formattedTickets);
   } catch (error) {
-    console.error("Error fetching tickets:", error);
-    res.status(500).json({ message: "Error fetching tickets", error: error.message });
+    console.error("Error fetching tickets:", error.message);
+    res.status(500).json({
+      message: "Failed to fetch tickets",
+      error: error.message,
+    });
   }
 };
 
-
-// controllers/ticketController.js
 exports.updateTicketStatus = async (req, res) => {
   try {
-    const user = await User.findById(req.userId);
-    if (!user?.isAdmin) {
-      return res.status(403).json({ message: "Access denied: Admins only." });
-    }
-
     const { ticketId } = req.params;
     const { status } = req.body;
+    console.log("Request body:", req.body);
+console.log("Received status:", status);
 
-    if (!["resolved", "closed"].includes(status)) {
+    const validStatuses = ["open", "pending", "in-progress", "resolved", "closed"];
+
+    if (!validStatuses.includes(status?.toLowerCase())) {
       return res.status(400).json({ message: "Invalid status value" });
     }
 
@@ -222,8 +224,8 @@ exports.updateTicketStatus = async (req, res) => {
       return res.status(404).json({ message: "Ticket not found" });
     }
 
-    ticket.status = status;
-    if (status === "resolved") {
+    ticket.status = status.toLowerCase();
+    if (status.toLowerCase() === "resolved") {
       ticket.resolvedAt = new Date();
     }
 
@@ -231,14 +233,46 @@ exports.updateTicketStatus = async (req, res) => {
 
     // Emit socket notification
     req.app.get("io").to(ticket.raisedBy.toString()).emit("ticket-notification", {
-      message: `Your ticket regarding ride ${ticket.ride} has been marked as ${status}.`,
+      message: `Your ticket regarding ride ${ticket.ride} has been marked as ${ticket.status}.`,
       type: "ticket-status-update",
     });
 
-    res.json({ message: `Ticket marked as ${status}`, ticket });
+    res.json({ message: `Ticket marked as ${ticket.status}`, ticket });
   } catch (error) {
     console.error("Error updating ticket:", error);
     res.status(500).json({ message: "Error updating ticket status", error: error.message });
   }
 };
+
+exports.getTicketById = async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+
+    const ticket = await Ticket.findById(ticketId)
+      .populate("ride", "origin destination date status")
+      .populate("raisedBy", "name email phone")
+      .populate("againstUser", "name email phone");
+
+    if (!ticket) {
+      return res.status(404).json({ message: "Ticket not found" });
+    }
+
+    res.json({
+      _id: ticket._id,
+      issue: ticket.issue,
+      status: ticket.status,
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
+      resolvedAt: ticket.resolvedAt,
+      raisedBy: ticket.raisedBy,
+      againstUser: ticket.againstUser,
+      ride: ticket.ride,
+    });
+  } catch (error) {
+    console.error("Error fetching ticket:", error.message);
+    res.status(500).json({ message: "Error fetching ticket", error: error.message });
+  }
+};
+
+
 
