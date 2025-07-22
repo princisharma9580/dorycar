@@ -76,6 +76,9 @@ const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [profilePreview, setProfilePreview] = useState("");
+  const [openTicketModal, setOpenTicketModal] = useState(false);
+  const [myTickets, setMyTickets] = useState([]);
+  const [loadingTickets, setLoadingTickets] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -113,6 +116,27 @@ const Profile = () => {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
+  const fetchUserTickets = async () => {
+  try {
+    setLoadingTickets(true);
+    const token = localStorage.getItem("token");
+    const res = await fetch(`${API_BASE_URL}/users/my-tickets`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) throw new Error("Failed to fetch tickets");
+
+    const data = await res.json();
+    setMyTickets(data);
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    setMyTickets([]);
+  } finally {
+    setLoadingTickets(false);
+  }
+};
 
   const extractKeyFromUrl = (url) => {
     if (!url) return "";
@@ -752,17 +776,36 @@ const tabButtonStyle = (tab) => ({
 
       {/* Edit Profile Button */}
       {!editMode && (
-        <Button
-          variant="contained"
-          onClick={() => setEditMode(true)}
-          sx={{
-            backgroundColor: "#059669",
-            "&:hover": { backgroundColor: "#047857" },
-            mt: 2,
-          }}
-        >
-          Edit Profile
-        </Button>
+        <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+  <Button
+    variant="contained"
+    onClick={() => setEditMode(true)}
+    sx={{
+      backgroundColor: "#059669",
+      "&:hover": { backgroundColor: "#047857" },
+    }}
+  >
+    Edit Profile
+  </Button>
+
+  <Button
+    variant="outlined"
+    onClick={() => {
+      setOpenTicketModal(true);
+      fetchUserTickets();
+    }}
+    sx={{
+      borderColor: "#059669",
+      color: "#059669",
+      "&:hover": {
+        borderColor: "#047857",
+        backgroundColor: "#ecfdf5",
+      },
+    }}
+  >
+    My Tickets
+  </Button>
+</Box>
       )}
     </Box>
   </Grid>
@@ -903,6 +946,51 @@ const tabButtonStyle = (tab) => ({
           </Grow>
         </Box>
       </Fade>
+{/* My Tickets Modal */}
+<Dialog
+  open={openTicketModal}
+  onClose={() => setOpenTicketModal(false)}
+  fullWidth
+  maxWidth="md"
+>
+  <DialogTitle>My Tickets</DialogTitle>
+  <DialogContent>
+    {loadingTickets ? (
+      <Typography sx={{ textAlign: "center", py: 3 }}>
+        Loading tickets...
+      </Typography>
+    ) : myTickets.length === 0 ? (
+      <Typography sx={{ textAlign: "center", py: 3 }}>
+        No tickets found.
+      </Typography>
+    ) : (
+      myTickets.map((ticket, index) => (
+        <Box
+          key={index}
+          sx={{
+            mb: 2,
+            p: 2,
+            border: "1px solid #e0e0e0",
+            borderRadius: 2,
+            backgroundColor: "#f9fafb",
+          }}
+        >
+          <Typography><strong>Issue:</strong> {ticket.issue}</Typography>
+          <Typography><strong>Status:</strong> {ticket.status}</Typography>
+          {ticket.rideId && (
+            <Typography><strong>Ride ID:</strong> {ticket.rideId}</Typography>
+          )}
+          <Typography variant="caption" sx={{ color: "gray" }}>
+            Created: {new Date(ticket.createdAt).toLocaleString()}
+          </Typography>
+        </Box>
+      ))
+    )}
+  </DialogContent>
+</Dialog>
+
+
+
       <Footer />
       {/* Lightbox Modal */}
       <Dialog
