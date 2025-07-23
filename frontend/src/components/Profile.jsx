@@ -1201,6 +1201,43 @@ const Profile = () => {
                 )}
 
                 <Divider sx={{ my: 1 }} />
+                {ticket.image ? (
+                    <Box
+                      sx={{
+                        mt: 2,
+                        borderRadius: 2,
+                        overflow: "hidden",
+                        width: "100%",
+                        maxHeight: 250,
+                        textAlign: "center",
+                      }}
+                    >
+                      <img
+                        src={ticket.image}
+                        alt="Uploaded Ticket"
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "250px",
+                          objectFit: "contain",
+                          borderRadius: "8px",
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{ mt: 1, display: "block", fontStyle: "italic" }}
+                      >
+                        Uploaded Image
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mt: 2, fontStyle: "italic" }}
+                    >
+                      No image uploaded for this ticket.
+                    </Typography>
+                  )}
                 <Typography variant="caption" sx={{ color: "gray" }}>
                   Created: {new Date(ticket.createdAt).toLocaleString()}
                 </Typography>

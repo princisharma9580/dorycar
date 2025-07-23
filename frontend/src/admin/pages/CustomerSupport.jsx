@@ -16,6 +16,7 @@ const CustomerSupport = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [nextStatus, setNextStatus] = useState("");
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   useEffect(() => {
     fetchTickets();
@@ -316,6 +317,20 @@ const CustomerSupport = () => {
                 <p>
                   <strong>📄 Issue:</strong> {selectedTicket.issue}
                 </p>
+                {selectedTicket.image ? (
+                  <p>
+                    <strong>🖼️ Uploaded Image:</strong>{" "}
+                    <span
+                      onClick={() => setIsImageModalOpen(true)}
+                      className="text-blue-600 underline cursor-pointer hover:text-blue-800"
+                    >
+                      Click to view image
+                    </span>
+                  </p>
+                ) : (
+                  <p className="text-gray-500 italic"> No picture uploaded for this ticket.</p>
+                )}
+
                 <div>
                   <strong>📌 Status:</strong>
                   <select
@@ -333,6 +348,7 @@ const CustomerSupport = () => {
                       )
                     )}
                   </select>
+                  
                 </div>
 
                 <p>
@@ -407,6 +423,25 @@ const CustomerSupport = () => {
             </div>
           </div>
         )}
+        {isImageModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-60">
+            <div className="bg-white p-4 rounded-xl max-w-2xl w-full shadow-2xl relative">
+              <button
+                className="absolute top-2 right-2 text-gray-600 hover:text-black text-xl"
+                onClick={() => setIsImageModalOpen(false)}
+              >
+                ✖
+              </button>
+              <h3 className="text-lg font-semibold mb-4 text-gray-800">Uploaded Image</h3>
+              <img
+                src={selectedTicket.image}
+                alt="Ticket Upload"
+                className="max-h-[500px] w-auto mx-auto rounded border"
+              />
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

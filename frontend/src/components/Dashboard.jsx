@@ -45,7 +45,7 @@ import StarIcon from "@mui/icons-material/Star";
 
 const Dashboard = ({ currentUser }) => {
   console.log("current user", currentUser);
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, getToken } = useAuth();
   const navigate = useNavigate();
   const [userRides, setUserRides] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -479,6 +479,7 @@ const Dashboard = ({ currentUser }) => {
     const durationText = `${hours}h ${minutes}m`;
     const [openTicketModal, setOpenTicketModal] = useState(false);
     const [ticketReason, setTicketReason] = useState("");
+    const [ticketImage, setTicketImage] = useState(null);
     const [ticketDescription, setTicketDescription] = useState("");
     const issueOptions = [
       "Driver was late",
@@ -1391,7 +1392,8 @@ console.log("ride status", rideStatus)
             </div>
           </div>
         </CardContent>
-        <Modal
+        
+<Modal
   open={openTicketModal}
   onClose={() => setOpenTicketModal(false)}
   closeAfterTransition
@@ -1436,9 +1438,34 @@ console.log("ride status", rideStatus)
         label="Describe the issue"
         value={ticketDescription}
         onChange={(e) => setTicketDescription(e.target.value)}
-        required={ticketReason === "Other"} 
+        required={ticketReason === "Other"}
         error={ticketReason === "Other" && ticketDescription.trim() === ""}
       />
+
+      {/*  Image Upload Field */}
+      <Box mt={2}>
+        <Button
+          variant="outlined"
+          component="label"
+          fullWidth
+          sx={{
+            color: "#047857",
+            borderColor: "#047857",
+            "&:hover": {
+              borderColor: "#035f53",
+              backgroundColor: "#ecfdf5",
+            },
+          }}
+        >
+          {ticketImage ? ticketImage.name : "Upload Image"}
+          <input
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={(e) => setTicketImage(e.target.files[0])}
+          />
+        </Button>
+      </Box>
 
       <Box mt={3} display="flex" justifyContent="flex-end" gap={2}>
         <Button onClick={() => setOpenTicketModal(false)}>Cancel</Button>
@@ -1446,34 +1473,76 @@ console.log("ride status", rideStatus)
           variant="contained"
           color="error"
           onClick={async () => {
-                if (!ticketReason) {
-                  toast.error("Please select an issue type.");
+            if (!ticketReason) {
+              toast.error("Please select an issue type.");
+              return;
+            }
+
+            if (ticketReason === "Other" && ticketDescription.trim() === "") {
+              toast.error("Please describe the issue when 'Other' is selected.");
+              return;
+            }
+
+            try {
+              let imageUrl = "";
+
+              if (ticketImage) {
+                const token = localStorage.getItem("token");
+                const extension = ticketImage.name.split(".").pop();
+                const contentType = ticketImage.type;
+
+                const presignedRes = await fetch(
+                  `${import.meta.env.VITE_API_BASE_URL}/users/presigned-url?fileType=ticketImage&extension=${extension}&contentType=${encodeURIComponent(contentType)}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+
+                if (!presignedRes.ok) {
+                  toast.error("Failed to get upload URL.");
                   return;
                 }
 
-                if (ticketReason === "Other" && ticketDescription.trim() === "") {
-                  toast.error("Please describe the issue when 'Other' is selected.");
+                const { url, key } = await presignedRes.json();
+
+                const uploadRes = await fetch(url, {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": contentType,
+                  },
+                  body: ticketImage,
+                });
+
+                if (!uploadRes.ok) {
+                  toast.error("Failed to upload image.");
                   return;
                 }
 
-                try {
-                  await api.post(`/rides/${ride._id}/ticket`, {
-                    issue: ticketReason === "Other" ? ticketDescription.trim() : ticketReason,
-                    category: ticketReason,
-                  });
+                const bucket = import.meta.env.VITE_AWS_BUCKET;
+                const region = import.meta.env.VITE_AWS_REGION;
+                imageUrl = `https://${bucket}.s3.${region}.amazonaws.com/${key}`; 
+              }
 
+              await api.post(`/rides/${ride._id}/ticket`, {
+                issue: ticketReason === "Other" ? ticketDescription.trim() : ticketReason,
+                category: ticketReason,
+                image: imageUrl,
+              });
 
-                  toast.success("Ticket raised successfully!");
-                  setOpenTicketModal(false);
-                  setTicketReason("");
-                  setTicketDescription("");
-                } catch (error) {
-                  console.error("Error raising ticket:", error);
-                  toast.error(
-                    error?.response?.data?.message || "Failed to raise ticket"
-                  );
-                }
-              }}
+              toast.success("Ticket raised successfully!");
+              setOpenTicketModal(false);
+              setTicketReason("");
+              setTicketDescription("");
+              setTicketImage(null);
+            } catch (error) {
+              console.error("Error raising ticket:", error);
+              toast.error(
+                error?.response?.data?.message || "Failed to raise ticket"
+              );
+            }
+          }}
         >
           Submit
         </Button>
@@ -1481,6 +1550,8 @@ console.log("ride status", rideStatus)
     </Box>
   </Fade>
 </Modal>
+
+
 {/* <Modal
   open={openMyTickets}
   onClose={() => setOpenMyTickets(false)}
