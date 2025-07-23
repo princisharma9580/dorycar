@@ -9,6 +9,11 @@ const ticketSchema = new mongoose.Schema({
   status: { type: String, default: "open", enum: ["open", "in-progress", "resolved", "closed"] },
   createdAt: { type: Date, default: Date.now },
   resolvedAt: { type: Date },
+  image: {
+  type: String,
+  default: null,
+}
+ 
 });
 
 module.exports = mongoose.model("Ticket", ticketSchema);

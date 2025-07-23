@@ -46,7 +46,7 @@ exports.getRideStats = async (req, res) => {
       .status(500)
       .json({ message: "Failed to fetch ride stats", error: error.message });
   }
-};
+}; 
 
 exports.getUserStats = async (req, res) => {
   try {
@@ -160,11 +160,53 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-exports.getTickets = async (req, res) => {
-  try {
+// exports.getTickets = async (req, res) => {
+//   try {
     
 
-    // Proceed to fetch tickets
+//     // Proceed to fetch tickets
+//     const { status, fromDate, toDate } = req.query;
+//     const filter = {};
+
+//     if (status) {
+//       filter.status = status;
+//     }
+
+//     if (fromDate || toDate) {
+//       filter.createdAt = {};
+//       if (fromDate) filter.createdAt.$gte = new Date(fromDate);
+//       if (toDate) filter.createdAt.$lte = new Date(toDate);
+//     }
+
+//     const tickets = await Ticket.find(filter)
+//       .populate("ride", "origin destination date status")
+//       .populate("raisedBy", "name email")
+//       .populate("againstUser", "name email")
+//       .sort({ createdAt: -1 });
+
+//     const formattedTickets = tickets.map((ticket) => ({
+//       _id: ticket._id,
+//       issue: ticket.issue,
+//       status: ticket.status,
+//       createdAt: ticket.createdAt,
+//       updatedAt: ticket.updatedAt,
+//       raisedBy: ticket.raisedBy,
+//       againstUser: ticket.againstUser,
+//       ride: ticket.ride,
+//     }));
+
+//     res.json(formattedTickets);
+//   } catch (error) {
+//     console.error("Error fetching tickets:", error.message);
+//     res.status(500).json({
+//       message: "Failed to fetch tickets",
+//       error: error.message,
+//     });
+//   }
+// };
+
+exports.getTickets = async (req, res) => {
+  try {
     const { status, fromDate, toDate } = req.query;
     const filter = {};
 
@@ -187,6 +229,7 @@ exports.getTickets = async (req, res) => {
     const formattedTickets = tickets.map((ticket) => ({
       _id: ticket._id,
       issue: ticket.issue,
+      image: ticket.image, // ⬅️ Include image
       status: ticket.status,
       createdAt: ticket.createdAt,
       updatedAt: ticket.updatedAt,
@@ -205,15 +248,50 @@ exports.getTickets = async (req, res) => {
   }
 };
 
+// exports.updateTicketStatus = async (req, res) => {
+//   try {
+//     const { ticketId } = req.params;
+//     const { status } = req.body;
+//     console.log("Request body:", req.body);
+// console.log("Received status:", status);
+
+//     const validStatuses = ["open", "pending", "in-progress", "resolved", "closed"];
+
+//     if (!validStatuses.includes(status?.toLowerCase())) {
+//       return res.status(400).json({ message: "Invalid status value" });
+//     }
+
+//     const ticket = await Ticket.findById(ticketId);
+//     if (!ticket) {
+//       return res.status(404).json({ message: "Ticket not found" });
+//     }
+
+//     ticket.status = status.toLowerCase();
+//     if (status.toLowerCase() === "resolved") {
+//       ticket.resolvedAt = new Date();
+//     }
+
+//     await ticket.save();
+
+//     // Emit socket notification
+//     req.app.get("io").to(ticket.raisedBy.toString()).emit("ticket-notification", {
+//       message: `Your ticket regarding ride ${ticket.ride} has been marked as ${ticket.status}.`,
+//       type: "ticket-status-update",
+//     });
+
+//     res.json({ message: `Ticket marked as ${ticket.status}`, ticket });
+//   } catch (error) {
+//     console.error("Error updating ticket:", error);
+//     res.status(500).json({ message: "Error updating ticket status", error: error.message });
+//   }
+// };
+
 exports.updateTicketStatus = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const { status } = req.body;
-    console.log("Request body:", req.body);
-console.log("Received status:", status);
 
     const validStatuses = ["open", "pending", "in-progress", "resolved", "closed"];
-
     if (!validStatuses.includes(status?.toLowerCase())) {
       return res.status(400).json({ message: "Invalid status value" });
     }
@@ -230,18 +308,61 @@ console.log("Received status:", status);
 
     await ticket.save();
 
-    // Emit socket notification
     req.app.get("io").to(ticket.raisedBy.toString()).emit("ticket-notification", {
       message: `Your ticket regarding ride ${ticket.ride} has been marked as ${ticket.status}.`,
       type: "ticket-status-update",
     });
 
-    res.json({ message: `Ticket marked as ${ticket.status}`, ticket });
+    res.json({
+      message: `Ticket marked as ${ticket.status}`,
+      ticket: {
+        _id: ticket._id,
+        issue: ticket.issue,
+        image: ticket.image, // ⬅️ Include image
+        status: ticket.status,
+        createdAt: ticket.createdAt,
+        updatedAt: ticket.updatedAt,
+        resolvedAt: ticket.resolvedAt,
+        ride: ticket.ride,
+        raisedBy: ticket.raisedBy,
+        againstUser: ticket.againstUser,
+      }
+    });
   } catch (error) {
     console.error("Error updating ticket:", error);
     res.status(500).json({ message: "Error updating ticket status", error: error.message });
   }
 };
+
+// exports.getTicketById = async (req, res) => {
+//   try {
+//     const { ticketId } = req.params;
+
+//     const ticket = await Ticket.findById(ticketId)
+//       .populate("ride", "origin destination date status")
+//       .populate("raisedBy", "name email phone")
+//       .populate("againstUser", "name email phone");
+
+//     if (!ticket) {
+//       return res.status(404).json({ message: "Ticket not found" });
+//     }
+
+//     res.json({
+//       _id: ticket._id,
+//       issue: ticket.issue,
+//       status: ticket.status,
+//       createdAt: ticket.createdAt,
+//       updatedAt: ticket.updatedAt,
+//       resolvedAt: ticket.resolvedAt,
+//       raisedBy: ticket.raisedBy,
+//       againstUser: ticket.againstUser,
+//       ride: ticket.ride,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching ticket:", error.message);
+//     res.status(500).json({ message: "Error fetching ticket", error: error.message });
+//   }
+// };
 
 exports.getTicketById = async (req, res) => {
   try {
@@ -259,6 +380,7 @@ exports.getTicketById = async (req, res) => {
     res.json({
       _id: ticket._id,
       issue: ticket.issue,
+      image: ticket.image, // ⬅️ Include image
       status: ticket.status,
       createdAt: ticket.createdAt,
       updatedAt: ticket.updatedAt,

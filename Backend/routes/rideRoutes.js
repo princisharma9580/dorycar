@@ -4,6 +4,41 @@ const Ride = require("../models/Ride");
 const auth = require("../middleware/auth");
 const User = require("../models/User");
 const Ticket = require("../models/Ticket");
+const aws = require("aws-sdk");
+const { v4: uuidv4 } = require("uuid");
+
+aws.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+const s3 = new aws.S3();
+
+// ✅ Route to generate presigned URL
+router.get("/presigned-url", auth, async (req, res) => {
+  const { fileType, extension = "jpeg", contentType = "image/jpeg" } = req.query;
+
+  const key = `${fileType}/${uuidv4()}.${extension}`;
+
+  const params = {
+    Bucket: process.env.AWS_BUCKET,
+    Key: key,
+    Expires: 60, // 1 minute
+    ContentType: contentType,
+  };
+
+  try {
+    const url = await s3.getSignedUrlPromise("putObject", params);
+    res.json({
+      url,
+      key,
+      publicUrl: `https://${process.env.AWS_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to generate presigned URL", error: err.message });
+  }
+});
 
 router.post("/create", auth, async (req, res) => {
   console.log("Received request data:", req.body, "User:", req.userId);
@@ -264,64 +299,6 @@ router.post("/:rideId/interest", auth, async (req, res) => {
     });
   }
 });
-
-// Accept a ride (for ride creator to accept an interested user)
-// router.post("/:rideId/accept/:userId", auth, async (req, res) => {
-//   try {
-//     const ride = await Ride.findById(req.params.rideId);
-//     if (!ride) return res.status(404).json({ message: "Ride not found" });
-
-//     // 2. Check if seats are available
-//   if (ride.seats <= 0) {
-//     return res.status(400).send("No seats available");
-//   }
-
-//     if (ride.creator.toString() !== req.userId)
-//       return res
-//         .status(403)
-//         .json({ message: "Only ride creator can accept users" });
-
-//     const interest = ride.interestedUsers.find(
-//       (i) => i.user.toString() === req.params.userId
-//     );
-
-//     if (!interest)
-//       return res
-//         .status(404)
-//         .json({ message: "User has not expressed interest" });
-
-//     if (interest.status === "accepted") {
-//       return res.status(400).json({ message: "User already accepted" });
-//     }
-//     interest.status = "accepted";
-//     ride.status = "accepted";
-//     // ride.acceptor = null;
-//     ride.acceptor = req.params.userId
-
-//     await ride.save();
-
-//     const updatedRide = await Ride.findById(ride._id)
-//       .populate("creator", "name profileImage phone gender emergencyContact address preferredCommunication ridePreference vehicle averageRating ratings")
-//       .populate("acceptor", " name profileImage phone gender emergencyContact address")
-//       .populate("interestedUsers.user", "name");
-
-//     req.app.get("io").emit("ride-updated", updatedRide);
-//     // req.app.get("io").emit("ride-updated", ride);
-
-//     req.app
-//       .get("io")
-//       .to(req.params.userId)
-//       .emit("ride-notification", {
-//         message: ` You’ve been accepted for the ride from ${ride.origin} to ${ride.destination}`,
-//       });
-
-//     res.json(updatedRide);
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error accepting ride", error: error.message });
-//   }
-// });
 
 router.post("/:rideId/accept/:userId", auth, async (req, res) => {
   try {
@@ -934,11 +911,10 @@ router.put("/:rideId/cancel", auth, async (req, res) => {
   }
 });
 
-// Raise ticket
 router.post("/:rideId/ticket", auth, async (req, res) => {
   try {
     const { rideId } = req.params;
-    const { issue, againstUser } = req.body;
+    const { issue, againstUser, image } = req.body;
     const userId = req.userId;
 
     const ride = await Ride.findById(rideId);
@@ -946,16 +922,14 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       return res.status(404).json({ message: "Ride not found" });
     }
 
-    // Check if the ride status is valid for ticket raising
+    // Only allow tickets for started or completed rides
     if (!["started", "completed"].includes(ride.status)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Ticket can only be raised after the ride has started or completed.",
-        });
+      return res.status(400).json({
+        message: "Ticket can only be raised after the ride has started or completed.",
+      });
     }
 
+    // Ensure user was involved in the ride
     const isInvolved =
       ride.creator.toString() === userId ||
       ride.acceptor?.toString() === userId ||
@@ -967,18 +941,24 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       });
     }
 
-    const newTicket = new Ticket({
+    // Build ticket payload
+    const newTicketData = {
       ride: rideId,
       raisedBy: userId,
       againstUser,
       issue,
-    });
+    };
 
+    if (image) {
+      newTicketData.image = image; // Only add image if provided
+    }
+
+    const newTicket = new Ticket(newTicketData);
     await newTicket.save();
 
     const io = req.app.get("io");
 
-    // ✅ Emit notification to admins
+    // Notify admins
     const admins = await User.find({ isAdmin: true }).select("_id");
     admins.forEach((admin) => {
       io.to(admin._id.toString()).emit("ticket-notification", {
@@ -988,7 +968,7 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
       });
     });
 
-    // ✅ Emit notification to the againstUser (if any)
+    // Notify the user the ticket is against
     if (againstUser) {
       io.to(againstUser.toString()).emit("ticket-notification", {
         message: `A ticket has been raised against you for ride ${rideId}.`,
@@ -1003,10 +983,9 @@ router.post("/:rideId/ticket", auth, async (req, res) => {
     });
   } catch (error) {
     console.error("Error raising ticket:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to raise ticket", error: error.message });
+    res.status(500).json({ message: "Failed to raise ticket", error: error.message });
   }
 });
+
 
 module.exports = router;
