@@ -8,11 +8,13 @@ import {
   Box,
   Card,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import rideService from "../../services/rideService";
 import RideDetailsModal from "./RideDetailsModal";
 import RideChat from "./RideChat";
+import { useNavigate, useLocation } from "react-router-dom";
+
 
 
 const RideList = ({ currentUser}) => {
@@ -23,19 +25,47 @@ const RideList = ({ currentUser}) => {
   const pageSize = 5;
 
   const navigate = useNavigate();
-  useEffect(() => {
-    const fetchRides = async () => {
-      try {
-        const res = await rideService.getRides();
-        setSearchResults(res);
-        console.log("Fetched rides:", res); // ✅ Moved here
-      } catch (error) {
-        console.error("Failed to fetch rides", error);
-      }
-    };
+  const location = useLocation();
+  const searchParams = location.state || {}; // origin, destination, date
 
-    fetchRides();
-  }, []);
+  useEffect(() => {
+  const fetchRides = async () => {
+    try {
+      const res = await rideService.getRides();
+
+      // Get search params from navigation state
+      const { origin, destination, date } = searchParams;
+
+      let filtered = res;
+
+      if (origin) {
+        filtered = filtered.filter(ride =>
+          ride.origin.toLowerCase() === origin.toLowerCase()
+        );
+      }
+
+      if (destination) {
+        filtered = filtered.filter(ride =>
+          ride.destination.toLowerCase() === destination.toLowerCase()
+        );
+      }
+
+      if (date) {
+        const searchDate = new Date(date).toISOString().split("T")[0]; // yyyy-mm-dd
+        filtered = filtered.filter(ride =>
+          new Date(ride.date).toISOString().split("T")[0] === searchDate
+        );
+      }
+
+      setSearchResults(filtered);
+    } catch (error) {
+      console.error("Failed to fetch rides", error);
+    }
+  };
+
+  fetchRides();
+}, []);
+
    console.log("Search results:", searchResults); // ✅ Moved here
 
   // Defensive: ensure searchResults is an array
