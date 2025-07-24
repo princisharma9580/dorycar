@@ -13,6 +13,7 @@ const VehicleListings = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchVehiclesFromUsers = async () => {
@@ -77,21 +78,31 @@ const VehicleListings = () => {
             <input
               placeholder="Search vehicles..."
               className="px-4 py-2 border rounded w-60 text-sm shadow-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <select className="px-4 py-2 border rounded text-sm shadow-sm">
+
+            {/* <select className="px-4 py-2 border rounded text-sm shadow-sm">
               <option>All Types</option>
               <option>SUV</option>
               <option>Hatchback</option>
               <option>Sedan</option>
             </select>
-            <button className="px-4 py-2 border rounded text-sm shadow-sm">A-Z</button>
+            <button className="px-4 py-2 border rounded text-sm shadow-sm">A-Z</button> */}
             <button className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">
               + Add Vehicle
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
-            {vehicles.map((v, i) => (
+            {vehicles
+            .filter((v) =>
+              `${v.make} ${v.model} ${v.registration} ${v.type} ${v.ownerName}`
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase())
+            )
+            .map((v, i) => (
+
               <div
                 key={i}
                 className="bg-white border border-gray-200 rounded-lg shadow p-4 flex flex-col justify-between text-black transform transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-2xl"

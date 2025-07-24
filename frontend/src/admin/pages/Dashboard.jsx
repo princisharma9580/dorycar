@@ -49,9 +49,10 @@ const Dashboard = () => {
         if (!token) throw new Error("No token found");
 
         const [rideRes, userRes, driverRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/admin/ride-stats`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+  fetch(`${API_BASE_URL}/admin/rides`, {
+    headers: { Authorization: `Bearer ${token}` },
+  }),
+
           fetch(`${API_BASE_URL}/admin/user-stats`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -69,7 +70,16 @@ const Dashboard = () => {
         const driverData = await driverRes.json();
         console.log("Fetched driverData:", driverData);
 
-        setRides(rideData);
+        setRides({
+  allRides: rideData,
+  totalRides: rideData.length,
+  statusCounts: {
+    completed: rideData.filter((r) => r.status === "completed").length,
+    cancelled: rideData.filter((r) => r.status === "cancelled").length,
+    started: rideData.filter((r) => r.status === "started").length,
+  },
+});
+
         setUsers(userData);
         setDrivers(
           Array.isArray(driverData) ? driverData : driverData?.drivers || []
@@ -270,13 +280,21 @@ const Dashboard = () => {
             },
             {
               title: "Pending Rides",
-              value: rides?.statusCounts?.pending ?? 0,
+              value:
+                (rides?.allRides || [])
+                  .filter(
+                    (ride) =>
+                      ride.status?.toLowerCase() === "pending" &&
+                      !(ride.interestedUsers?.some((u) => u.status === "accepted"))
+                  ).length,
               subtitle: "Awaiting drivers",
               icon: <FaClock size={20} />,
               change: "-5%",
               bgColor: "#6b7280",
               onClick: () => navigate("/admin/rides"),
             },
+
+
             {
               title: "Cancelled Rides",
               value: rides?.statusCounts?.cancelled ?? 0,
@@ -407,6 +425,6 @@ const Dashboard = () => {
       </Box>
     </div>
   );
-};
+}; 
 
-export default Dashboard;
+export default Dashboard ;

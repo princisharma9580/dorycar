@@ -49,9 +49,15 @@ const Rides = () => {
 
   const filteredRides = useMemo(() => {
     const byStatus =
-      statusFilter === "all"
-        ? rides
-        : rides.filter((ride) => ride.status === statusFilter);
+  statusFilter === "all"
+    ? rides
+    : statusFilter === "accepted"
+    ? rides.filter(
+        (ride) =>
+          ride.status === "pending" &&
+          ride.interestedUsers?.some((u) => u.status === "accepted")
+      )
+    : rides.filter((ride) => ride.status === statusFilter);
 
     const bySearch = byStatus.filter((ride) =>
       Array.isArray(ride.acceptor)
@@ -139,7 +145,7 @@ const Rides = () => {
               >
                 <div className="flex justify-between text-xs text-gray-500 mb-2">
                   <span>{ride._id}</span>
-                  <span
+                  {/* <span
                     className={`font-semibold px-2 py-0.5 rounded-full text-xs ${
                       ride.status === "completed"
                         ? "bg-green-100 text-green-700"
@@ -151,7 +157,34 @@ const Rides = () => {
                     }`}
                   >
                     {ride.status.charAt(0).toUpperCase() + ride.status.slice(1)}
-                  </span>
+                  </span> */}
+                  {/* Determine display status dynamically */}
+                {(() => {
+                  const isAcceptedRide =
+                    ride.status === "pending" &&
+                    ride.interestedUsers?.some((u) => u.status === "accepted");
+
+                  const displayStatus = isAcceptedRide
+                    ? "Accepted"
+                    : ride.status.charAt(0).toUpperCase() + ride.status.slice(1);
+
+                  const badgeClass = isAcceptedRide
+                    ? "bg-blue-100 text-blue-700"
+                    : ride.status === "completed"
+                    ? "bg-green-100 text-green-700"
+                    : ride.status === "pending"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : ride.status === "cancelled"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-gray-100 text-gray-600";
+
+                  return (
+                    <span className={`font-semibold px-2 py-0.5 rounded-full text-xs ${badgeClass}`}>
+                      {displayStatus}
+                    </span>
+                  );
+                })()}
+
                 </div>
 
                 {/* Passenger */}

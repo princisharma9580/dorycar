@@ -588,6 +588,14 @@ const getUserDisplayStatus = (interestStatus, rideStatus) => {
   return rideStatus.charAt(0).toUpperCase() + rideStatus.slice(1);
 };
 console.log("ride status", rideStatus)
+const getCreatorStatus = (ride) => {
+                    if (ride.status === "pending") {
+                      const anyAccepted = ride.interestedUsers?.some((i) => i.status === "accepted");
+                      if (anyAccepted) return "Accepted";
+                      return "Pending";
+                    }
+                    return ride.status.charAt(0).toUpperCase() + ride.status.slice(1);
+                  };
 
     return (
       <Card
@@ -791,14 +799,17 @@ console.log("ride status", rideStatus)
 </p> */}
 
                   {/* Status text based on user's interest status */}
+                  
+
                   <p className="text-sm font-semibold text-gray-700 mb-3">
-  Status:{" "}
-  <span className="capitalize">
-    {isCreator
-      ? ride.status.charAt(0).toUpperCase() + ride.status.slice(1)
-      : getUserDisplayStatus(userInterest?.status, ride.status)}
-  </span>
-</p>
+                    Status:{" "}
+                    <span className="capitalize">
+                      {isCreator
+                        ? getCreatorStatus(ride)
+                        : getUserDisplayStatus(userInterest?.status, ride.status)}
+                    </span>
+                  </p>
+
 
 
                   {!isCreator &&

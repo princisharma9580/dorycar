@@ -83,12 +83,22 @@ const StatusAndPeakHours = () => {
 
       takenRides.forEach((ride) => {
         const status = ride.status?.toLowerCase();
+
         if (status === "completed") statusCounts.Completed++;
-        else if (status === "pending") statusCounts.Pending++;
         else if (status === "cancelled") statusCounts.Cancelled++;
-        else if (status === "accepted") statusCounts.Accepted++;
         else if (status === "started") statusCounts.Started++;
+
+        // Count as "Accepted" if any user in interestedUsers is accepted
+        else if (
+          status === "pending" &&
+          ride.interestedUsers?.some((user) => user.status === "accepted")
+        ) {
+          statusCounts.Accepted++;
+        } else if (status === "pending") {
+          statusCounts.Pending++;
+        }
       });
+
 
       setRideData(statusCounts);
     } catch (error) {
