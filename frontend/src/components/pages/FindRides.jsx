@@ -88,31 +88,63 @@ function FindRides() {
     }
   }, []);
 
-  const handleSearch = () => {
-    const hasSearch =
-      searchParams.from.trim() || searchParams.to.trim() || searchParams.date;
+  // const handleSearch = () => {
+  //   const hasSearch =
+  //     searchParams.from.trim() || searchParams.to.trim() || searchParams.date;
 
-    if (!hasSearch) {
-      toast.warn("Please fill in the search field");
-      return;
-    }
+  //   if (!hasSearch) {
+  //     toast.warn("Please fill in the search field");
+  //     return;
+  //   }
 
-    const params = {};
+  //   const params = {};
 
-    if (searchParams.from.trim()) {
-      params.origin = searchParams.from.trim();
-    }
+  //   if (searchParams.from.trim()) {
+  //     params.origin = searchParams.from.trim();
+  //   }
 
-    if (searchParams.to.trim()) {
-      params.destination = searchParams.to.trim();
-    }
+  //   if (searchParams.to.trim()) {
+  //     params.destination = searchParams.to.trim();
+  //   }
 
-    if (searchParams.date) {
-      params.date = new Date(searchParams.date).toISOString();
-    }
+  //   if (searchParams.date) {
+  //     params.date = new Date(searchParams.date).toISOString();
+  //   }
 
-    navigate("/rides", { state: params });
+  //   navigate("/rides", { state: params });
+  // };
+const handleSearch = () => {
+  const hasSearch =
+    searchParams.from.trim() || searchParams.to.trim() || searchParams.date;
+
+  if (!hasSearch) {
+    toast.warn("Please fill in the search field");
+    return;
+  }
+
+  const params = {
+    origin: searchParams.from.trim(),
+    destination: searchParams.to.trim(),
+    date: searchParams.date
+      ? new Date(searchParams.date).toISOString()
+      : undefined,
+    passengers: searchParams.passengers || 1,
+    state: selectedState,
+    city: selectedCity,
+    departureTimeStart: departureTime[0],
+    departureTimeEnd: departureTime[1],
+    priceMin: priceRange[0],
+    priceMax: priceRange[1],
+    instantBooking,
+    ladiesOnly,
+    petFriendly,
+    smokingAllowed,
+    acVehicle,
+    driverRating,
   };
+
+  navigate("/rides", { state: params });
+};
 
   return (
     <>
@@ -508,7 +540,7 @@ function FindRides() {
                     Minimum Driver Rating
                   </h3>
                   <div className="flex items-center space-x-2">
-                    {[5, 4, 3, 2, 1].map((rating) => (
+                    {[1, 2, 3, 4, 5].map((rating) => (
                       <button
                         key={rating}
                         onClick={() => handleDriverRatingChange(rating)}

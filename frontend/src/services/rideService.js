@@ -26,19 +26,24 @@ const rideService = {
     return res.data;
   },
 
-  searchRides: async ({ origin, destination, date }) => {
-    const params = new URLSearchParams();
-    if (origin) params.append("origin", origin);
-    if (destination) params.append("destination", destination);
-    if (date) {
-      const parsedDate = new Date(date);
-      if (!isNaN(parsedDate)) {
-        params.append("date", parsedDate.toISOString());
-      }
-    }
-    const res = await api.get(`/rides/search?${params.toString()}`);
-    return res.data;
-  },
+  // searchRides: async ({ origin, destination, date }) => {
+  //   const params = new URLSearchParams();
+  //   if (origin) params.append("origin", origin);
+  //   if (destination) params.append("destination", destination);
+  //   if (date) {
+  //     const parsedDate = new Date(date);
+  //     if (!isNaN(parsedDate)) {
+  //       params.append("date", parsedDate.toISOString());
+  //     }
+  //   }
+  //   const res = await api.get(`/rides/search?${params.toString()}`);
+  //   return res.data;
+  // },
+  searchRides: async (filters) => {
+  const res = await api.post("/rides/search", filters);
+  return res.data;
+},
+
 
   getRides: async () => {
     const res = await api.get("/rides");
