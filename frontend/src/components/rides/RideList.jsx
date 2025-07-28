@@ -56,6 +56,11 @@ const RideList = ({ currentUser}) => {
           new Date(ride.date).toISOString().split("T")[0] === searchDate
         );
       }
+      // Filter only rides with status 'pending' or 'accepted'
+      filtered = filtered.filter(
+        (ride) => ride.status === "pending" || ride.status === "accepted"
+      );
+
 
       setSearchResults(filtered);
     } catch (error) {

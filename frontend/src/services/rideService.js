@@ -40,7 +40,7 @@ const rideService = {
   //   return res.data;
   // },
   searchRides: async (filters) => {
-  const res = await api.post("/rides/search", filters);
+  const res = await api.get("/rides/search", filters);
   return res.data;
 },
 
