@@ -37,14 +37,20 @@ const VehicleListings = () => {
         const allVehicles = [];
 
         users.forEach((user) => {
-          if (user.vehicle) {
-            allVehicles.push({
-              ...user.vehicle,
-              ownerName: user.name,
-              ownerEmail: user.email,
-            });
-          }
-        });
+  const v = user.vehicle;
+  const hasVehicleDetails =
+    v &&
+    (v.make || v.model || v.registration || v.type || v.year || v.color);
+
+  if (hasVehicleDetails) {
+    allVehicles.push({
+      ...v,
+      ownerName: user.name,
+      ownerEmail: user.email,
+    });
+  }
+});
+
 
         console.log("Extracted vehicles:", allVehicles);
         setVehicles(allVehicles);
